@@ -1,0 +1,21 @@
+{%extends "layout.html"%}
+    {%block title%}
+    {%endblock%}
+    
+
+    {%block content%}
+    <h1>member info page</h1>
+    <form action="/member_upload" method="POST" enctype="multipart/form-data">
+        <input type="file" id="file" name="file">
+    <button type="submit" id="btn">submit</button>
+    </form>
+    <table class="table">
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>1</td><td>2</td></tr>
+        <tr><td>1</td><td>2</td></tr>
+    </table>
+    {%endblock%}
+    

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #dropbox{
+            background-color: yellowgreen;
+            width: 200px;
+            height: 200px;
+        }
+        .dropover{
+            background-color: #bfa;
+        }
+    </style>
+</head>
+
+<body>
+    test
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <input type="file" id="file" name="file">
+    <button type="submit" id="btn">submit</button>
+    </form>
+    
+    <a href="javascript:;" id="btn1">Upload</a>
+    <div id="dropbox"></div>
+
+
+    <script lang="javascript" src="static/sheetjs-master/dist/xlsx.full.min.js"></script>
+    <script type="text/javascript">
+        function test(obj) {
+            console.log(obj, typeof (obj));
+        }
+
+
+
+        var btn1 = document.getElementById('btn1');
+        var file = document.getElementById("file");
+        btn1.addEventListener("click", function(){
+            if(file){
+                file.click()
+            }
+        }, false);
+        file.addEventListener("change", handleFiles,false);
+        function handleFiles(){
+            let filelist = this.files;
+            var workbook;
+            if (filelist) {
+                
+                var reader = new FileReader();
+                reader.readAsBinaryString(filelist[0]);
+
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, { 
+                        type: 'binary'
+                    });
+                    test(workbook);
+                };
+
+            } else {
+                alert('请先选择文件');
+            }
+            test(workbook);
+        };
+
+        var dropbox = document.getElementById("dropbox");
+        dropbox.addEventListener("dragenter", dragenter,false);
+        dropbox.addEventListener("dragover",dragover,false);
+        dropbox.addEventListener("drop",drop,false);
+
+       
+          function dragover(e) {
+            this.className += " dropover";
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          function dragenter(e) {
+            this.className += " dropover"; 
+            e.stopPropagation();
+            e.preventDefault();
+          }
+          function drop(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var dt = e.dataTransfer;
+            var files = dt.files;
+
+            
+          
+            
+          }
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+        
+        var btn = document.getElementById('btn');
+        btn.onclick = function () {
+            var file = document.getElementById('file').files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsBinaryString(file);
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, { //XLSX.read()方法会返回一个workbook 对象  
+                        type: 'binary'
+                    });
+                    console.log('wb',workbook)
+                };
+                
+
+            } else {
+                alert('请先选择文件');
+            }
+
+        }
+
+        
+
+
+
+
+    </script>
+</body>
+
+</html>

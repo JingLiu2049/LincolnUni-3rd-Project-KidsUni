@@ -54,10 +54,7 @@ def index():
     return render_template("index.html")
 @app.route("/member", methods = ['POST','GET'])
 def member():
-    
     return render_template("member.html")
-
-
 @app.route("/member_upload", methods = ['POST','GET'])
 def member_upload():
     if request.method =='POST':
@@ -91,7 +88,25 @@ def member_upload():
 
             return render_template('member_upload.html',columns = columns,data = data)
             
-            
+@app.route("/school",methods = ['POST','GET'])
+def school():
+    return render_template('school.html')     
+
+@app.route("/destination",methods = ['POST','GET'])     
+def destination():
+    return render_template('destination.html') 
+
+@app.route("/volunteer",methods = ['POST','GET'])     
+def volunteer():
+    return render_template('volunteer.html')   
+
+@app.route("/event",methods = ['POST','GET'])     
+def event():
+    return render_template('event.html')  
+
+@app.route("/new_user",methods = ['POST','GET'])     
+def new_user():
+    return render_template('new_user.html')  
     
        
     

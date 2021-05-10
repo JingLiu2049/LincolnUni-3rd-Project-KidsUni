@@ -15,10 +15,34 @@
 </head>
 
 <body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="/index"><img src="../static/image/CU logo.jpeg"></a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-link active" aria-current="page" href="/index">Home</a>
+                  <a class="nav-link" href="/member">Member</a>
+                  <a class="nav-link" href="/school">School</a>
+                  <a class="nav-link" href="/destination">Leaning Destination</a>
+                  <a class="nav-link" href="/volunteer">Volunteer</a>
+                  <a class="nav-link" href="/event">Event</a>
+                  <a class="nav-link" href="/new_user">New User</a>
+
+                </div>
+              </div>
+            </div>
+          </nav>
+    </header>
     <div class="container">
+    <div class="container-fluid">
         {% block content%}
         {%endblock%}
     </div>
+</div>
     
     {% block js %}
     {% endblock %}

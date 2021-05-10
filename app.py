@@ -16,6 +16,7 @@ from werkzeug.utils import secure_filename
 from openpyxl import load_workbook
 import pandas as pd
 import numpy
+import member_info
 
 
 
@@ -33,6 +34,15 @@ def getCursor():
     else:
         return dbconn
 
+def get_path(name):
+    file = request.files[name]
+    filename = secure_filename(file.filename)
+    basepath  = os.path.dirname(__file__)
+    excelpath = os.path.join(basepath,'uploads',filename)
+    file.save(excelpath)
+    return excelpath
+
+
 
 @app.route("/", methods = ['POST','GET'])
 def index():
@@ -42,25 +52,57 @@ def member():
     
     return render_template("member.html")
 
-    
+
 @app.route("/member_upload", methods = ['POST','GET'])
 def member_upload():
     if request.method =='POST':
-        file = request.files['file']
+        
         form = request.form
-        print(form,'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-        print(file,'llllllllllllllllllllllllllllllllllllllllllllllllllllllll')
         if form:
-            return redirect(url_for('member'))
             
+            for i in  form:
+                mem = request.form.getlist(f'{i}')
+                print(mem)
+                
+            return redirect(url_for('member'))
         else:
-            filename = secure_filename(file.filename)
-            basepath  = os.path.dirname(__file__)
-            excelpath = os.path.join(basepath,'uploads',filename)
-            file.save(excelpath)
-            wb = pd.read_excel(excelpath)
-            data = wb.iloc[4:].values
-            return render_template('member_upload.html',data = data)
+            excelpath = get_path('file')
+            wb_school = pd.read_excel(excelpath,0,header=None,nrows=3)
+            wb_school.dropna(axis='columns',how='all',inplace=True)
+            name = wb_school.loc[0,3]
+            print(name)
+            wb1 = pd.read_excel(excelpath,0,header=[5])
+            wb1['2020 Hours     (if applicable)'].fillna('na', inplace=True)
+            wb1.rename(columns={'#':'Memberid'},inplace = True)
+            
+            
+            wb2 = pd.read_excel(excelpath,1,header=[5])
+            wb_joined = pd.concat([wb1,wb2[['USERNAME','PASSWORD']]],axis=1)
+            wb_joined.loc[:,'School name'] = name
+            wb_joined.loc[:,'index'] = wb_joined.index
+            columns = wb_joined.columns
+
+
+            # print(wb1[['First Name','Last Name']],'dddddddddddddddd')
+
+            # wb1.loc[wb1['memberid']/100000 < 1, 'memberid'] = member_info.get_id()
+
+
+            # ids = []
+            # for item in data:
+            #     if item[0]/100000 < 1:
+            #         id = member_info.get_id()
+            #         ids.append(id)
+            # wb1.loc[:,'memberid'] = ids
+            # print(ids,'iiiiiiiiiiiiiiiiiiiiiiiii')
+            data = wb_joined.values
+
+            print(wb_joined,'111111111111111111111111')
+            # print(wb4,'111111111111111111111111')
+
+            
+
+            return render_template('member_upload.html',data = data,columns = columns)
             
             
     

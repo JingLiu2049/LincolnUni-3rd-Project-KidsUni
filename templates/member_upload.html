@@ -7,11 +7,19 @@
     {%block content%}
     <form action="/member_upload" method="POST">
     <table class="table">
+        <thead>
+            <tr>
+                {% for item in columns%}
+                <th>{{item}}</th>
+                {%endfor%}
+            </tr>
+        </thead>
         {% for item in data%}
             <tr>
                 {% for entrens in item%}
+                {{item[-1]}}
                 <td>
-                    <input type="text" value="{{entrens }}">
+                    <input type="text" value="{{entrens}}" name="{{item[-1]}}">
                     
                 </td>
                 {%endfor%}

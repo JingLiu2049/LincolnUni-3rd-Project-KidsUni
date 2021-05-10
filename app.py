@@ -1,3 +1,5 @@
+# Imports
+################################################
 from flask import Flask,url_for,session, redirect, flash,render_template,request, send_from_directory
 import datetime as dt
 import time
@@ -19,7 +21,8 @@ import numpy
 import member_info
 
 
-
+# Global Functions
+################################################
 app = Flask(__name__)
 app.secret_key = 'project2_kids_uni'
 dbconn = None

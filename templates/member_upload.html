@@ -2,22 +2,26 @@
 {%extends "layout.html"%}
     {%block title%}
     {%endblock%}
-    
+    {%block head%}
+    <link rel="stylesheet" href="{{url_for('static', filename = 'member_upload.css')}}">
 
+    {%endblock%}
+    
+   
     {%block content%}
     <form action="/member_upload" method="POST">
-    <table class="table">
+    <table class="table" >
         <thead>
             <tr>
                 {% for item in columns%}
-                <th>{{item}}</th>
+                <th><input type="text" value="{{item}}" name="columns" class="columns" readonly
+                    ></th>
                 {%endfor%}
             </tr>
         </thead>
         {% for item in data%}
             <tr>
                 {% for entrens in item%}
-                {{item[-1]}}
                 <td>
                     <input type="text" value="{{entrens}}" name="{{item[-1]}}">
                     
@@ -30,8 +34,8 @@
         <button type="submit">submit</button>
         <button type="reset">reset</button>
     </form>
-        question: is possport no. unique?
-        if not, id must be included in the spreadsheet
+        <script type="text/javascript">
+        </script>
     {%endblock%}
     
 

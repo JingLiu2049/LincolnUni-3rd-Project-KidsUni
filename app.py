@@ -43,8 +43,10 @@ def get_path(name):
     return excelpath
 
 
-
-@app.route("/", methods = ['POST','GET'])
+@app.route("/",methods = ['POST','GET'])
+def login():
+    return render_template('login.html')
+@app.route("/index", methods = ['POST','GET'])
 def index():
     return render_template("index.html")
 @app.route("/member", methods = ['POST','GET'])
@@ -56,14 +58,17 @@ def member():
 @app.route("/member_upload", methods = ['POST','GET'])
 def member_upload():
     if request.method =='POST':
-        
         form = request.form
         if form:
-            
-            for i in  form:
+            i = 0
+            while i<len(form)-1:
                 mem = request.form.getlist(f'{i}')
-                print(mem)
-                
+                if int(mem[0])/100000 < 1:
+                    id = member_info.get_id()
+                    mem[0] = id
+                member = member_info.mem_obj(mem)
+                print(member.showid(),'iiiiiiiiiiiiiiiiiiiii')
+                i += 1
             return redirect(url_for('member'))
         else:
             excelpath = get_path('file')
@@ -74,35 +79,14 @@ def member_upload():
             wb1 = pd.read_excel(excelpath,0,header=[5])
             wb1['2020 Hours     (if applicable)'].fillna('na', inplace=True)
             wb1.rename(columns={'#':'Memberid'},inplace = True)
-            
-            
             wb2 = pd.read_excel(excelpath,1,header=[5])
             wb_joined = pd.concat([wb1,wb2[['USERNAME','PASSWORD']]],axis=1)
             wb_joined.loc[:,'School name'] = name
             wb_joined.loc[:,'index'] = wb_joined.index
             columns = wb_joined.columns
-
-
-            # print(wb1[['First Name','Last Name']],'dddddddddddddddd')
-
-            # wb1.loc[wb1['memberid']/100000 < 1, 'memberid'] = member_info.get_id()
-
-
-            # ids = []
-            # for item in data:
-            #     if item[0]/100000 < 1:
-            #         id = member_info.get_id()
-            #         ids.append(id)
-            # wb1.loc[:,'memberid'] = ids
-            # print(ids,'iiiiiiiiiiiiiiiiiiiiiiiii')
             data = wb_joined.values
 
-            print(wb_joined,'111111111111111111111111')
-            # print(wb4,'111111111111111111111111')
-
-            
-
-            return render_template('member_upload.html',data = data,columns = columns)
+            return render_template('member_upload.html',columns = columns,data = data)
             
             
     

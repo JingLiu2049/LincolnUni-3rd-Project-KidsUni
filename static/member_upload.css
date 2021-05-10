@@ -1,0 +1,6 @@
+input.columns{
+    border: none;
+    outline: none;
+}
+th:last-child, td:last-child{
+background-color: #bfa;}

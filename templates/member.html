@@ -1,21 +1,30 @@
 {%extends "layout.html"%}
-    {%block title%}
-    {%endblock%}
+{%block title%}Students Page{%endblock%}
     
 
-    {%block content%}
-    <h1>member info page</h1>
+{%block content%}
+<div class="container">
+    <h1>Student Inforamtion List</h1>
     <form action="/member_upload" method="POST" enctype="multipart/form-data">
         <input type="file" id="file" name="file">
-    <button type="submit" id="btn">submit</button>
+        <button type="submit" id="btn">submit</button>
     </form>
     <table class="table">
-        <tr><td>1</td><td>2</td></tr>
-        <tr><td>1</td><td>2</td></tr>
-        <tr><td>1</td><td>2</td></tr>
-        <tr><td>1</td><td>2</td></tr>
-        <tr><td>1</td><td>2</td></tr>
-        <tr><td>1</td><td>2</td></tr>
+        <thead>
+            <tr>
+                {% for item in column %}
+                <th>{{item}}</th>
+                {%endfor%}
+            </tr>
+        </thead>
+        {% for item in result %}
+        <tr>
+            {% for col in item %}
+            <td>{{col}}</td>
+            {%endfor%}
+        </tr>
+        {%endfor%}
     </table>
+</div>
     {%endblock%}
     

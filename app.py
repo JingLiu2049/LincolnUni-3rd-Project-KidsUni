@@ -52,9 +52,18 @@ def login():
 @app.route("/index", methods = ['POST','GET'])
 def index():
     return render_template("index.html")
+
 @app.route("/member", methods = ['POST','GET'])
-def member():
-    return render_template("member.html")
+def member(): 
+    cur = getCursor() 
+    cur.execute(f"select * from members;")
+    result=cur.fetchall() 
+    column_name = [desc[0] for desc in cur.description]
+    if request.method == 'POST':
+        return render_template("member.html")
+    else:
+        return render_template("member.html",result=result, column=column_name)
+
 @app.route("/member_upload", methods = ['POST','GET'])
 def member_upload():
     if request.method =='POST':

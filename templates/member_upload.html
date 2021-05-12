@@ -9,31 +9,58 @@
 
 {%block content%}
 <div class="container">
-<form action="/member_upload" method="POST">
-    <div class="wrapper">
-    <table class="table">
-        <thead>
-            <tr>
-                {% for item in columns%}
-                <th><input type="text" value="{{item}}" name="columns" class="columns" readonly></th>
-                {%endfor%}
-            </tr>
-        </thead>
-        {% for item in data%}
-        <tr>
-            {% for entrens in item%}
-            <td>
-                <input type="text" value="{{entrens}}" name="{{item[-1]}}">
-            </td>
-            {%endfor%}
-        </tr>
+    <form action="/member_upload" method="POST">
+        <div class="wrapper member">
+            <h2>Member Information</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% for item in mem_col%}
+                        <th><input type="text" value="{{item}}" name="mem_col" class="columns" readonly></th>
+                        {%endfor%}
+                    </tr>
+                </thead>
+                {% for item in mem_data%}
+                <tr>
+                    {% for entrens in item%}
+                    <td>
+                        <input type="text" value="{{entrens}}" name="mem{{item[-1]}}">
+                    </td>
+                    {%endfor%}
+                </tr>
 
-        {%endfor%}
-    </table>
-</div>
-    <button type="submit">submit</button>
-    <button type="reset">reset</button>
-</form>
+                {%endfor%}
+
+            </table>
+        </div>
+        <div class="coor">
+            <h2>Coordinator Information</h2>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% for item in coor_col%}
+                        <th><input type="text" value="{{item}}" name="coor_col" class="columns" readonly></th>
+                        {%endfor%}
+                    </tr>
+                </thead>
+                {% for item in coor_data%}
+                <tr>
+                    {% for entrens in item%}
+                    <td>
+                        <input type="text" value="{{entrens}}" name="coor">
+                    </td>
+                    {%endfor%}
+                </tr>
+
+                {%endfor%}
+
+            </table>
+
+        </div>
+        <button type="submit">submit</button>
+        <button type="reset">reset</button>
+    </form>
 </div>
 <script type="text/javascript">
 </script>

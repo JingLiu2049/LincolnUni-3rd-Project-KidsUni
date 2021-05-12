@@ -2,7 +2,7 @@ input.columns{
     border: none;
     outline: none;
 }
-th:last-child, td:last-child{
+div.member th:last-child, div.member td:last-child{
 display: none;
 }
 div.wrapper{

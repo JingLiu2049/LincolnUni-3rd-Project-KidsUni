@@ -70,29 +70,34 @@ def member():
 @app.route("/member_upload", methods = ['POST'])
 def member_upload():
     form = request.form
-    cur = getCursor()
     if form:
-        events=[]
+        events = request.form.getlist('mem_col')[26:-1]
         i = 0
-        while i<len(form)-1:
-            mem = request.form.getlist(f'{i}')
+        while i<len(form)-3:
+            mem = request.form.getlist(f'mem{i}')
             member = member_info.mem_obj(mem)
-            member.insert_mem
-            if member.event:
-                test(member.id)
+            member.insert_mem()
+            if events:
+                test(member.event)
             i += 1
-        # cur.execute("select * from members")
-        # print(cur.fetchall())
-
-
+        coor = request.form.getlist('coor')
+        member_info.insert_coor(coor)
+        
         return redirect(url_for('member'))
     else:
         excelpath = get_path('file')
-        wb_member = member_info.get_wb(excelpath)
-        columns = wb_member.columns
-        data = wb_member.values
+        wb_list= member_info.get_wb(excelpath)
+        wb_member = wb_list[0]
+        wb_coor = wb_list[1]
+        mem_col = wb_member.columns
+        mem_data = wb_member.values
+        coor_col = wb_coor.columns
+        coor_data = wb_coor.values
+        test(wb_coor)
+        test(coor_data)
 
-        return render_template('member_upload.html',columns = columns,data = data)
+        return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
+            coor_col = coor_col, coor_data = coor_data)
             
 @app.route("/school",methods = ['POST','GET'])
 def school():

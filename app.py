@@ -45,6 +45,9 @@ def get_path(name):
     file.save(excelpath)
     return excelpath
 
+def test(obj):
+    print(obj,type(obj),'tttttttttttttttttttttttttt',datetime.now)
+
 
 @app.route("/",methods = ['POST','GET'])
 def login():
@@ -64,38 +67,32 @@ def member():
     else:
         return render_template("member.html",result=result, column=column_name)
 
-@app.route("/member_upload", methods = ['POST','GET'])
+@app.route("/member_upload", methods = ['POST'])
 def member_upload():
-    if request.method =='POST':
-        form = request.form
-        if form:
-            i = 0
-            while i<len(form)-1:
-                mem = request.form.getlist(f'{i}')
-                if int(mem[0])/100000 < 1:
-                    id = member_info.get_id()
-                    mem[0] = id
-                member = member_info.mem_obj(mem)
-                print(member.showid(),'iiiiiiiiiiiiiiiiiiiii')
-                i += 1
-            return redirect(url_for('member'))
-        else:
-            excelpath = get_path('file')
-            wb_school = pd.read_excel(excelpath,0,header=None,nrows=3)
-            wb_school.dropna(axis='columns',how='all',inplace=True)
-            name = wb_school.loc[0,3]
-            print(name)
-            wb1 = pd.read_excel(excelpath,0,header=[5])
-            wb1['2020 Hours     (if applicable)'].fillna('na', inplace=True)
-            wb1.rename(columns={'#':'Memberid'},inplace = True)
-            wb2 = pd.read_excel(excelpath,1,header=[5])
-            wb_joined = pd.concat([wb1,wb2[['USERNAME','PASSWORD']]],axis=1)
-            wb_joined.loc[:,'School name'] = name
-            wb_joined.loc[:,'index'] = wb_joined.index
-            columns = wb_joined.columns
-            data = wb_joined.values
+    form = request.form
+    cur = getCursor()
+    if form:
+        events=[]
+        i = 0
+        while i<len(form)-1:
+            mem = request.form.getlist(f'{i}')
+            member = member_info.mem_obj(mem)
+            member.insert_mem
+            if member.event:
+                test(member.id)
+            i += 1
+        # cur.execute("select * from members")
+        # print(cur.fetchall())
 
-            return render_template('member_upload.html',columns = columns,data = data)
+
+        return redirect(url_for('member'))
+    else:
+        excelpath = get_path('file')
+        wb_member = member_info.get_wb(excelpath)
+        columns = wb_member.columns
+        data = wb_member.values
+
+        return render_template('member_upload.html',columns = columns,data = data)
             
 @app.route("/school",methods = ['POST','GET'])
 def school():

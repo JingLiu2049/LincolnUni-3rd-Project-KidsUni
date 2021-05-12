@@ -8,7 +8,9 @@
 
 
 {%block content%}
+<div class="container">
 <form action="/member_upload" method="POST">
+    <div class="wrapper">
     <table class="table">
         <thead>
             <tr>
@@ -28,9 +30,11 @@
 
         {%endfor%}
     </table>
+</div>
     <button type="submit">submit</button>
     <button type="reset">reset</button>
 </form>
+</div>
 <script type="text/javascript">
 </script>
 {%endblock%}

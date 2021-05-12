@@ -3,4 +3,9 @@ input.columns{
     outline: none;
 }
 th:last-child, td:last-child{
-background-color: #bfa;}
+display: none;
+}
+div.wrapper{
+    width: 100%;
+    overflow-x: scroll;
+}

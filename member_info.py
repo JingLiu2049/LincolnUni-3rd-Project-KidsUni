@@ -78,29 +78,29 @@ def mem_obj(l=[]):
 
 
 
-def get_wb(excelpath):
-    wb_school = pd.read_excel(excelpath,0,header=None,nrows=4)
-    wb_school.dropna(axis='columns',how='all',inplace=True)
-    wb_school.fillna('', inplace=True)
-    name = wb_school.loc[0,3]
-    print(wb_school)
-    wb1 = pd.read_excel(excelpath,0,header=[5])
-    wb1.iloc[:,10].fillna('NA', inplace=True)
-    wb1.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
-    wb1.fillna('', inplace=True)
-    wb1.rename(columns={'#':'Memberid'},inplace = True)
-    wb2 = pd.read_excel(excelpath,1,header=[5])
-    wb1.insert(21,'USERNAME',wb2['USERNAME'].values)
-    wb1.insert(22,'PASSWORD',wb2['PASSWORD'].values)
-    wb1.insert(23,'School name',name)
-    wb1.loc[:,'index'] = wb1.index
-    wb_coor = pd.read_excel(excelpath,1,header=[1],nrows=1)
-    wb_coor.dropna(axis='columns',how='all',inplace=True)
-    wb_coor.loc[:,'School'] = wb_school.loc[0,3]
-    wb_coor.loc[:,'Email'] = wb_school.loc[2,3]
-    wb_coor.loc[:,'Phone'] = wb_school.loc[3,3]
+def get_df(excelpath):
+    df_school = pd.read_excel(excelpath,0,header=None,nrows=4)
+    df_school.dropna(axis='columns',how='all',inplace=True)
+    df_school.fillna('', inplace=True)
+    name = df_school.loc[0,3]
+    print(df_school)
+    df1 = pd.read_excel(excelpath,0,header=[5])
+    df1.iloc[:,10].fillna('NA', inplace=True)
+    df1.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
+    df1.fillna('', inplace=True)
+    df1.rename(columns={'#':'Memberid'},inplace = True)
+    df2 = pd.read_excel(excelpath,1,header=[5])
+    df1.insert(21,'USERNAME',df2['USERNAME'].values)
+    df1.insert(22,'PASSWORD',df2['PASSWORD'].values)
+    df1.insert(23,'School name',name)
+    df1.loc[:,'index'] = df1.index
+    df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1)
+    df_coor.dropna(axis='columns',how='all',inplace=True)
+    df_coor.loc[:,'School'] = df_school.loc[0,3]
+    df_coor.loc[:,'Email'] = df_school.loc[2,3]
+    df_coor.loc[:,'Phone'] = df_school.loc[3,3]
     
-    return [wb1,wb_coor]
+    return [df1,df_coor]
 def insert_coor(l=[]):
     cur = db.getCursor()
     school_id = get_schoolid(l[4])
@@ -115,7 +115,5 @@ def insert_coor(l=[]):
         sql = "INSERT INTO coordinator values (nextval('coorid_seq'),%s,'%s',null,'%s','%s','%s','%s')" %(
             school_id,l[0],l[5],l[6],l[2],l[3])
     cur.execute(sql)
-    cur.execute("select * from coordinator;")
-    print(cur.fetchall())
 
 

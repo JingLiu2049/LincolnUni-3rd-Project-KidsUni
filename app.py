@@ -19,6 +19,7 @@ from openpyxl import load_workbook
 import pandas as pd
 import numpy
 import member_info
+import db
 
 
 # Global Functions
@@ -36,8 +37,12 @@ def getCursor():
         return dbconn
     else:
         return dbconn
+def conn():
+    conn = conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
+        password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
+    return conn
 
-def get_path(name):
+def upload_path(name):
     file = request.files[name]
     filename = secure_filename(file.filename)
     basepath  = os.path.dirname(__file__)
@@ -85,20 +90,43 @@ def member_upload():
         
         return redirect(url_for('member'))
     else:
-        excelpath = get_path('file')
-        wb_list= member_info.get_wb(excelpath)
-        wb_member = wb_list[0]
-        wb_coor = wb_list[1]
-        mem_col = wb_member.columns
-        mem_data = wb_member.values
-        coor_col = wb_coor.columns
-        coor_data = wb_coor.values
-        test(wb_coor)
+        excelpath = upload_path('file')
+        df_list= member_info.get_df(excelpath)
+        df_member = df_list[0]
+        df_coor = df_list[1]
+        mem_col = df_member.columns
+        mem_data = df_member.values
+        coor_col = df_coor.columns
+        coor_data = df_coor.values
+        test(df_coor)
         test(coor_data)
 
         return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
             coor_col = coor_col, coor_data = coor_data)
-            
+@app.route("/generating",methods = ['POST','GET'])   
+def generating():
+    cur = db.getCursor()
+    cur.execute("SELECT school_id, school_name FROM schools;")
+    schools = cur.fetchall()
+    if request.method == 'POST':
+        school_list = request.form.getlist('schools')
+        for i in school_list:
+            sql = "SELECT * FROM members WHERE school_id = %s ORDER BY member_id" % i
+            df_mem = pd.read_sql(sql,conn())
+            # cur.execute("SELECT * FROM members WHERE school_id = %s ORDER BY member_id",(int(i),))
+            # mem_list = cur.fetchall()
+            # print(mem_list)
+            filename = 'test.xlsx'
+            basepath  = os.path.dirname(__file__)
+            excelpath = os.path.join(basepath,'downloads',filename)
+            df_mem.to_excel(excelpath,sheet_name='demo',index=False)
+
+            print(basepath,'ppppppppppppppppppppppppppppppppppppppppppp' )
+            return redirect(url_for('member'))
+
+        pass
+
+    return render_template('generating.html',schools = schools)
 @app.route("/school",methods = ['POST','GET'])
 def school():
     return render_template('school.html')     

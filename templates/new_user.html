@@ -1,6 +1,58 @@
-{%extends "layout.html"%}
-{%block title%}
-{%endblock%}
+{% extends "layout.html" %}
+ 
+{% block title %}
+Register New User
+{% endblock title%}
+
 {%block content%}
-<h1>new user page</h1>
-{%endblock%}
+
+<main class="container">
+    <div class="bg-light p-5 rounded">
+
+        <h1>Register New User</h1>
+
+            <form action="/new_user" method="POST">
+                
+                    <div class="mb-3 row">
+                        <label for="firstname" class="col-sm-2 col-form-label">First Name</label>
+                        
+                        <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user"
+                            id="firstname" required="required">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="lastname" class="col-sm-2 col-form-label">Last Name</label>
+
+                        <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user"
+                            id="lastname" required="required"></div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="email" class="col-sm-2 col-form-label">Email</label>
+
+                        <div class="col-sm-6">
+                        <input type="email" class="form-control form-control-user"
+                            id="#" placeholder="firstname.lastname@childrensuniversity.co.nz" required="required">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="phonenumber" class="col-sm-2 col-form-label">Phone number</label>
+
+                        <div class="col-sm-6">
+                        <input type="phonenumber" class="form-control form-control-user"
+                            id="exampleInputPassword" placeholder="" required="required">
+                        </div>
+                    </div>
+
+
+                    <button type="submit" role="button" class="btn btn-primary">Submit</button>
+            
+            </form>
+    </div>
+</main>
+
+{% endblock content%}

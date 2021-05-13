@@ -1,5 +1,7 @@
 import db
 import pandas as pd
+import openpyxl as op
+import os
 
 
 
@@ -13,31 +15,41 @@ class members:
         self.age = l[4]
         self.ethnicity = l[5]
         self.mtype = l[6]
-        self.u_p = l[7]
-        self.status = l[8]
-        self.passport = l[9]
-        self.last_year = l[10]
-        self.date = l[11]
-        self.eth_info = l[12]
-        self.research = l[13]
-        self.promos = l[14]
-        self.social = l[15]
-        self.term1 = l[16]
-        self.term2 = l[17]
-        self.term3 = l[18]
-        self.term4 = l[19]
-        self.total = l[20]
-        self.username = l[21]
-        self.password = l[22]
-        self.school = l[23]
-        self.gown = l[24]
-        self.hat = l[25]
-
-        self.event = l[26:-1] if len(l)>27 else False
 
 
+        self.status = l[7]
+        self.passport = l[8]
+        
+        self.date = l[9]
+        self.eth_info = l[10]
+        self.research = l[11]
+        self.promos = l[12]
+        self.social = l[13]
 
-    def insert_mem(self):
+
+        self.username = l[14]
+        self.password = l[15]
+        self.school = l[16]
+
+
+        self.previous = l[17]
+        self.term1 = l[18]
+        self.term2 = l[19]
+        self.term3 = l[20]
+        self.term4 = l[21]
+        self.total = l[22]
+        self.gown = l[23]
+        self.hat = l[24]
+
+        
+
+        
+
+        self.event = l[25:-1] if len(l)>26 else False
+
+
+
+    def insert_db(self):
         cur = db.getCursor()
         
         sql = "UPDATE members SET school_id = %s, first_name = '%s', last_name = '%s', username='%s', password='%s', \
@@ -46,6 +58,7 @@ class members:
             " %(int(self.school), self.first, self.last, self.username, self.password, self.gender, self.age,self.ethnicity,
             self.mtype, self.passport, self.date, self.eth_info, self.research, self.promos, self.social, self.gown, self.hat, int(self.id))
         cur.execute(sql)
+
 
 def get_memid():
     cur = db.getCursor()
@@ -85,14 +98,14 @@ def get_df(excelpath):
     name = df_school.loc[0,3]
     print(df_school)
     df1 = pd.read_excel(excelpath,0,header=[5])
-    df1.iloc[:,10].fillna('NA', inplace=True)
+    df1.iloc[:,14].fillna('NA', inplace=True)
     df1.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
     df1.fillna('', inplace=True)
     df1.rename(columns={'#':'Memberid'},inplace = True)
     df2 = pd.read_excel(excelpath,1,header=[5])
-    df1.insert(21,'USERNAME',df2['USERNAME'].values)
-    df1.insert(22,'PASSWORD',df2['PASSWORD'].values)
-    df1.insert(23,'School name',name)
+    df1.insert(14,'USERNAME',df2['USERNAME'].values)
+    df1.insert(15,'PASSWORD',df2['PASSWORD'].values)
+    df1.insert(16,'School name',name)
     df1.loc[:,'index'] = df1.index
     df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1)
     df_coor.dropna(axis='columns',how='all',inplace=True)

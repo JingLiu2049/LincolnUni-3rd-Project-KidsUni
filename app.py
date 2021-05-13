@@ -16,6 +16,7 @@ import xlrd, xlwt, xlutils
 import os
 from werkzeug.utils import secure_filename
 from openpyxl import load_workbook
+import openpyxl as op
 import pandas as pd
 import numpy
 import member_info
@@ -30,16 +31,14 @@ dbconn = None
 def getCursor():    
     global dbconn    
     if dbconn == None:
-        conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
-        password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
+        conn = psycopg2.connect(connect.conn_string)
         dbconn = conn.cursor()  
         #conn.autocommit = True
         return dbconn
     else:
         return dbconn
 def conn():
-    conn = conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
-        password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
+    conn = psycopg2.connect(connect.conn_string)
     return conn
 
 def upload_path(name):
@@ -81,7 +80,7 @@ def member_upload():
         while i<len(form)-3:
             mem = request.form.getlist(f'mem{i}')
             member = member_info.mem_obj(mem)
-            member.insert_mem()
+            member.insert_db()
             if events:
                 test(member.event)
             i += 1
@@ -99,29 +98,48 @@ def member_upload():
         coor_col = df_coor.columns
         coor_data = df_coor.values
         test(df_coor)
-        test(coor_data)
+        print(df_member)
 
         return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
             coor_col = coor_col, coor_data = coor_data)
 @app.route("/generating",methods = ['POST','GET'])   
 def generating():
-    cur = db.getCursor()
+    cur = getCursor()
     cur.execute("SELECT school_id, school_name FROM schools;")
     schools = cur.fetchall()
+    
     if request.method == 'POST':
         school_list = request.form.getlist('schools')
-        for i in school_list:
-            sql = "SELECT * FROM members WHERE school_id = %s ORDER BY member_id" % i
-            df_mem = pd.read_sql(sql,conn())
-            # cur.execute("SELECT * FROM members WHERE school_id = %s ORDER BY member_id",(int(i),))
-            # mem_list = cur.fetchall()
-            # print(mem_list)
-            filename = 'test.xlsx'
-            basepath  = os.path.dirname(__file__)
-            excelpath = os.path.join(basepath,'downloads',filename)
-            df_mem.to_excel(excelpath,sheet_name='demo',index=False)
+        basepath  = os.path.dirname(__file__)
+        templatePath =os.path.join(basepath,'downloads','End year template.xlsx')
+        
+        bg = op.load_workbook(templatePath)
+        sheet1 = bg['Sheet1']
+        sheet2 = bg['Username and passwords']
+        for schoolid in school_list:
+            sql = "SELECT member_id, first_name, last_name, gender, member_age, ethnicity, \
+                continuing_new, status, passport_number, passport_date_issued, \
+                ethnicity_info, teaching_research, publication_promos, social_media FROM \
+                members WHERE school_id = %s ORDER BY member_id" % schoolid 
+            cur.execute(sql)
+            results = cur.fetchall()
+            cur.execute("SELECT school_name FROM schools WHERE school_id = %s;",(schoolid ,))
+            sch_name = cur.fetchone()[0]
+            # for i in results:
+            #     result = list(i)
+            #     result.extend([sch_name,'','','','','','','',''])
+            #     mem_obj = member_info.members(result)
+            #     print(mem_obj)
 
-            print(basepath,'ppppppppppppppppppppppppppppppppppppppppppp' )
+            for i in range(0,len(results)):
+                for j in range(1,len(results[i])+1):
+                    sheet1.cell(column = j,row = 7+i,value = results[i][j-1])
+                filename = f'{datetime.now().year}_{sch_name}_endYear_Template.xlsx'
+                newPath = os.path.join(basepath,'downloads',filename)
+                bg.save(newPath)
+
+                # todo last year hours serquence changed, update excel upload
+
             return redirect(url_for('member'))
 
         pass

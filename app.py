@@ -1,6 +1,6 @@
 # Imports
 ################################################
-from flask import Flask,url_for,session, redirect, flash,render_template,request, send_from_directory
+from flask import Flask,url_for,session, redirect, flash,render_template,request, send_from_directory,send_file
 import datetime as dt
 import time
 import psycopg2
@@ -15,12 +15,12 @@ import smtplib
 import xlrd, xlwt, xlutils
 import os
 from werkzeug.utils import secure_filename
-from openpyxl import load_workbook
 import openpyxl as op
 import pandas as pd
 import numpy
 import member_info
 import db
+import zipfile
 
 
 # Global Functions
@@ -63,7 +63,7 @@ def index():
 @app.route("/member", methods = ['POST','GET'])
 def member(): 
     cur = getCursor() 
-    cur.execute(f"select * from members;")
+    cur.execute(f"select * from members ORDER BY school_id, member_id;")
     result=cur.fetchall() 
     column_name = [desc[0] for desc in cur.description]
     if request.method == 'POST':
@@ -110,39 +110,18 @@ def generating():
     
     if request.method == 'POST':
         school_list = request.form.getlist('schools')
-        basepath  = os.path.dirname(__file__)
-        templatePath =os.path.join(basepath,'downloads','End year template.xlsx')
-        
-        bg = op.load_workbook(templatePath)
-        sheet1 = bg['Sheet1']
-        sheet2 = bg['Username and passwords']
+        zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Templates.zip','w')
         for schoolid in school_list:
-            sql = "SELECT member_id, first_name, last_name, gender, member_age, ethnicity, \
-                continuing_new, status, passport_number, passport_date_issued, \
-                ethnicity_info, teaching_research, publication_promos, social_media FROM \
-                members WHERE school_id = %s ORDER BY member_id" % schoolid 
-            cur.execute(sql)
-            results = cur.fetchall()
-            cur.execute("SELECT school_name FROM schools WHERE school_id = %s;",(schoolid ,))
-            sch_name = cur.fetchone()[0]
-            # for i in results:
-            #     result = list(i)
-            #     result.extend([sch_name,'','','','','','','',''])
-            #     mem_obj = member_info.members(result)
-            #     print(mem_obj)
+            filename = member_info.gen_endyear_temp(schoolid)
+            zfile.write(filename)
+        zfile.close()
 
-            for i in range(0,len(results)):
-                for j in range(1,len(results[i])+1):
-                    sheet1.cell(column = j,row = 7+i,value = results[i][j-1])
-                filename = f'{datetime.now().year}_{sch_name}_endYear_Template.xlsx'
-                newPath = os.path.join(basepath,'downloads',filename)
-                bg.save(newPath)
 
-                # todo last year hours serquence changed, update excel upload
+        return send_file(f'{app.root_path}\downloads\Templates.zip',
+            mimetype = 'zip',
+            attachment_filename= 'Templates.zip',
+            as_attachment = True)
 
-            return redirect(url_for('member'))
-
-        pass
 
     return render_template('generating.html',schools = schools)
 @app.route("/school",methods = ['POST','GET'])

@@ -1,15 +1,44 @@
 {%extends "layout.html"%}
 {%block title%}Students Page{%endblock%}
     
-
 {%block content%}
+
+<script>
+    function myFunction() {
+    var input, filter, table, tr, td, i;
+      input = document.getElementById("input");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("table");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+         
+        if (td) {
+          if ( (td.innerHTML.toUpperCase().indexOf(filter) > -1) ) {            
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    } 
+    </script>
+
 <div class="container">
     <h1>Student Inforamtion List</h1>
     <form action="/member_upload" method="POST" enctype="multipart/form-data">
         <input type="file" id="file" name="file">
         <button type="submit" id="btn">submit</button>
     </form>
-    <table class="table">
+    </br>
+
+    <div class="row">
+        <div class="col">
+          <input type="text" id="input" onkeyup="myFunction()" placeholder="Search for...">
+        </div>
+    </div>
+
+    <table class="table" id="table">
         <thead>
             <tr>
                 {% for item in column %}

@@ -1,6 +1,6 @@
 # Imports
 ################################################
-from flask import Flask,url_for,session, redirect, flash,render_template,request, send_from_directory
+from flask import Flask,url_for,session, redirect, flash,render_template,request, send_from_directory,send_file
 import datetime as dt
 import time
 import psycopg2
@@ -15,11 +15,12 @@ import smtplib
 import xlrd, xlwt, xlutils
 import os
 from werkzeug.utils import secure_filename
-from openpyxl import load_workbook
+import openpyxl as op
 import pandas as pd
 import numpy
 import member_info
 import db
+import zipfile
 
 
 # Global Functions
@@ -30,8 +31,7 @@ dbconn = None
 def getCursor():    
     global dbconn    
     if dbconn == None:
-        conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
-        password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
+        conn = psycopg2.connect(connect.conn_string)
         dbconn = conn.cursor()  
         #conn.autocommit = True
         return dbconn
@@ -39,8 +39,7 @@ def getCursor():
         return dbconn
         
 def conn():
-    conn = conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
-        password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
+    conn = psycopg2.connect(connect.conn_string)
     return conn
 
 def upload_path(name):
@@ -67,7 +66,7 @@ def index():
 @app.route("/member", methods = ['POST','GET'])
 def member(): 
     cur = getCursor() 
-    cur.execute(f"select * from members;")
+    cur.execute(f"select * from members ORDER BY school_id, member_id;")
     result=cur.fetchall() 
     column_name = [desc[0] for desc in cur.description]
     if request.method == 'POST':
@@ -84,7 +83,7 @@ def member_upload():
         while i<len(form)-3:
             mem = request.form.getlist(f'mem{i}')
             member = member_info.mem_obj(mem)
-            member.insert_mem()
+            member.insert_db()
             if events:
                 test(member.event)
             i += 1
@@ -102,7 +101,7 @@ def member_upload():
         coor_col = df_coor.columns
         coor_data = df_coor.values
         test(df_coor)
-        test(coor_data)
+        print(df_member)
 
         return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
             coor_col = coor_col, coor_data = coor_data)
@@ -110,26 +109,24 @@ def member_upload():
 
 @app.route("/generating",methods = ['POST','GET'])   
 def generating():
-    cur = db.getCursor()
+    cur = getCursor()
     cur.execute("SELECT school_id, school_name FROM schools;")
     schools = cur.fetchall()
+    
     if request.method == 'POST':
         school_list = request.form.getlist('schools')
-        for i in school_list:
-            sql = "SELECT * FROM members WHERE school_id = %s ORDER BY member_id" % i
-            df_mem = pd.read_sql(sql,conn())
-            # cur.execute("SELECT * FROM members WHERE school_id = %s ORDER BY member_id",(int(i),))
-            # mem_list = cur.fetchall()
-            # print(mem_list)
-            filename = 'test.xlsx'
-            basepath  = os.path.dirname(__file__)
-            excelpath = os.path.join(basepath,'downloads',filename)
-            df_mem.to_excel(excelpath,sheet_name='demo',index=False)
+        zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Templates.zip','w')
+        for schoolid in school_list:
+            filename = member_info.gen_endyear_temp(schoolid)
+            zfile.write(filename)
+        zfile.close()
 
-            print(basepath,'ppppppppppppppppppppppppppppppppppppppppppp' )
-            return redirect(url_for('member'))
 
-        pass
+        return send_file(f'{app.root_path}\downloads\Templates.zip',
+            mimetype = 'zip',
+            attachment_filename= 'Templates.zip',
+            as_attachment = True)
+
 
     return render_template('generating.html',schools = schools)
 

@@ -7,7 +7,7 @@ def getCursor():
         conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
         password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
         dbconn = conn.cursor()  
-        # conn.autocommit = True
+        conn.autocommit = True
         return dbconn
     else:
         return dbconn

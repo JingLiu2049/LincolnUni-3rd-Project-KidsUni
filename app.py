@@ -36,7 +36,7 @@ def getCursor():
         return dbconn
     else:
         return dbconn
-# uploaded file rename and get path
+# uploaded file, rename and get path
 def upload_path(name):
     file = request.files[name]
     filename = secure_filename(file.filename)
@@ -83,7 +83,7 @@ def member_upload():
         member_info.insert_coor(coor)
         
         return redirect(url_for('member'))
-    #  read uploaded excel file and send info to client_side
+    #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
         df_list= member_info.get_df(excelpath)
@@ -138,7 +138,7 @@ def new_user():
 @app.route("/download", methods = ['POST','GET'])
 def download():
     return render_template('download.html')
-# generating excel file of member and for downloading
+# generating excel file of member for downloading
 @app.route("/download_mem_sheet",methods = ['POST','GET'])   
 def download_mem_sheet():
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting

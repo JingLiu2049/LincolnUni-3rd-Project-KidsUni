@@ -37,6 +37,7 @@ def getCursor():
         return dbconn
     else:
         return dbconn
+        
 def conn():
     conn = conn = psycopg2.connect(dbname=connect.dbname, user=connect.dbuser, 
         password=connect.dbpass, host=connect.dbhost, port=connect.dbport)
@@ -54,6 +55,8 @@ def test(obj):
     print(obj,type(obj),'tttttttttttttttttttttttttt',datetime.now)
 
 
+# App Route
+##################################################
 @app.route("/",methods = ['POST','GET'])
 def login():
     return render_template('login.html')
@@ -103,6 +106,8 @@ def member_upload():
 
         return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
             coor_col = coor_col, coor_data = coor_data)
+
+
 @app.route("/generating",methods = ['POST','GET'])   
 def generating():
     cur = db.getCursor()
@@ -127,6 +132,8 @@ def generating():
         pass
 
     return render_template('generating.html',schools = schools)
+
+
 @app.route("/school",methods = ['POST','GET'])
 def school():
     return render_template('school.html')     

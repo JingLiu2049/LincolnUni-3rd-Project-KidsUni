@@ -1,0 +1,35 @@
+{%extends "layout.html"%}
+{%block title%}
+Generating Excel File
+{%endblock%}
+{%block content%}
+<div class="container">
+<h1>generating page</h1>
+<form action="/download_mem_sheet" method="POST"> 
+    <table class="table">
+        <thead>
+            <th>School Id</th>
+            <th>School Name</th>
+            <th>Select</th>
+        </thead>
+        {% for i in schools%}
+        <tr>
+            {%for j in i%}
+            <td><label for="{{i[0]}}">{{j}}</label> </td>
+            {%endfor%}
+            <td><input type="checkbox" name="schools" value="{{i[0]}}" id="{{i[0]}}"></td>
+        </tr>
+        {%endfor%}
+
+    </table>
+    <div class="type">
+    <label for="template">Template for Schools</label>
+    <input type="radio" name="type" value="template" id="template" required>
+    <label for="completed">Complated Spreadsheets for Schools</label>
+    <input type="radio" name="type" value="completed" id="completed"required>
+    </div>
+    <button type="submit">Submit</button>
+    <button type="reset">Reset</button>
+</form>
+</div>
+{%endblock%}

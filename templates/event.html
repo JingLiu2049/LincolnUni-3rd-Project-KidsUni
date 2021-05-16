@@ -2,7 +2,35 @@
 {%block title%}
 {%endblock%}
 {%block content%}
+<div class="container">
 <h1>event page</h1>
-<form action="/event">
+<a href="add_event">Add Event</a>
+<form action="event">
+<table class="table">
+    <thead>
+        <tr>
+            <th>Event ID</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Event Location</th>
+            <th>Event Description</th>
+            <th>Edit Event</th>
+        </tr>
+    </thead>
+    {% for i in events%}
+    <tr>{% for j in i%}
+        <td>{{j}}</td>
+        {%endfor%}
+        <td><a href="">Edit</a></td>
+    </tr>
+    {%endfor%}
+    
+</table>
 </form>
+</div>
+<script type="text/javascript">
+var events = JSON.parse('{{events|tojson}}')
+console.log(events)
+
+</script>
 {%endblock%}

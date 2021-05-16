@@ -2,17 +2,14 @@
 ################################################
 from flask import Flask,url_for,session, redirect, flash,render_template,request, send_from_directory,send_file
 import datetime as dt
-import time
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import connect
-import uuid
 import re
 from datetime import datetime, timedelta, date 
 from dateutil.relativedelta import *
 from flask_mail import Mail, Message
 import smtplib
-import xlrd, xlwt, xlutils
 import os
 from werkzeug.utils import secure_filename
 import openpyxl as op
@@ -21,6 +18,8 @@ import numpy
 import member_info
 import db
 import zipfile
+import getid
+import spreadsheet
 
 
 # Global Functions
@@ -38,10 +37,7 @@ def getCursor():
     else:
         return dbconn
         
-def conn():
-    conn = psycopg2.connect(connect.conn_string)
-    return conn
-
+# uploaded file, rename and get path
 def upload_path(name):
     file = request.files[name]
     filename = secure_filename(file.filename)
@@ -77,20 +73,20 @@ def member():
 @app.route("/member_upload", methods = ['POST'])
 def member_upload():
     form = request.form
+    # get data from client-side and insert into database
     if form:
-        events = request.form.getlist('mem_col')[26:-1]
+        event_ids = request.form.getlist('mem_col')[25:-1]
         i = 0
         while i<len(form)-3:
             mem = request.form.getlist(f'mem{i}')
             member = member_info.mem_obj(mem)
-            member.insert_db()
-            if events:
-                test(member.event)
+            member.insert_db(event_ids)
             i += 1
         coor = request.form.getlist('coor')
         member_info.insert_coor(coor)
         
         return redirect(url_for('member'))
+    #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
         df_list= member_info.get_df(excelpath)
@@ -100,37 +96,9 @@ def member_upload():
         mem_data = df_member.values
         coor_col = df_coor.columns
         coor_data = df_coor.values
-        test(df_coor)
-        print(df_member)
 
         return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
             coor_col = coor_col, coor_data = coor_data)
-
-
-@app.route("/generating",methods = ['POST','GET'])   
-def generating():
-    cur = getCursor()
-    cur.execute("SELECT school_id, school_name FROM schools;")
-    schools = cur.fetchall()
-    
-    if request.method == 'POST':
-        school_list = request.form.getlist('schools')
-        zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Templates.zip','w')
-        for schoolid in school_list:
-            filename = member_info.gen_endyear_temp(schoolid)
-            zfile.write(filename)
-        zfile.close()
-
-
-        return send_file(f'{app.root_path}\downloads\Templates.zip',
-            mimetype = 'zip',
-            attachment_filename= 'Templates.zip',
-            as_attachment = True)
-
-
-    return render_template('generating.html',schools = schools)
-
-
 @app.route("/school",methods = ['POST','GET'])
 def school():
     return render_template('school.html')     
@@ -145,13 +113,72 @@ def volunteer():
 
 @app.route("/event",methods = ['POST','GET'])     
 def event():
-    return render_template('event.html')  
+    cur = db.getCursor()
+    cur.execute("SELECT * FROM events ORDER BY event_id")
+    events = cur.fetchall()
+    return render_template('event.html',events = events) 
+@app.route("/add_event",methods =['POST','GET']) 
+def add_event():
+    # get added event info from client-side and insert into database
+    if request.method == 'POST':
+        names = request.form.getlist('name')
+        event_dates = request.form.getlist('event_date')
+        locations = request.form.getlist('location')
+        notes = request.form.getlist('note')
+        for i in range(0,len(names)):
+            cur = db.getCursor()
+            sql = "INSERT INTO events VALUES(nextval('eventid_seq'),'%s','%s','%s',\
+                '%s');" %(names[i],event_dates[i],locations[i],notes[i])
+            cur.execute(sql)
+        return redirect(url_for('event'))
+
+
+    return render_template('add_event.html')
 
 @app.route("/new_user",methods = ['POST','GET'])     
 def new_user():
     return render_template('new_user.html')  
-    
-       
+@app.route("/download", methods = ['POST','GET'])
+def download():
+    return render_template('download.html')
+# generating excel file of member for downloading
+@app.route("/download_mem_sheet",methods = ['POST','GET'])   
+def download_mem_sheet():
+    # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
+    cur = getCursor()
+    cur.execute("SELECT school_id, school_name FROM schools;")
+    schools = cur.fetchall()
+    # get selected info from clined-side
+    if request.method == 'POST':
+        request_file = request.form.get('type')
+        school_list = request.form.getlist('schools')
+    # generating excel of black template and send to client-side
+        if request_file =='template':
+            zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Templates.zip','w')
+            for schoolid in school_list:
+                filename = spreadsheet.gen_mem_temp(schoolid,f'{request_file}')
+                zfile.write(filename)
+            zfile.close()
+            return send_file(f'{app.root_path}\downloads\Templates.zip',
+                mimetype = 'zip',
+                attachment_filename= 'Templates.zip',
+                as_attachment = True)
+    # generating excel with completed data and send to client-side
+        elif request_file =='completed':
+            zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Competed.zip','w')
+            for schoolid in school_list:
+                filename = spreadsheet.gen_mem_temp(schoolid,f'{request_file}')
+                zfile.write(filename)
+            zfile.close()
+            return send_file(f'{app.root_path}\downloads\Competed.zip',
+                mimetype = 'zip',
+                attachment_filename= 'Competed.zip',
+                as_attachment = True)
+
+    return render_template('download_mem_sheet.html',schools = schools)
+
+
+
     
 
 

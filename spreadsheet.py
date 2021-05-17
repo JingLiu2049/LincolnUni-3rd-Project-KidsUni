@@ -30,13 +30,14 @@ def gen_mem_temp(schoolid,filetype):
             members WHERE school_id = %s ORDER BY member_id" % schoolid 
         cur.execute(sql)
         mem_infos = cur.fetchall()
-        for i in range(0,len(mem_infos)):
-            mem_info = mem_infos[i][0:-2] 
-            for j in range(0,len(mem_info)):
-                sheet1.cell(column = j+1,row = 7+i,value = mem_info[j])
-            u_p = list(mem_infos[i][1:3])+list(mem_infos[i][-2:])
-            for k in range(0,len(u_p)):
-                sheet2.cell(column = k+1, row = 7+i, value = u_p[k])
+        if mem_infos:
+            for i in range(0,len(mem_infos)):
+                mem_info = mem_infos[i][0:-2] 
+                for j in range(0,len(mem_info)):
+                    sheet1.cell(column = j+1,row = 7+i,value = mem_info[j])
+                u_p = list(mem_infos[i][1:3])+list(mem_infos[i][-2:])
+                for k in range(0,len(u_p)):
+                    sheet2.cell(column = k+1, row = 7+i, value = u_p[k])
 
         # get coordinator information from databse and insert into spreadsheet  
         cur.execute("SELECT name, email, phone_number,username, password FROM coordinator \
@@ -84,7 +85,7 @@ def gen_mem_temp(schoolid,filetype):
         #  save new excel file
         bg.save(newPath)
 
-        #  insert new sheet of events details
+        #  insert new sheet for event details
         df = pd.read_sql(pd_sql,db.conn)
         book =load_workbook(newPath)
         writer = pd.ExcelWriter(newPath,engine='openpyxl')

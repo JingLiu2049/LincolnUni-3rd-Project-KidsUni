@@ -36,7 +36,7 @@ def getCursor():
         return dbconn
     else:
         return dbconn
-        
+
 # uploaded file, rename and get path
 def upload_path(name):
     file = request.files[name]
@@ -55,6 +55,7 @@ def test(obj):
 @app.route("/",methods = ['POST','GET'])
 def login():
     return render_template('login.html')
+
 @app.route("/index", methods = ['POST','GET'])
 def index():
     return render_template("index.html")
@@ -65,10 +66,11 @@ def member():
     cur.execute(f"select * from members ORDER BY school_id, member_id;")
     result=cur.fetchall() 
     column_name = [desc[0] for desc in cur.description]
+    date=datetime.today().year - 1
     if request.method == 'POST':
         return render_template("member.html")
     else:
-        return render_template("member.html",result=result, column=column_name)
+        return render_template("member.html",result=result, column=column_name,date=date)
 
 @app.route("/member_upload", methods = ['POST'])
 def member_upload():
@@ -117,6 +119,7 @@ def event():
     cur.execute("SELECT * FROM events ORDER BY event_id")
     events = cur.fetchall()
     return render_template('event.html',events = events) 
+
 @app.route("/add_event",methods =['POST','GET']) 
 def add_event():
     # get added event info from client-side and insert into database
@@ -138,6 +141,8 @@ def add_event():
 @app.route("/new_user",methods = ['POST','GET'])     
 def new_user():
     return render_template('new_user.html')  
+
+
 @app.route("/download", methods = ['POST','GET'])
 def download():
     return render_template('download.html')
@@ -183,6 +188,6 @@ def download_mem_sheet():
 
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
 

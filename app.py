@@ -20,6 +20,7 @@ import db
 import zipfile
 import getid
 import spreadsheet
+import uuid
 
 
 # Global Functions
@@ -49,6 +50,9 @@ def upload_path(name):
 def test(obj):
     print(obj,type(obj),'tttttttttttttttttttttttttt',datetime.now)
 
+# Generate ID
+def genID():
+    return uuid.uuid4().fields[1]
 
 # App Route
 ##################################################
@@ -137,7 +141,25 @@ def add_event():
 
 @app.route("/new_user",methods = ['POST','GET'])     
 def new_user():
-    return render_template('new_user.html')  
+    if request.method == 'POST':
+        user_id = genID()
+        firstname = request.form.get('firstname')
+        surname = request.form.get('surname')
+        email = request.form.get('email')
+        phonenumber = request.form.get('phonenumber')
+        print(user_id)
+        print(firstname)
+        print(surname)
+        print(email)
+        print(phonenumber)
+        
+        cur = getCursor()              
+        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email) VALUES (%s,%s,%s,%s,%s);",(int(user_id), firstname, surname, phonenumber, email,))
+        cur.execute("INSERT INTO authorisation(user_id, username) VALUES (%s,%s);",(user_id, email,))
+        return redirect("/")
+    else:
+        return render_template('new_user.html')  
+
 @app.route("/download", methods = ['POST','GET'])
 def download():
     return render_template('download.html')

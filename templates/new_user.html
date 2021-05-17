@@ -4,6 +4,14 @@
 Register New User
 {% endblock title%}
 
+{% block head %}
+    <script>
+        function newuser_successful() {
+        let newuser_successful = alert("New User was successfully registered!");
+        }
+    </script>
+{% endblock head %}
+
 {%block content%}
 
 <main class="container">
@@ -18,16 +26,16 @@ Register New User
                         
                         <div class="col-sm-6">
                         <input type="text" class="form-control form-control-user"
-                            id="firstname" required="required">
+                            id="firstname" name="firstname" required="required">
                         </div>
                     </div>
 
                     <div class="mb-3 row">
-                        <label for="lastname" class="col-sm-2 col-form-label">Last Name</label>
+                        <label for="lastname" class="col-sm-2 col-form-label">Surname</label>
 
                         <div class="col-sm-6">
                         <input type="text" class="form-control form-control-user"
-                            id="lastname" required="required"></div>
+                            id="lastname" name="surname" required="required"></div>
                     </div>
 
                     <div class="mb-3 row">
@@ -35,7 +43,7 @@ Register New User
 
                         <div class="col-sm-6">
                         <input type="email" class="form-control form-control-user"
-                            id="#" placeholder="firstname.lastname@childrensuniversity.co.nz" required="required">
+                            id="#" name="email" placeholder="firstname.lastname@childrensuniversity.co.nz" required="required">
                         </div>
                     </div>
 
@@ -44,12 +52,14 @@ Register New User
 
                         <div class="col-sm-6">
                         <input type="phonenumber" class="form-control form-control-user"
-                            id="exampleInputPassword" placeholder="" required="required">
+                            id="phonenumber" name="phonenumber" placeholder="" required="required">
                         </div>
                     </div>
 
 
-                    <button type="submit" role="button" class="btn btn-primary">Submit</button>
+                    <button type="submit" role="button" class="btn btn-primary" 
+                        onclick="newuser_successful()">Submit</button>
+                    <button type="reset" role="button" class="btn btn-primary">Reset</button>
             
             </form>
     </div>

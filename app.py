@@ -20,6 +20,7 @@ import db
 import zipfile
 import getid
 import spreadsheet
+import uuid
 
 
 # Global Functions
@@ -36,6 +37,7 @@ def getCursor():
         return dbconn
     else:
         return dbconn
+
 # uploaded file, rename and get path
 def upload_path(name):
     file = request.files[name]
@@ -48,10 +50,16 @@ def upload_path(name):
 def test(obj):
     print(obj,type(obj),'tttttttttttttttttttttttttt',datetime.now)
 
+# Generate ID
+def genID():
+    return uuid.uuid4().fields[1]
 
+# App Route
+##################################################
 @app.route("/",methods = ['POST','GET'])
 def login():
     return render_template('login.html')
+
 @app.route("/index", methods = ['POST','GET'])
 def index():
     return render_template("index.html")
@@ -62,10 +70,11 @@ def member():
     cur.execute(f"select * from members ORDER BY school_id, member_id;")
     result=cur.fetchall() 
     column_name = [desc[0] for desc in cur.description]
+    date=datetime.today().year - 1
     if request.method == 'POST':
         return render_template("member.html")
     else:
-        return render_template("member.html",result=result, column=column_name)
+        return render_template("member.html",result=result, column=column_name,date=date)
 
 @app.route("/member_upload", methods = ['POST'])
 def member_upload():
@@ -115,6 +124,7 @@ def event():
         ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
     return render_template('event.html',events = events) 
+
 @app.route("/add_event",methods =['POST','GET']) 
 def add_event():
     # get added event info from client-side and insert into database
@@ -135,7 +145,25 @@ def add_event():
 
 @app.route("/new_user",methods = ['POST','GET'])     
 def new_user():
-    return render_template('new_user.html')  
+    if request.method == 'POST':
+        user_id = genID()
+        firstname = request.form.get('firstname')
+        surname = request.form.get('surname')
+        email = request.form.get('email')
+        phonenumber = request.form.get('phonenumber')
+        print(user_id)
+        print(firstname)
+        print(surname)
+        print(email)
+        print(phonenumber)
+        
+        cur = getCursor()              
+        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email) VALUES (%s,%s,%s,%s,%s);",(int(user_id), firstname, surname, phonenumber, email,))
+        cur.execute("INSERT INTO authorisation(user_id, username) VALUES (%s,%s);",(user_id, email,))
+        return redirect("/")
+    else:
+        return render_template('new_user.html')  
+
 @app.route("/download", methods = ['POST','GET'])
 def download():
     return render_template('download.html')
@@ -181,6 +209,6 @@ def download_mem_sheet():
 
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
 

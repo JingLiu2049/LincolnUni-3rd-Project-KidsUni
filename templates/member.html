@@ -1,29 +1,71 @@
 {%extends "layout.html"%}
 {%block title%}Students Page{%endblock%}
     
-
 {%block content%}
+
+
+<script>
+    $(document).ready(function(){
+      $("#input").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#mytable tr").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+</script>
+
 <div class="container">
     <h1>Student Inforamtion List</h1>
     <form action="/member_upload" method="POST" enctype="multipart/form-data">
         <input type="file" id="file" name="file">
         <button type="submit" id="btn">submit</button>
     </form>
-    <table class="table">
+    </br>
+
+    <div class="row">
+        <div class="col">
+          <input type="text" id="input" onkeyup="myFunction()" placeholder="Search for key words...">
+        </div>
+    </div>
+
+    <table class="table" id="table">
         <thead>
             <tr>
-                {% for item in column %}
-                <th>{{item}}</th>
-                {%endfor%}
+                <th>Member ID</th>
+                <th>School ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Ethnicity</th>
+                <th>Continuing/New</th>
+                <th>Passport Number</th>
+                {% if date %}
+                <th>{{date}} Hours</th>
+                {% endif %}
+                <th>Passport Date Issued </th>
+                <th>Ethnicity info</th>
+                <th>Teaching Research</th>
+                <th>Pubilication Promos</th>
+                <th>Social Media</th>
+                <th>Total</th>
+                <th>Gown Size</th>
+                <th>Hat Size</th>
+                <th>Status</th>
             </tr>
         </thead>
-        {% for item in result %}
-        <tr>
-            {% for col in item %}
-            <td>{{col}}</td>
+        <tbody id="mytable">
+            {% for item in result %}
+            <tr> 
+                {% for col in item %}
+                <td>{{col}}</td>
+                {% endfor %}
+            </tr>
             {%endfor%}
-        </tr>
-        {%endfor%}
+        </tbody>
     </table>
 </div>
 

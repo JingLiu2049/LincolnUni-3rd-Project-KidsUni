@@ -68,13 +68,17 @@ def index():
 def member(): 
     cur = getCursor() 
     cur.execute(f"select * from members ORDER BY school_id, member_id;")
+    # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
     result=cur.fetchall() 
     column_name = [desc[0] for desc in cur.description]
-    date=datetime.today().year - 1
+    cur.execute("select school_id from members group by school_id;")
+    school_id=cur.fetchall()
+    date=datetime.today().year
+
     if request.method == 'POST':
         return render_template("member.html")
     else:
-        return render_template("member.html",result=result, column=column_name,date=date)
+        return render_template("member.html",result=result, column=column_name,date=date,school_id=school_id)
 
 @app.route("/member_upload", methods = ['POST'])
 def member_upload():

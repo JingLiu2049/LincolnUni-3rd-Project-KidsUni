@@ -124,7 +124,8 @@ def volunteer():
 @app.route("/event",methods = ['POST','GET'])     
 def event():
     cur = db.getCursor()
-    cur.execute("SELECT * FROM events ORDER BY event_id")
+    cur.execute("SELECT events.*, event_attend.number FROM events LEFT JOIN event_attend\
+        ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
     return render_template('event.html',events = events) 
 

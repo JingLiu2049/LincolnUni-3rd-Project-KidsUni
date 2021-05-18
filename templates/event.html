@@ -14,6 +14,8 @@
             <th>Event Date</th>
             <th>Event Location</th>
             <th>Event Description</th>
+            <th>Member Attendance</th>
+            <th>Volunteer Attendance</th>
             <th>Edit Event</th>
         </tr>
     </thead>
@@ -21,6 +23,7 @@
     <tr>{% for j in i%}
         <td>{{j}}</td>
         {%endfor%}
+        <td></td>
         <td><a href="">Edit</a></td>
     </tr>
     {%endfor%}

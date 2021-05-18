@@ -4,6 +4,14 @@
 Register New User
 {% endblock title%}
 
+{% block head %}
+    <script>
+        function newuser_successful() {
+        let newuser_successful = alert("New User was successfully registered!");
+        }
+    </script>
+{% endblock head %}
+
 {%block content%}
 
 <main class="container">
@@ -49,7 +57,9 @@ Register New User
                     </div>
 
 
-                    <button type="submit" role="button" class="btn btn-primary">Submit</button>
+                    <button type="submit" role="button" class="btn btn-primary" 
+                        onclick="newuser_successful()">Submit</button>
+                    <button type="reset" role="button" class="btn btn-primary">Reset</button>
             
             </form>
     </div>

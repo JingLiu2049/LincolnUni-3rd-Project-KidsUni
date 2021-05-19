@@ -20,6 +20,6 @@ def get_schoolid(school_name):
 
 def get_event_id():
     cur = db.getCursor()
-    cur.execute("INSERT INTO events_id) VALUES (nextval('eventid_seq')) RETURNING event_id;")
+    cur.execute("INSERT INTO events(event_id) VALUES (nextval('eventid_seq')) RETURNING event_id;")
     eventid = cur.fetchone()[0]
     return eventid

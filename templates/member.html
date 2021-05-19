@@ -13,7 +13,38 @@
         });
       });
     });
-</script>
+
+     $(document).ready(function () {
+     var $rows = $('tbody#mytable tr')
+   
+      var $filters = $('.table-filter').change(function(){
+       var filterArr = $filters.filter(function(){
+          return this.value
+       }).map(function(){
+          var $el = $(this);
+          var value = $el.is('select') ? $el.find(':selected').text() :$el.val()  
+          return {
+            col: $el.data('col'),
+            value: value.toLowerCase()
+          }
+       }).get();
+       if(!filterArr.length){
+         $rows.show()
+       }else{
+         $rows.hide().filter(function(){
+            var $row = $(this)
+            return filterArr.every(function(filterObj, i){
+               var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();             
+              return  cellText.includes(filterObj.value);
+            })
+         }).show()
+       }
+     })
+    });
+
+
+</script> 
+
 
 <div class="container">
     <h1>Student Inforamtion List</h1>
@@ -29,32 +60,68 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-2">
+            <h4>School</h4>
+           <select id="schoolfilter" name="schoolfilter" class="table-filter form-control">
+             <option value="">Select one</option>    
+             {% for col in school_id %}
+                {% for result in col%}       
+                <option value="{{result}}">{{result}}</option>
+                {% endfor %}
+             {% endfor %}
+            </select>
+
+        </div>
+        <div class="col-md-3">
+            <h4>Gender</h4>
+            <select id="genderfilter" name="genderfilter" class="table-filter form-control">
+                <option value="">Select one</option>         
+                   <option value="Female">Female</option>
+                   <option value="Male">Male</option>
+               </select>
+        </div>
+        <div class="col-md-3">
+            <h4>Age</h4>
+            <input type="text" class="form-control" id="table-filter form-control">
+        </div>
+        <div class="col-md-3">
+            <h4>Ethnicity</h4>
+            <input type="text" class="form-control" id="table-filter form-control">
+        </div>
+        <div class="col-md-2">
+            <h4>Service</h4>
+           <select id="servicefilter" name="servicefilter" class="table-filter form-control"  data-col="3">
+             <option value="">Select one</option>
+             <option value="1">Test service</option><option value="2">Test2 service</option></select>
+        </div>
+    </div>
     <table class="table" id="table">
         <thead>
             <tr>
-                <th>Member ID</th>
-                <th>School ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Username</th>
-                <th>Password</th>
-                <th>Gender</th>
-                <th>Age</th>
-                <th>Ethnicity</th>
-                <th>Continuing/New</th>
-                <th>Passport Number</th>
+                <th scope="col">Member ID</th>
+                <th scope="col">School ID</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Password</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Age</th>
+                <th scope="col">Ethnicity</th>
+                <th scope="col">Continuing/New</th>
+                <th scope="col">Passport Number</th>
+                <th scope="col">Previous Hours</th>
+                <th scope="col">Passport Date Issued </th>
+                <th scope="col">Ethnicity info</th>
+                <th scope="col">Teaching Research</th>
+                <th scope="col">Pubilication Promos</th>
+                <th scope="col">Social Media</th>
                 {% if date %}
-                <th>{{date}} Hours</th>
+                <th scope="col">{{date}} Hours Total</th>
                 {% endif %}
-                <th>Passport Date Issued </th>
-                <th>Ethnicity info</th>
-                <th>Teaching Research</th>
-                <th>Pubilication Promos</th>
-                <th>Social Media</th>
-                <th>Total</th>
-                <th>Gown Size</th>
-                <th>Hat Size</th>
-                <th>Status</th>
+                <th scope="col">Gown Size</th>
+                <th scope="col">Hat Size</th>
+                <th scope="col">Status</th>
             </tr>
         </thead>
         <tbody id="mytable">

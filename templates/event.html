@@ -24,7 +24,10 @@
         <td>{{j}}</td>
         {%endfor%}
         <td></td>
-        <td><a href="">Edit</a></td>
+        <td><a href="/edit_event?eventid={{i[0]}}&oper=edit">Edit</a> <span> | </span>
+            <a href="/edit_event?eventid={{i[0]}}&oper=delete" class="delete" >Delete</a></td>
+            <!-- <a href="javascript:;" class="delete" >Delete</a></td> -->
+
     </tr>
     {%endfor%}
     
@@ -34,6 +37,21 @@
 <script type="text/javascript">
 var events = JSON.parse('{{events|tojson}}')
 console.log(events)
+var allDelete = document.getElementsByClassName("delete");
+for(var i = 0; i < allDelete.length; i++){
+    allDelete[i].addEventListener("click",function(){
+        var tr = this.parentNode.parentNode
+        var eventName= tr.getElementsByTagName("td")[1].innerHTML;
+
+        console.log(eventName);
+
+        if(!confirm("Delete event "+ eventName+ " (Including all records of Member Attendance and Volunter Attendance)!"))
+
+        this.href = "javascript:;";
+
+    },false)
+}
+
 
 </script>
 {%endblock%}

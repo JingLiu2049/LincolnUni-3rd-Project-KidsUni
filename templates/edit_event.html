@@ -1,0 +1,54 @@
+{%extends "layout.html"%}
+{%block title%}
+Add Event
+{%endblock%}
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+{%endblock%}
+{%block content%}
+<div class="container">
+    <form action="edit_event" method="POST">
+        <div class="input_wrapper">
+        <div id="base" class="eventinfo">
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label">Event ID</label>
+
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user" required="required" name="id" value="{{eventinfo[0]}}" readonly>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label">Event Name</label>
+
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user" required="required" name="name" value="{{eventinfo[1]}}">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label  class="col-sm-2 col-form-label">Event Date</label>
+
+                <div class="col-sm-6">
+                    <input type="date" class="form-control form-control-user"  required="required" name="event_date" value="{{eventinfo[2]}}">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label  class="col-sm-2 col-form-label">Location</label>
+
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user"  required="required" name="location" value="{{eventinfo[3]}}">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label  class="col-sm-2 col-form-label">Description</label>
+
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user" name="description" value="{{eventinfo[4]}}">
+                </div>
+            </div>
+        </div>
+        </div>
+        <button type="submit">submit</button>
+    </form>
+</div>
+
+{%endblock%}

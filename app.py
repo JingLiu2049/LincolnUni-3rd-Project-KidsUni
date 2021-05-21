@@ -128,6 +128,29 @@ def event():
         ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
     return render_template('event.html',events = events) 
+@app.route("/edit_event", methods = ['POST','GET'])
+def edit_event():
+    cur = db.getCursor()
+    if request.method =='POST':
+        event = request.form.to_dict()
+        sql = "UPDATE events SET name = '%s', event_date = '%s', location = '%s', description = '%s' \
+            WHERE event_id = %s" %(event['name'],event['event_date'],event['location'],event['description'],int(event['id']))
+        cur.execute(sql)
+        return redirect(url_for('event'))
+    else:
+        eventid = int(request.args.get('eventid'))
+        operation = request.args.get('oper')
+        if operation == 'edit':
+            cur.execute("SELECT * FROM events WHERE event_id = %s;",(eventid,))
+            eventinfo = cur.fetchone()
+            return render_template("edit_event.html",eventinfo = eventinfo)
+        elif operation == 'delete':
+            try:
+                cur.execute("DELETE FROM events WHERE event_id = %s;",(eventid,))
+            except:
+                cur.execute("DELETE FROM attendance WHERE event_id = %s;",(eventid,))
+                cur.execute("DELETE FROM events WHERE event_id = %s;",(eventid,))
+            return redirect(url_for('event'))
 
 @app.route("/add_event",methods =['POST','GET']) 
 def add_event():
@@ -136,11 +159,11 @@ def add_event():
         names = request.form.getlist('name')
         event_dates = request.form.getlist('event_date')
         locations = request.form.getlist('location')
-        notes = request.form.getlist('note')
+        descriptions = request.form.getlist('description')
         for i in range(0,len(names)):
             cur = db.getCursor()
             sql = "INSERT INTO events VALUES(nextval('eventid_seq'),'%s','%s','%s',\
-                '%s');" %(names[i],event_dates[i],locations[i],notes[i])
+                '%s');" %(names[i],event_dates[i],locations[i],descriptions[i])
             cur.execute(sql)
         return redirect(url_for('event'))
 

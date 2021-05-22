@@ -85,27 +85,30 @@ def member_upload():
     form = request.form
     # get data from client-side and insert into database
     if form:
-        event_ids = request.form.getlist('mem_col')[25:-1]
-        i = 0
-        while i<len(form)-3:
-            mem = request.form.getlist(f'mem{i}')
-            member = member_info.mem_obj(mem)
-            member.insert_db(event_ids)
-            i += 1
         coor = request.form.getlist('coor')
         member_info.insert_coor(coor)
+        events = request.form.getlist('mem_col')[25:-1]
+        for i in range(0,len(form)-3):
+            mem = request.form.getlist(f'mem{i}')
+            mem.insert(25,coor[-1]) # insert collected year of the data
+            member = member_info.mem_obj(mem)
+            member.insert_db(events)
         
         return redirect(url_for('member'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
-        df_list= member_info.get_df(excelpath)
-        df_member = df_list[0]
-        df_coor = df_list[1]
-        mem_col = df_member.columns
-        mem_data = df_member.values
-        coor_col = df_coor.columns
-        coor_data = df_coor.values
+        try:
+            df_list= member_info.get_df(excelpath)
+            df_member = df_list[0]
+            df_coor = df_list[1]
+            mem_col = df_member.columns
+            mem_data = df_member.values
+            coor_col = df_coor.columns
+            coor_data = df_coor.values
+        except Exception as e:
+            # return render_template('error.html')
+            return print(e)
 
         return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
             coor_col = coor_col, coor_data = coor_data)

@@ -2,7 +2,7 @@ import db
 import pandas as pd
 import openpyxl as op
 import os
-import datetime
+import datetime as dt
 import getid
 from openpyxl import load_workbook
 
@@ -11,7 +11,7 @@ from openpyxl import load_workbook
 
 class members:
     def __init__(self,l=[]):
-        self.id = l[0]
+        self.id = int(l[0])
         self.first = l[1]
         self.last = l[2]
         self.gender = l[3]
@@ -32,33 +32,46 @@ class members:
         self.password = l[15]
         self.school = l[16]
 
-        self.previous = l[17]
-        self.term1 = l[18]
-        self.term2 = l[19]
-        self.term3 = l[20]
-        self.term4 = l[21]
-        self.total = l[22]
+        self.previous = int(float(l[17]))
+        self.term1 = int(float(l[18]))
+        self.term2 = int(float(l[19]))
+        self.term3 = int(float(l[20]))
+        self.term4 = int(float(l[21]))
+        self.total = int(float(l[22]))
         self.gown = l[23]
         self.hat = l[24]
+        self.year = l[25]
 
-        self.attend = l[25:-1] if len(l)>26 else False
+        self.attend = l[26:-1] if len(l)>27 else False
+
+    def hours(self, term_text, term_hour):
+        cur = db.getCursor()
+        sql = f"INSERT INTO membershours VALUES(%s, '%s', '{term_text}', %s) ON CONFLICT (member_id, year, term)\
+            DO UPDATE SET member_id = EXCLUDED.member_id, year = EXCLUDED.year, term = EXCLUDED.term, hours = \
+            EXCLUDED.hours;" %(self.id, self.year, term_hour)
+        cur.execute(sql)
 
     def insert_db(self,events=[]):
         cur = db.getCursor()
+        print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
         sql = "UPDATE members SET school_id = %s, first_name = '%s', last_name = '%s', username='%s', \
             password='%s', gender='%s', member_age=%s, ethnicity='%s', continuing_new = '%s', \
-            passport_number='%s', passport_date_issued='%s', ethnicity_info='%s', teaching_research='%s', \
-            publication_promos='%s', social_media='%s', gown_size='%s', hat_size='%s', status = '%s' WHERE \
+            passport_number='%s', previous = %s, passport_date_issued='%s', ethnicity_info='%s', teaching_research='%s', \
+            publication_promos='%s', social_media='%s', total = %s, gown_size='%s', hat_size='%s', status = '%s' WHERE \
             member_id = %s;" %(int(self.school), self.first, self.last, self.username, self.password, self.gender, 
-            self.age,self.ethnicity,self.mtype, self.passport, self.date, self.eth_info, self.research, self.promos, 
-            self.social, self.gown, self.hat, self.status,int(self.id))
+            self.age,self.ethnicity,self.mtype, self.passport, self.previous, self.date, self.eth_info, self.research, self.promos, 
+            self.social, self.total, self.gown, self.hat, self.status,self.id)
         cur.execute(sql)
         if events:
             for i in range(0,len(events)):
                 sql = "INSERT INTO attendance VALUES(%s, %s,'%s') ON CONFLICT (member_id, event_id) \
-                DO UPDATE SET member_id = EXCLUDED.member_id, status = EXCLUDED.status" %(int(self.id),events[i],self.attend[i])
+                DO UPDATE SET member_id = EXCLUDED.member_id, status = EXCLUDED.status" %(self.id,events[i],self.attend[i])
                 cur.execute(sql)
 
+        self.hours('term1',self.term1)
+        self.hours('term2',self.term2)
+        self.hours('term3',self.term3)
+        self.hours('term4',self.term4)
 
     
 def mem_obj(l=[]):
@@ -73,12 +86,13 @@ def mem_obj(l=[]):
 
 # use pandas to read excel file and get data
 def get_df(excelpath):
-    df_school = pd.read_excel(excelpath,0,header=None,nrows=4)
+    df_school = pd.read_excel(excelpath,0,header=None,nrows=5)
     df_school.dropna(axis='columns',how='all',inplace=True)
     df_school.fillna('', inplace=True)
     name = df_school.loc[0,3]
     df1 = pd.read_excel(excelpath,0,header=[5])
-    df1.iloc[:,14].fillna('NA', inplace=True)
+    # df1.iloc[:,14].fillna('NA', inplace=True)
+    df1.update(df1.iloc[:,[14,15,16,17,18,19]].fillna(0)) 
     df1.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
     df1.fillna('', inplace=True)
     df1.rename(columns={'#':'Memberid'},inplace = True)
@@ -92,6 +106,7 @@ def get_df(excelpath):
     df_coor.loc[:,'School'] = df_school.loc[0,3]
     df_coor.loc[:,'Email'] = df_school.loc[2,3]
     df_coor.loc[:,'Phone'] = df_school.loc[3,3]
+    df_coor.loc[:,'year'] = df_school.loc[4,3]
     
     return [df1,df_coor]
 

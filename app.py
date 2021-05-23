@@ -144,10 +144,9 @@ def member_upload():
         events = request.form.getlist('mem_col')[25:-1]
         for i in range(0,len(form)-3):
             mem = request.form.getlist(f'mem{i}')
-            mem.insert(25,coor[-1]) # insert collected year of the data
+            mem.insert(25,coor[-1]) # insert collecting date for the data
             member = member_info.mem_obj(mem)
             member.insert_db(events)
-        
         return redirect(url_for('member'))
     #  read uploaded excel file and send info to client-side
     else:
@@ -295,7 +294,7 @@ def download_mem_sheet():
         if request_file =='template':
             zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Templates.zip','w')
             for schoolid in school_list:
-                filename = spreadsheet.gen_mem_temp(schoolid,f'{request_file}')
+                filename = spreadsheet.gen_mem_tmp(schoolid)
                 zfile.write(filename)
             zfile.close()
             return send_file(f'{app.root_path}\downloads\Templates.zip',
@@ -306,14 +305,13 @@ def download_mem_sheet():
         elif request_file =='completed':
             zfile = zipfile.ZipFile(f'{app.root_path}\downloads\Competed.zip','w')
             for schoolid in school_list:
-                filename = spreadsheet.gen_mem_temp(schoolid,f'{request_file}')
+                filename = spreadsheet.gen_mem_comp(schoolid)
                 zfile.write(filename)
             zfile.close()
             return send_file(f'{app.root_path}\downloads\Competed.zip',
                 mimetype = 'zip',
                 attachment_filename= 'Competed.zip',
                 as_attachment = True)
-
     return render_template('download_mem_sheet.html',schools = schools)
 
 

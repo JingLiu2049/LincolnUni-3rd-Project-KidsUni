@@ -1,6 +1,138 @@
 {%extends "layout.html"%}
-{%block title%}
-{%endblock%}
+{%block title%}School Page{%endblock%}
+
 {%block content%}
-<h1>school page</h1>
+
+
+<script>
+     $(document).ready(function () {
+          $("#input").on("keyup", function () {
+               var value = $(this).val().toLowerCase();
+               $("#mytable tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+               });
+          });
+     });
+
+     $(document).ready(function () {
+          var $rows = $('tbody#mytable tr')
+
+          var $filters = $('.table-filter').change(function () {
+               var filterArr = $filters.filter(function () {
+                    return this.value
+               }).map(function () {
+                    var $el = $(this);
+                    var value = $el.is('select') ? $el.find(':selected').text() : $el.val()
+                    return {
+                         col: $el.data('col'),
+                         value: value.toLowerCase()
+                    }
+               }).get();
+               if (!filterArr.length) {
+                    $rows.show()
+               } else {
+                    $rows.hide().filter(function () {
+                         var $row = $(this)
+                         return filterArr.every(function (filterObj, i) {
+                              var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();
+                              return cellText.includes(filterObj.value);
+                         })
+                    }).show()
+               }
+          })
+     });
+
+
+</script>
+
+
+<div class="container">
+     <h1>School Inforamtion List</h1>
+     <form action="/member_upload" method="POST" enctype="multipart/form-data">
+          <input type="file" id="file" name="file">
+          <button type="submit" id="btn">submit</button>
+     </form>
+     </br>
+
+     <div class="row">
+          <div class="col">
+               <input type="text" id="input" onkeyup="myFunction()" placeholder="Search for key words...">
+          </div>
+     </div>
+
+     <div class="row">
+          <div class="col-md-2">
+               <h4>School</h4>
+               <select id="schoolfilter" name="schoolfilter" class="table-filter form-control">
+                    <option value="">Select one</option>
+                    {% for col in school_id %}
+                    {% for result in col%}
+                    <option value="{{result}}">{{result}}</option>
+                    {% endfor %}
+                    {% endfor %}
+               </select>
+
+          </div>
+          <div class="col-md-3">
+               <h4>Who</h4>
+               <select id="genderfilter" name="genderfilter" class="table-filter form-control">
+                    <option value="">Select one</option>
+                    <option value="Jack">Jack</option>
+                    
+               </select>
+          </div>
+          <div class="col-md-3">
+               <h4>Council</h4>
+               <input type="text" class="form-control" id="table-filter form-control">
+          </div>
+          <div class="col-md-3">
+               <h4>Category</h4>
+               <input type="text" class="form-control" id="table-filter form-control">
+          </div>
+          <div class="col-md-2">
+               <h4>Status</h4>
+               <select id="servicefilter" name="servicefilter" class="table-filter form-control" data-col="3">
+                    <option value="">Select one</option>
+                    <option value="1">Active</option>
+                    <option value="2">Inactive</option>
+               </select>
+          </div>
+     </div>
+     <table class="table" id="table">
+          <thead>
+               <tr>
+                    <th scope="col">School ID</th>
+                    <th scope="col">School Name</th>
+                    <th scope="col">Who</th>
+                    <th scope="col">Council</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Returning Number</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Max Number 2021</th>
+                    <th scope="col">Confirmed Number</th>
+                    <th scope="col">Coordinator ID</th>
+                    <th scope="col">Training</th>
+                    <th scope="col">Launch</th>
+                    <th scope="col">Passport Presentation</th>
+                    <th scope="col">Portal</th>
+                    <th scope="col">Passports</th>
+                    <th scope="col">Agreement</th>
+                    <th scope="col">Consent</th>
+                    <th scope="col">Notes</th>
+               </tr>
+          </thead>
+          <tbody id="mytable">
+               {% for item in result %}
+               <tr>
+                    {% for col in item %}
+                    <td>{{col}}</td>
+                    {% endfor %}
+               </tr>
+               {%endfor%}
+          </tbody>
+     </table>
+</div>
+
 {%endblock%}

@@ -227,6 +227,14 @@ def add_event():
 
     return render_template('add_event.html')
 
+@app.route("/users",methods = ['POST','GET'])     
+def users():
+    cur = getCursor()              
+    cur.execute("SELECT * FROM admin ORDER BY surname")
+    select_result = cur.fetchall()
+    column_names = [desc[0] for desc in cur.description]
+    return render_template('users.html', users=select_result, dbcols=column_names) 
+
 @app.route("/new_user",methods = ['POST','GET'])     
 def new_user():
     if request.method == 'POST':
@@ -235,23 +243,39 @@ def new_user():
         surname = request.form.get('surname')
         email = request.form.get('email')
         phonenumber = request.form.get('phonenumber')
+        status = "active"
         print(user_id)
         print(firstname)
         print(surname)
         print(email)
         print(phonenumber)
-        
+            
         cur = getCursor()              
-        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email) VALUES (%s,%s,%s,%s,%s);", \
-            (int(user_id), firstname, surname, phonenumber, email,))
+        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);", \
+            (int(user_id), firstname, surname, phonenumber, email, status,))
         cur.execute("INSERT INTO authorisation(user_id, username) VALUES (%s,%s);",(user_id, email,))
-        return redirect("/")
-    else:
+        return redirect(url_for('users'))
+    return render_template('new_user.html') 
+
+@app.route("/edit_user",methods = ['POST','GET'])     
+def edit_user():
+    if request.method == 'POST':
+        user_id = request.form.get('user_id')
+        firstname = request.form.get('firstname')
+        surname = request.form.get('surname')
+        email = request.form.get('email')
+        phonenumber = request.form.get('phonenumber')
+        print(firstname)
+        print(surname)
+        print(email)
+        print(phonenumber)
+            
         cur = getCursor()              
-        cur.execute("SELECT * FROM admin ORDER BY surname")
-        select_result = cur.fetchall()
-        column_names = [desc[0] for desc in cur.description]
-        return render_template('users.html', users=select_result, dbcols=column_names)  
+        cur.execute("UPDATE admin SET first_name=%s, surname=%s, phone_number=%s, email=%s WHERE user_id=%s;", \
+            (firstname, surname, phonenumber, email, int(user_id),))
+        return redirect(url_for('users'))
+    return render_template('edit_user.html') 
+
 
 @app.route("/download", methods = ['POST','GET'])
 def download():

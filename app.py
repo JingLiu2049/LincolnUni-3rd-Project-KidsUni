@@ -171,7 +171,47 @@ def school():
 
 @app.route("/destination",methods = ['POST','GET'])     
 def destination():
+
     return render_template('destination.html') 
+@app.route("/destination_upload",methods = ['POST'])
+def destination_upload():
+    form = request.form
+    # get data from client-side and insert into database
+    if form:
+        # coor = request.form.getlist('coor')
+        # member_info.insert_coor(coor)
+        # events = request.form.getlist('mem_col')[25:-1]
+        # for i in range(0,len(form)-3):
+        #     mem = request.form.getlist(f'mem{i}')
+        #     mem.insert(25,coor[-1]) # insert collecting date for the data
+        #     member = member_info.mem_obj(mem)
+        #     member.insert_db(events)
+        # return redirect(url_for('member'))
+        pass
+    #  read uploaded excel file and send info to client-side
+    else:
+        excelpath = upload_path('file')
+        try:
+            df_des = pd.read_excel(excelpath,0)
+            df_des.fillna('',inplace=True)
+            des_cols = df_des.columns
+            des_data = df_des.values
+
+            print(df_des)
+            # df_list= member_info.get_df(excelpath)
+            # df_member = df_list[0]
+            # df_coor = df_list[1]
+            # mem_col = df_member.columns
+            # mem_data = df_member.values
+            # coor_col = df_coor.columns
+            # coor_data = df_coor.values
+        except Exception as e:
+            # return render_template('error.html')
+            return print(e)
+
+        # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
+        #     coor_col = coor_col, coor_data = coor_data)
+        return render_template('destination_upload.html',cols = des_cols, data = des_data)
 
 @app.route("/volunteer",methods = ['POST','GET'])     
 def volunteer():

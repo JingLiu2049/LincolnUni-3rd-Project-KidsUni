@@ -3,4 +3,8 @@
 {%endblock%}
 {%block content%}
 <h1>destination page</h1>
+<form action="/destination_upload" method="POST" enctype="multipart/form-data">
+    <input type="file" id="file" name="file">
+    <button type="submit" id="btn">submit</button>
+</form>
 {%endblock%}

@@ -1,10 +1,6 @@
 import db
 import pandas as pd
-import openpyxl as op
-import os
-import datetime as dt
 import getid
-from openpyxl import load_workbook
 
 
 

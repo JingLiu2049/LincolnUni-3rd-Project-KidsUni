@@ -35,31 +35,26 @@
   <body class="text-center">
     
 <main class="form-signin">
-  <form>
+  <form action="{{ url_for('login') }}" method="POST">
     <img class="mb-4" src="../static/image/CU logo.jpeg" width="300px">
     <h1 class="h3 mb-3 fw-normal">Staff Login</h1>
 
-    <div class="form-floating">
-      <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
-      <label for="floatingInput" required="required">Username</label>
+    <div class="form-floating pb-3">
+      <input type="email" class="form-control" id="username" name="username" placeholder="Email">
+      <label for="username" required="required">Email</label>
     </div>
-    <div class="form-floating">
-      <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
-      <label for="floatingPassword" required="required">Password</label>
+    <div class="form-floating pb-3">
+      <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+      <label for="password" required="required">Password</label>
     </div>
-
+    <div class="msg">{{ msg }}</div>
     <div class="checkbox mb-3">
       <label>
-        <input type="checkbox" value="remember-me"> Remember me
+        <input type="checkbox" id="username" name="username"> Remember me
       </label>
     </div>
-    <!--<a href="/index"><button class="w-100 btn btn-lg btn-primary" type="submit">Login</button></a> button does not work if inside the form -->
+    <button type="submit" class="w-100 btn btn-lg btn-primary">Submit</button>
   </form>
-  <a href="/index"><button class="w-100 btn btn-lg btn-primary" type="button">Login</button></a>
-
 </main>
-
-
-    
   </body>
 </html>

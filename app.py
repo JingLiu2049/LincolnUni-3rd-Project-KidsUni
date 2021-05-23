@@ -26,7 +26,10 @@ import uuid
 # Global Functions
 ################################################
 app = Flask(__name__)
-app.secret_key = 'project2_kids_uni'
+app.config['SECRET_KEY'] = 'project2_kids_uni'
+
+
+#app.secret_key = 'project2_kids_uni'
 dbconn = None
 def getCursor():    
     global dbconn    
@@ -56,13 +59,64 @@ def genID():
 
 # App Route
 ##################################################
-@app.route("/",methods = ['POST','GET'])
+
+# This will be the login page, we need to use both GET and POST requests
+@app.route('/', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    # Output message if something goes wrong...
+    msg = ''
+    # Check if "username" and "password" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'username' in request.form and 'password in request.form':
+        # Create variables for easy access
+        username = request.form['username']
+        password = request.form['password']
+        # Check if account exists using MySQL
+        cur = getCursor() 
+        cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
+        # Fetch one record and return result
+        account = cur.fetchone()
+        print(account)
+        # If account exists in accounts table in our database
+        if account:
+            # Create session data, we can access this data in other routes
+            session['loggedin'] = True
+            session['user_id'] = account[0]
+            session['username'] = account[1]
+            # Redirect to home page
+            return redirect(url_for('index'))
+        else:
+            # Account doesnt exist or username/password incorrect
+            msg ='Login Unsuccessful. Please check email and password!'
+    return render_template('login.html', title='Login', msg=msg) 
+
+
+# This will be the logout page
+@app.route('/logout')
+def logout():
+    # Remove session data, this will log the user out
+   session.pop('loggedin', None)
+   session.pop('user_id', None)
+   session.pop('username', None)
+   # Redirect to login page
+   return redirect(url_for('login'))
 
 @app.route("/index", methods = ['POST','GET'])
 def index():
     return render_template("index.html")
+
+# The user's account page, only accessible for loggedin users
+@app.route('/account')
+def account():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # We need all the account info for the user so we can display it on the profile page
+        cur = getCursor()
+        cur.execute('SELECT * FROM admin WHERE user_id = %s', (session['user_id'],))
+        account = cur.fetchone()
+        # Show the profile page with account info
+        return render_template('account.html', account=account)
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
 
 @app.route("/member", methods = ['POST','GET'])
 def member(): 
@@ -188,11 +242,16 @@ def new_user():
         print(phonenumber)
         
         cur = getCursor()              
-        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email) VALUES (%s,%s,%s,%s,%s);",(int(user_id), firstname, surname, phonenumber, email,))
+        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email) VALUES (%s,%s,%s,%s,%s);", \
+            (int(user_id), firstname, surname, phonenumber, email,))
         cur.execute("INSERT INTO authorisation(user_id, username) VALUES (%s,%s);",(user_id, email,))
         return redirect("/")
     else:
-        return render_template('new_user.html')  
+        cur = getCursor()              
+        cur.execute("SELECT * FROM admin ORDER BY surname")
+        select_result = cur.fetchall()
+        column_names = [desc[0] for desc in cur.description]
+        return render_template('users.html', users=select_result, dbcols=column_names)  
 
 @app.route("/download", methods = ['POST','GET'])
 def download():

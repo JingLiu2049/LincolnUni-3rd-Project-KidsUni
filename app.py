@@ -1,6 +1,6 @@
 # Imports
 ################################################
-from flask import Flask, url_for, session, redirect, flash, render_template, request, send_from_directory, send_file
+from flask import Flask, url_for, session, redirect, flash, render_template, request, send_from_directory, send_file, g
 import datetime as dt
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -22,6 +22,7 @@ import getid
 import spreadsheet
 import uuid
 import dest_info
+from functools import wraps
 
 
 # Global Functions
@@ -65,6 +66,14 @@ def test(obj):
 def genID():
     return uuid.uuid4().fields[1]
 
+def login_required(f):
+    @wraps(f)
+    def secure_function(*args, **kwargs):
+        if 'loggedin' in session:
+            return f(*args, **kwargs)
+        else: 
+            return redirect(url_for('login', next=request.url))
+    return secure_function
 
 # App Route
 ##################################################
@@ -79,6 +88,7 @@ def login():
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
+        next_url = request.form.get('next')
         # Check if account exists using MySQL
         cur = getCursor() 
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
@@ -97,6 +107,8 @@ def login():
             session['user_id'] = account[0]
             session['username'] = account[1]
             session['name'] = name
+            if next_url:
+                return redirect(next_url)
             # Redirect to home page
             return redirect(url_for('index'))
         else:
@@ -107,6 +119,7 @@ def login():
 
 # This will be the logout page
 @app.route('/logout')
+@login_required
 def logout():
     # Remove session data, this will log the user out
    session.pop('loggedin', None)
@@ -116,10 +129,12 @@ def logout():
    return redirect(url_for('login'))
 
 @app.route("/index", methods=['POST', 'GET'])
+@login_required
 def index():
     return render_template("index.html", name=session['name'])
 
 @app.route("/member", methods = ['POST','GET'])
+@login_required
 def member(): 
     cur = getCursor() 
 
@@ -156,6 +171,7 @@ def member():
         total_hours=total_hours, grown_size=grown_size, hat_size=hat_size, status=status, name=session['name'])
 
 @app.route("/member_upload", methods=['POST'])
+@login_required
 def member_upload():
     form = request.form
     # get data from client-side and insert into database
@@ -192,6 +208,7 @@ def member_upload():
 
 
 @app.route("/school", methods=['POST', 'GET'])
+@login_required
 def school():
     cur = getCursor()
     cur.execute(f"select * from schools ORDER BY school_id;")
@@ -208,9 +225,8 @@ def school():
         return render_template("school.html", result=result, column=column_name, date=date, school_id=school_id,
             name=session['name'])
     
-
-
 @app.route("/destination", methods=['POST', 'GET'])
+@login_required
 def destination():
     cur = db.getCursor()
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
@@ -218,6 +234,7 @@ def destination():
     return render_template('destination.html',dests = dests, name=session['name']) 
 
 @app.route("/destination_upload",methods = ['POST'])
+@login_required
 def destination_upload():
     form = request.form
     # get data from client-side and insert into database
@@ -244,11 +261,13 @@ def destination_upload():
         return render_template('destination_upload.html',cols = des_cols, data = des_data, name=session['name'])
 
 @app.route("/volunteer", methods=['POST', 'GET'])
+@login_required
 def volunteer():
     return render_template('volunteer.html', name=session['name'])
 
 
 @app.route("/event", methods=['POST', 'GET'])
+@login_required
 def event():
     cur = db.getCursor()
     cur.execute("SELECT events.*, event_attend.number FROM events LEFT JOIN event_attend\
@@ -258,6 +277,7 @@ def event():
 
 
 @app.route("/edit_event", methods=['POST', 'GET'])
+@login_required
 def edit_event():
     cur = db.getCursor()
     if request.method == 'POST':
@@ -287,6 +307,7 @@ def edit_event():
 
 
 @app.route("/add_event", methods=['POST', 'GET'])
+@login_required
 def add_event():
     # get added event info from client-side and insert into database
     if request.method == 'POST':
@@ -303,6 +324,7 @@ def add_event():
     return render_template('add_event.html', name=session['name'])
 
 @app.route("/users",methods = ['POST','GET'])     
+@login_required
 def users():
     cur = getCursor()              
     cur.execute("SELECT * FROM admin ORDER BY surname;")
@@ -311,6 +333,7 @@ def users():
     return render_template('users.html', users=select_result, dbcols=column_names, name=session['name']) 
 
 @app.route("/edit_user", methods = ['POST','GET'])
+@login_required
 def edit_user():
     cur = getCursor()
     if request.method =='POST':
@@ -329,7 +352,8 @@ def edit_user():
         elif operation == 'deactivate':
             cur.execute("UPDATE admin SET status='deactivate' WHERE user_id = %s;",(user_id,))
 
-@app.route("/new_user",methods = ['POST','GET'])     
+@app.route("/new_user",methods = ['POST','GET']) 
+@login_required    
 def new_user():
     if request.method == 'POST':
         user_id = genID()
@@ -352,12 +376,14 @@ def new_user():
     return render_template('new_user.html', name=session['name']) 
 
 @app.route("/download", methods=['POST', 'GET'])
+@login_required
 def download():
     return render_template('download.html', name=session['name'])
 # generating excel file of member for downloading
 
 
 @app.route("/download_mem_sheet", methods=['POST', 'GET'])
+@login_required
 def download_mem_sheet():
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
     cur = getCursor()
@@ -395,6 +421,7 @@ def download_mem_sheet():
     return render_template('download_mem_sheet.html',schools=schools, name=session['name'])
     
 @app.route("/school_upload",methods = ['POST'])
+@login_required
 def school_upload():
     form = request.form
     # get data from client-side and insert into database

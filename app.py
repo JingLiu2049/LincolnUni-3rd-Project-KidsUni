@@ -67,10 +67,6 @@ def genID():
 # App Route
 ##################################################
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 # This will be the login page, we need to use both GET and POST requests
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -116,10 +112,7 @@ def logout():
 def index():
     return render_template("index.html")
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 # The user's account page, only accessible for loggedin users
 @app.route('/account')
 def account():
@@ -137,10 +130,7 @@ def account():
 @app.route("/member", methods = ['POST','GET'])
 def member(): 
     cur = getCursor() 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     cur.execute(f"select * from members ORDER BY school_id, member_id;")
     # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
     result = cur.fetchall()
@@ -168,18 +158,12 @@ def member_upload():
             mem.insert(25,coor[-1]) # insert collecting date for the data
             member = member_info.mem_obj(mem)
             member.insert_db(events)
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
         return redirect(url_for('member'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
         try:
             df_list= member_info.get_df(excelpath)
             df_member = df_list[0]
@@ -191,10 +175,7 @@ def member_upload():
         except Exception as e:
             # return render_template('error.html')
             return print(e)
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                                coor_col=coor_col, coor_data=coor_data)
@@ -356,10 +337,7 @@ def add_event():
 
     return render_template('add_event.html')
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 @app.route("/users",methods = ['POST','GET'])     
 def users():
     cur = getCursor()              
@@ -369,10 +347,6 @@ def users():
     return render_template('users.html', users=select_result, dbcols=column_names) 
 
 @app.route("/new_user",methods = ['POST','GET'])     
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 def new_user():
     if request.method == 'POST':
         user_id = genID()
@@ -386,10 +360,7 @@ def new_user():
         print(surname)
         print(email)
         print(phonenumber)
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
             
         cur = getCursor()              
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);", \
@@ -416,10 +387,7 @@ def edit_user():
             (firstname, surname, phonenumber, email, int(user_id),))
         return redirect(url_for('users'))
     return render_template('edit_user.html') 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 
 
 @app.route("/download", methods=['POST', 'GET'])
@@ -444,10 +412,6 @@ def download_mem_sheet():
                 f'{app.root_path}\downloads\Templates.zip', 'w')
             for schoolid in school_list:
                 filename = spreadsheet.gen_mem_tmp(schoolid)
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
                 zfile.write(filename)
             zfile.close()
             return send_file(f'{app.root_path}\downloads\Templates.zip',
@@ -459,10 +423,7 @@ def download_mem_sheet():
             zfile = zipfile.ZipFile(
                 f'{app.root_path}\downloads\Competed.zip', 'w')
             for schoolid in school_list:
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
                 filename = spreadsheet.gen_mem_comp(schoolid)
                 zfile.write(filename)
             zfile.close()
@@ -472,10 +433,7 @@ def download_mem_sheet():
                 as_attachment = True)
     return render_template('download_mem_sheet.html',schools = schools)
     
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
 
 if __name__ == '__main__':

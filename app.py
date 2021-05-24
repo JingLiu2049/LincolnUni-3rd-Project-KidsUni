@@ -12,13 +12,10 @@ from flask_mail import Mail, Message
 import smtplib
 import os
 from werkzeug.utils import secure_filename
-import openpyxl as op
 import pandas as pd
-import numpy
 import member_info
 import db
 import zipfile
-import getid
 import spreadsheet
 import uuid
 import dest_info
@@ -182,7 +179,6 @@ def member_upload():
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
-
         try:
             df_list= member_info.get_df(excelpath)
             df_member = df_list[0]
@@ -281,19 +277,15 @@ def edit_event():
         eventid = int(request.args.get('eventid'))
         operation = request.args.get('oper')
         if operation == 'edit':
-            cur.execute(
-                "SELECT * FROM events WHERE event_id = %s;", (eventid,))
+            cur.execute("SELECT * FROM events WHERE event_id = %s;", (eventid,))
             eventinfo = cur.fetchone()
             return render_template("edit_event.html", eventinfo=eventinfo)
         elif operation == 'delete':
             try:
-                cur.execute(
-                    "DELETE FROM events WHERE event_id = %s;", (eventid,))
+                cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
             except:
-                cur.execute(
-                    "DELETE FROM attendance WHERE event_id = %s;", (eventid,))
-                cur.execute(
-                    "DELETE FROM events WHERE event_id = %s;", (eventid,))
+                cur.execute("DELETE FROM attendance WHERE event_id = %s;", (eventid,))
+                cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
             return redirect(url_for('event'))
 
 

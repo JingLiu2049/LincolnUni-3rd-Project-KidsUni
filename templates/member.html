@@ -5,10 +5,8 @@
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
 <link rel="stylesheet" href="{{url_for('static', filename = 'table.css')}}">
 {% endblock head %}
-    
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}    
 {%block content%}
-
-
 <script>
     $(document).ready(function(){
       $("#input").on("keyup", function() {
@@ -192,10 +190,10 @@
         </div>
 
         <div class="col-md-2">
-          <h6>Grown Size</h6>
-          <select id="grownfilter" name="grownfilter" class="table-filter form-control" data-col="18">
+          <h6>Gown Size</h6>
+          <select id="gownfilter" name="gownfilter" class="table-filter form-control" data-col="18">
             <option value="">Select one</option>
-            {% for col in grown_size %}
+            {% for col in gown_size %}
               {% for result in col%} 
             <option value="{{result}}">{{result}}</option>
               {% endfor %}

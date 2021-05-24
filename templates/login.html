@@ -35,10 +35,18 @@
   <body class="text-center">
     
 <main class="form-signin">
+
+  {% if htmlMessage %}
+      <div class="alert alert-primary alert-dismissible fade show" role="alert">
+          {{ htmlMessage }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endif %}
+
   <form action="{{ url_for('login') }}" method="POST">
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
     <img class="mb-4" src="../static/image/CU logo.jpeg" width="300px">
     <h1 class="h3 mb-3 fw-normal">Staff Login</h1>
-
     <div class="form-floating pb-3">
       <input type="email" class="form-control" id="username" name="username" placeholder="Email">
       <label for="username" required="required">Email</label>

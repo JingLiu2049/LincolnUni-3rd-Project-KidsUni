@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{{url_for('static', filename = 'member_upload.css')}}">
 
 {%endblock%}
-
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 
 {%block content%}
 <div class="container">

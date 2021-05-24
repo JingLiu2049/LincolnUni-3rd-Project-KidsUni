@@ -113,6 +113,7 @@ def logout():
 def index():
     return render_template("index.html")
 
+
 # The user's account page, only accessible for loggedin users
 @app.route('/account')
 def account():
@@ -130,19 +131,38 @@ def account():
 @app.route("/member", methods = ['POST','GET'])
 def member(): 
     cur = getCursor() 
+
     cur.execute(f"select * from members ORDER BY school_id, member_id;")
     # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
     result = cur.fetchall()
     column_name = [desc[0] for desc in cur.description]
-    cur.execute("select school_id from members group by school_id;")
+    cur.execute("select distinct school_id from members;")
     school_id = cur.fetchall()
-    date = datetime.today().year
+    school_filter=school_id
+    cur.execute("select distinct member_age from members;")
+    member_age=cur.fetchall()
+    cur.execute("select distinct ethnicity from members;")
+    ethnicity=cur.fetchall()
+    cur.execute("select distinct previous from members;")
+    previous_hours=cur.fetchall()
+    cur.execute("select distinct passport_date_issued from members;")
+    passport_date_issued=cur.fetchall()
+    cur.execute("select distinct total from members;")
+    total_hours=cur.fetchall()
+    cur.execute("select distinct gown_size from members;")
+    grown_size=cur.fetchall()
+    cur.execute("select distinct hat_size from members;")
+    hat_size=cur.fetchall()
+    cur.execute("select distinct status from members;")
+    status=cur.fetchall()
+    date=datetime.today().year
 
     if request.method == 'POST':
         return render_template("member.html")
     else:
-        return render_template("member.html", result=result, column=column_name, date=date, school_id=school_id)
-
+        return render_template("member.html",result=result, column=column_name,date=date, school_filter=school_filter,
+         member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
+        total_hours=total_hours, grown_size=grown_size, hat_size=hat_size, status=status)
 
 @app.route("/member_upload", methods=['POST'])
 def member_upload():
@@ -157,10 +177,12 @@ def member_upload():
             mem.insert(25,coor[-1]) # insert collecting date for the data
             member = member_info.mem_obj(mem)
             member.insert_db(events)
+
         return redirect(url_for('member'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
+
         try:
             df_list= member_info.get_df(excelpath)
             df_member = df_list[0]
@@ -172,6 +194,7 @@ def member_upload():
         except Exception as e:
             # return render_template('error.html')
             return print(e)
+
 
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                                coor_col=coor_col, coor_data=coor_data)
@@ -193,39 +216,6 @@ def school():
     else:
         return render_template("school.html", result=result, column=column_name, date=date, school_id=school_id)
     
-@app.route("/school_upload", methods=['POST'])
-def school_upload():
-    form = request.form
-    # get data from client-side and insert into database
-    if form:
-        event_ids = request.form.getlist('mem_col')[25:-1]
-        i = 0
-        while i < len(form)-3:
-            mem = request.form.getlist(f'mem{i}')
-            member = member_info.mem_obj(mem)
-            member.insert_db(event_ids)
-            i += 1
-        coor = request.form.getlist('coor')
-        member_info.insert_coor(coor)
-
-        return redirect(url_for('member'))
-    #  read uploaded excel file and send info to client-side
-    else:
-        excelpath = upload_path('file')
-        df_list = member_info.get_df(excelpath)
-        df_member = df_list[0]
-        df_coor = df_list[1]
-        mem_col = df_member.columns
-        mem_data = df_member.values
-        coor_col = df_coor.columns
-        coor_data = df_coor.values
-
-        return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
-                               coor_col=coor_col, coor_data=coor_data)
-
-
-
-
 
 
 @app.route("/destination", methods=['POST', 'GET'])
@@ -324,6 +314,7 @@ def add_event():
 
     return render_template('add_event.html')
 
+
 @app.route("/users",methods = ['POST','GET'])     
 def users():
     cur = getCursor()              
@@ -346,6 +337,7 @@ def new_user():
         print(surname)
         print(email)
         print(phonenumber)
+
             
         cur = getCursor()              
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);", \
@@ -372,6 +364,7 @@ def edit_user():
             (firstname, surname, phonenumber, email, int(user_id),))
         return redirect(url_for('users'))
     return render_template('edit_user.html') 
+
 
 
 @app.route("/download", methods=['POST', 'GET'])
@@ -407,6 +400,7 @@ def download_mem_sheet():
             zfile = zipfile.ZipFile(
                 f'{app.root_path}\downloads\Competed.zip', 'w')
             for schoolid in school_list:
+
                 filename = spreadsheet.gen_mem_comp(schoolid)
                 zfile.write(filename)
             zfile.close()
@@ -415,11 +409,46 @@ def download_mem_sheet():
                 attachment_filename= 'Competed.zip',
                 as_attachment = True)
     return render_template('download_mem_sheet.html',schools = schools)
-
-
-
     
+@app.route("/school_upload",methods = ['POST'])
+def school_upload():
+    form = request.form
+    # get data from client-side and insert into database
+    if form:
+        # coor = request.form.getlist('coor')
+        # member_info.insert_coor(coor)
+        # events = request.form.getlist('mem_col')[25:-1]
+        # for i in range(0,len(form)-3):
+        #     mem = request.form.getlist(f'mem{i}')
+        #     mem.insert(25,coor[-1]) # insert collecting date for the data
+        #     member = member_info.mem_obj(mem)
+        #     member.insert_db(events)
+        # return redirect(url_for('member'))
+        pass
+    #  read uploaded excel file and send info to client-side
+    else:
+        excelpath = upload_path('file')
+        try:
+            df_des = pd.read_excel(excelpath,0)
+            df_des.fillna('',inplace=True)
+            des_cols = df_des.columns
+            des_data = df_des.values
 
+            print(df_des)
+            # df_list= member_info.get_df(excelpath)
+            # df_member = df_list[0]
+            # df_coor = df_list[1]
+            # mem_col = df_member.columns
+            # mem_data = df_member.values
+            # coor_col = df_coor.columns
+            # coor_data = df_coor.values
+        except Exception as e:
+            # return render_template('error.html')
+            return print(e)
+
+        # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
+        #     coor_col = coor_col, coor_data = coor_data)
+        return render_template('school_upload.html',cols = des_cols, data = des_data)
 
 
 if __name__ == '__main__':

@@ -23,8 +23,6 @@ import spreadsheet
 import uuid
 #import filter#
 
-
-
 # Global Functions
 ################################################
 app = Flask(__name__)
@@ -137,15 +135,33 @@ def member():
     # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
     result = cur.fetchall()
     column_name = [desc[0] for desc in cur.description]
-    cur.execute("select school_id from members group by school_id;")
+    cur.execute("select distinct school_id from members;")
     school_id = cur.fetchall()
-    date = datetime.today().year
+    school_filter=school_id
+    cur.execute("select distinct member_age from members;")
+    member_age=cur.fetchall()
+    cur.execute("select distinct ethnicity from members;")
+    ethnicity=cur.fetchall()
+    cur.execute("select distinct previous from members;")
+    previous_hours=cur.fetchall()
+    cur.execute("select distinct passport_date_issued from members;")
+    passport_date_issued=cur.fetchall()
+    cur.execute("select distinct total from members;")
+    total_hours=cur.fetchall()
+    cur.execute("select distinct gown_size from members;")
+    grown_size=cur.fetchall()
+    cur.execute("select distinct hat_size from members;")
+    hat_size=cur.fetchall()
+    cur.execute("select distinct status from members;")
+    status=cur.fetchall()
+    date=datetime.today().year
 
     if request.method == 'POST':
         return render_template("member.html")
     else:
-        return render_template("member.html", result=result, column=column_name, date=date, school_id=school_id)
-
+        return render_template("member.html",result=result, column=column_name,date=date, school_filter=school_filter,
+         member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
+        total_hours=total_hours, grown_size=grown_size, hat_size=hat_size, status=status)
 
 @app.route("/member_upload", methods=['POST'])
 def member_upload():

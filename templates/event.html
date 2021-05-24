@@ -3,8 +3,9 @@
 {%endblock%}
 {%block content%}
 <div class="container">
-<h1>event page</h1>
-<a href="add_event">Add Event</a>
+<h1>Events</h1>
+<a href="{{ url_for('add_event') }}" type="button" role="button" class="btn btn-primary float-end">
+    Add Event</a>
 <form action="event">
 <table class="table">
     <thead>
@@ -16,7 +17,7 @@
             <th>Event Description</th>
             <th>Member Attendance</th>
             <th>Volunteer Attendance</th>
-            <th>Edit Event</th>
+            <th></th>
         </tr>
     </thead>
     {% for i in events%}
@@ -24,7 +25,10 @@
         <td>{{j}}</td>
         {%endfor%}
         <td></td>
-        <td><a href="">Edit</a></td>
+        <td class="float-end"><a href="/edit_event?eventid={{i[0]}}&oper=edit" class="btn btn-primary" role="button">Edit</a>
+            <a href="/edit_event?eventid={{i[0]}}&oper=delete" class="delete btn btn-primary" role="button">Delete</a></td>
+            <!-- <a href="javascript:;" class="delete" >Delete</a></td> -->
+
     </tr>
     {%endfor%}
     
@@ -34,6 +38,17 @@
 <script type="text/javascript">
 var events = JSON.parse('{{events|tojson}}')
 console.log(events)
+var allDelete = document.getElementsByClassName("delete");
+for(var i = 0; i < allDelete.length; i++){
+    allDelete[i].addEventListener("click",function(){
+        var tr = this.parentNode.parentNode
+        var eventName= tr.getElementsByTagName("td")[1].innerHTML;
+        console.log(eventName);
+        if(!confirm("Delete event "+ eventName+ " (Including all records of Member Attendance and Volunter Attendance)!"))
+        this.href = "javascript:;";
+    },false)
+}
+
 
 </script>
 {%endblock%}

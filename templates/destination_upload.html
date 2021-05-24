@@ -1,0 +1,34 @@
+{%extends "layout.html"%}
+{%block title%}
+{%endblock%}
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename = 'destination_upload.css')}}">
+
+{%endblock%}
+{%block content%}
+<h1>destination upload page</h1>
+<div class="wrapper container">
+<form action="/destination_upload" method="POST">
+<table class="table">
+    <thead>
+        <tr>
+        {% for item in cols%}
+        <th><input type="text" value="{{item}}" name="mem_col" class="columns" readonly></th>
+        {%endfor%}
+     </tr>
+    </thead>
+    {% for item in data%}
+    <tr>
+        {% for entrens in item%}
+        <td>
+            <input type="text" value="{{entrens}}" name="mem{{item[-1]}}">
+        </td>
+        {%endfor%}
+    </tr>
+
+    {%endfor%}
+
+</table>
+</form>
+</div>
+{%endblock%}

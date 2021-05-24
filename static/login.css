@@ -41,3 +41,8 @@ body {
 .smaller-logo {
     width: 300px;
 }
+
+.msg{
+  color: red;
+  font-size: small;
+}

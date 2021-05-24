@@ -8,37 +8,37 @@ Add Event
 {%block content%}
 <div class="container">
     <form action="add_event" method="POST">
-        <div class="input_wrapper">
-        <div id="base" class="eventinfo">
-            <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">Event Name</label>
+        <div class="input_wrapper" id="inputs">
+            <div id="base" class="eventinfo">
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Event Name</label>
 
-                <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user" required="required" name="name">
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user" required="required" name="name">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Event Date</label>
+
+                    <div class="col-sm-6">
+                        <input type="date" class="form-control form-control-user" required="required" name="event_date">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Location</label>
+
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user" required="required" name="location">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">Description</label>
+
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user" name="description" value="">
+                    </div>
                 </div>
             </div>
-            <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">Event Date</label>
-
-                <div class="col-sm-6">
-                    <input type="date" class="form-control form-control-user"  required="required" name="event_date">
-                </div>
-            </div>
-            <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">Location</label>
-
-                <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user"  required="required" name="location">
-                </div>
-            </div>
-            <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">Description</label>
-
-                <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user" name="note" value="">
-                </div>
-            </div>
-        </div>
         </div>
         <button type="submit">submit</button>
     </form>
@@ -48,13 +48,36 @@ Add Event
 <script type="text/javascript">
     var btn = document.getElementById("btn");
     var base = document.getElementById("base");
-    
-    console.log(base);
-    btn.onclick = function(){
+    var inputs = document.getElementById("inputs")
+
+    btn.onclick = function () {
         var newDiv = base.cloneNode(true);
-        newDiv.id = ''
+        newDiv.id = '';
+        var remove = document.createElement("button");
+        remove.innerHTML = "Remove";
+        remove.type = "button";
+        newDiv.appendChild(remove);
         base.parentNode.appendChild(newDiv);
+        var allRemvoe= document.querySelectorAll("#inputs button")
+        for (var i =0; i<allRemvoe.length; i++){
+            allRemvoe[i].addEventListener("click",function(){
+                inputs.removeChild(this.parentElement)
+            },false)
+        }
     }
+
+    /*var remove_btn = document.getElementsByClassName("remove_btn");
+    console.log(remove_btn)*/
+
+    
+
+    /* inputs.addEventListener("click", function(eventinfo){
+        
+        var btn = event.target;
+        inputs.removeChild(btn.parentNode)
+
+    },false) */
+    
 
 </script>
 {%endblock%}

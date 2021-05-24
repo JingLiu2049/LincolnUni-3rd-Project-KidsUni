@@ -230,7 +230,7 @@ def destination_upload():
     form = request.form
     # get data from client-side and insert into database
     if form:
-        paperwork = request.form.getlist('des_col')[19:-1]
+        paperwork = request.form.getlist('des_col')[20:-1]
         for i in range(0,len(form)-1):
             des_info = request.form.getlist(f'des{i}')
             des_obj = dest_info.des_obj(des_info[:-1])

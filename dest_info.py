@@ -23,17 +23,18 @@ class destination:
         self.logo = l[16]
         self.promo = l[17]
         self.photo = l[18]
+        self.note = l[19]
 
         
-        self.paperwork = l[19:-1] if len(l)>19 else False
+        self.paperwork = l[20:-1] if len(l)>20 else False
     def insert_db(self):
         cur = db.getCursor()
         sql = "UPDATE destinations SET status = '%s', ld_name = '%s', contact_person = '%s', position = '%s', \
             address = '%s', region = '%s', postal_address = '%s', phone_number = '%s',email = '%s', web_address = '%s', \
             member_cost = '%s', adult_cost = '%s', agrt_signed = '%s', rov_signed = '%s', poster_sent = '%s', logo_sent = '%s', \
-            promo = '%s', photo = '%s' WHERE ld_id = %s;" %(self.status, self.name, self.contact, self.position, self.address,
+            promo = '%s', photo = '%s', note = '%s' WHERE ld_id = %s;" %(self.status, self.name, self.contact, self.position, self.address,
             self.region, self.post, self.phone, self.email, self.web, self.cost, self.adult_cost, self.agreement, self.rov,
-            self.poster, self.logo, self.promo, self.photo, self.id ) 
+            self.poster, self.logo, self.promo, self.photo, self.note, self.id ) 
         cur.execute(sql)
 
 

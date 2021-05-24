@@ -5,39 +5,30 @@
 <link rel="stylesheet" href="{{url_for('static', filename = 'school_upload.css')}}">
 
 {%endblock%}
-
-
 {%block content%}
-<div class="container">
-    <form action="/school_upload" method="POST">
-        <div class="wrapper school">
-            <h2>School Information</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        {% for item in school_col%}
-                        <th><input type="text" value="{{item}}" name="school_col" class="columns" readonly></th>
-                        {%endfor%}
-                    </tr>
-                </thead>
-                {% for item in school_data%}
-                <tr>
-                    {% for entrens in item%}
-                    <td>
-                        <input type="text" value="{{entrens}}" name="school{{item[-1]}}">
-                    </td>
-                    {%endfor%}
-                </tr>
+<h1>school upload page</h1>
+<div class="wrapper container">
+<form action="/school_upload" method="POST">
+<table class="table">
+    <thead>
+        <tr>
+        {% for item in cols%}
+        <th><input type="text" value="{{item}}" name="mem_col" class="columns" readonly></th>
+        {%endfor%}
+     </tr>
+    </thead>
+    {% for item in data%}
+    <tr>
+        {% for entrens in item%}
+        <td>
+            <input type="text" value="{{entrens}}" name="mem{{item[-1]}}">
+        </td>
+        {%endfor%}
+    </tr>
 
-                {%endfor%}
+    {%endfor%}
 
-            </table>
-        </div>
-        
-        <button type="submit">submit</button>
-        <button type="reset">reset</button>
-    </form>
+</table>
+</form>
 </div>
-<script type="text/javascript">
-</script>
 {%endblock%}

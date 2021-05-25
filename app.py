@@ -3,7 +3,7 @@
 from flask import Flask, url_for, session, redirect, flash, render_template, request, send_from_directory, send_file
 import datetime as dt
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, NamedTupleCursor
 import connect
 import re
 from datetime import datetime, timedelta, date
@@ -21,7 +21,7 @@ import zipfile
 import getid
 import spreadsheet
 import uuid
-import filter
+# import filter
 
 
 # Global Functions
@@ -38,8 +38,8 @@ def getCursor():
     global dbconn
     if dbconn == None:
         conn = psycopg2.connect(connect.conn_string)
-        dbconn = conn.cursor()
-        #conn.autocommit = True
+        conn.autocommit = True
+        dbconn = conn.cursor(cursor_factory = psycopg2.extras.NamedTupleCursor)
         return dbconn
     else:
         return dbconn
@@ -94,7 +94,7 @@ def login():
             return redirect(url_for('index'))
         else:
             # Account doesnt exist or username/password incorrect
-            msg ='Login Unsuccessful. Please check email and password!'
+            msg ='Login Unsuccessful. Please check your email and password!'
     return render_template('login.html', title='Login', msg=msg) 
 
 
@@ -131,15 +131,12 @@ def account():
 @app.route("/member", methods = ['POST','GET'])
 def member(): 
     cur = getCursor() 
-
-    cur.execute(f"select * from members ORDER BY school_id, member_id;")
-    # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
+    cur.execute("select * from member_info;")
     result = cur.fetchall()
-    column_name = [desc[0] for desc in cur.description]
-    cur.execute("select distinct school_id from members;")
-    school_id = cur.fetchall()
-    school_filter=school_id
-    cur.execute("select distinct member_age from members;")
+    cur.execute("select distinct school_name from schools;")
+    school_name = cur.fetchall()
+    school_filter=school_name
+    cur.execute("select distinct member_age from members order by member_age asc;;")
     member_age=cur.fetchall()
     cur.execute("select distinct ethnicity from members;")
     ethnicity=cur.fetchall()
@@ -160,7 +157,7 @@ def member():
     if request.method == 'POST':
         return render_template("member.html")
     else:
-        return render_template("member.html",result=result, column=column_name,date=date, school_filter=school_filter,
+        return render_template("member.html",result=result, date=date, school_filter=school_filter,
          member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
         total_hours=total_hours, grown_size=grown_size, hat_size=hat_size, status=status)
 
@@ -214,7 +211,7 @@ def school():
     if request.method == 'POST':
         return render_template("school.html")
     else:
-        return render_template("school.html", result=result, column=column_name, date=date, school_id=school_id)
+        return render_template("school.html", result=result, column=column_name, date=date,school_id=school_id)
     
 @app.route("/school_upload", methods=['POST'])
 def school_upload():
@@ -454,6 +451,3 @@ def download_mem_sheet():
     
 
 
-
-if __name__ == '__main__':
-    app.run(debug=True)

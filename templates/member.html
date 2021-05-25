@@ -188,10 +188,10 @@
         </div>
 
         <div class="col-md-2">
-          <h7>Grown Size</h7>
-          <select id="grownfilter" name="grownfilter" class="table-filter form-control" data-col="18">
+          <h7>Gown Size</h7>
+          <select id="gownfilter" name="gownfilter" class="table-filter form-control" data-col="18">
             <option value="">Select one</option>
-            {% for col in grown_size %}
+            {% for col in gown_size %}
               {% for result in col%} 
             <option value="{{result}}">{{result}}</option>
               {% endfor %}
@@ -252,7 +252,7 @@
                 {% if date %}
                 <th scope="col">{{date}} Total Hours </th>
                 {% endif %}
-                <th scope="col">Grown Size</th>
+                <th scope="col">Gown Size</th>
                 <th scope="col">Hat Size</th>
                 <th scope="col">Status</th>
             </tr>

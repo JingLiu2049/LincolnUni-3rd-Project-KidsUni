@@ -153,7 +153,7 @@ def member():
     cur.execute("select distinct total from members;")
     total_hours=cur.fetchall()
     cur.execute("select distinct gown_size from members;")
-    grown_size=cur.fetchall()
+    gown_size=cur.fetchall()
     cur.execute("select distinct hat_size from members;")
     hat_size=cur.fetchall()
     cur.execute("select distinct status from members;")
@@ -165,7 +165,7 @@ def member():
     else:
         return render_template("member.html",result=result, date=date, school_filter=school_filter,
          member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
-        total_hours=total_hours, grown_size=grown_size, hat_size=hat_size, status=status, name=session['name'])
+        total_hours=total_hours, gown_size=gown_size, hat_size=hat_size, status=status, name=session['name'])
 
 @app.route("/member_upload", methods=['POST'])
 @login_required

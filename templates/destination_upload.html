@@ -1,34 +1,36 @@
-{%extends "layout.html"%}
-{%block title%}
-{%endblock%}
-{%block head%}
+{% extends "layout.html" %}
+{% block title %}
+{% endblock title %}
+{% block head %}
 <link rel="stylesheet" href="{{url_for('static', filename = 'destination_upload.css')}}">
-
-{%endblock%}
-{%block content%}
+{% endblock head %}
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
+{% block content %}
 <h1>destination upload page</h1>
-<div class="wrapper container">
+<div class="container">
 <form action="/destination_upload" method="POST">
+    <div class="wrapper">
 <table class="table">
     <thead>
         <tr>
-        {% for item in cols%}
-        <th><input type="text" value="{{item}}" name="mem_col" class="columns" readonly></th>
+        {% for item in cols %}
+        <th><input type="text" value="{{item}}" name="des_col" class="columns" readonly></th>
         {%endfor%}
      </tr>
     </thead>
-    {% for item in data%}
+    {% for item in data %}
     <tr>
-        {% for entrens in item%}
+        {% for entrens in item %}
         <td>
-            <input type="text" value="{{entrens}}" name="mem{{item[-1]}}">
+            <input type="text" value="{{entrens}}" name="des{{item[-1]}}">
         </td>
-        {%endfor%}
+        {% endfor %}
     </tr>
-
-    {%endfor%}
-
+    {% endfor %}
 </table>
-</form>
 </div>
-{%endblock%}
+<button type="submit">Submit</button>
+<button type="reset">Reset</button>
+</form>
+
+{% endblock content %}

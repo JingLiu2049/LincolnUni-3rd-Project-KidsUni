@@ -1,10 +1,21 @@
-{%extends "layout.html"%}
-{%block title%}
-{%endblock%}
-{%block content%}
+{% extends "layout.html" %}
+{% block title %}
+{% endblock title %}
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
+{% block content %}
 <h1>destination page</h1>
 <form action="/destination_upload" method="POST" enctype="multipart/form-data">
     <input type="file" id="file" name="file">
     <button type="submit" id="btn">submit</button>
 </form>
+
+<table class="table">
+    {%for i in dests%}
+    <tr>
+        {%for j in i %}
+        <td>{{j}}</td>
+        {%endfor%}
+    </tr>
+    {%endfor%}
+</table>
 {%endblock%}

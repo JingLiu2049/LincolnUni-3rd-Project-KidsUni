@@ -11,7 +11,7 @@ Register New User
         }
     </script>
 {% endblock head %}
-
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
 
 <main class="container">

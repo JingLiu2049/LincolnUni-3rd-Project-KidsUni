@@ -1,12 +1,13 @@
 {%extends "layout.html"%}
     
 
-{%block title%}Home Page{%endblock%}
+{% block title %}Home Page{% endblock %}
 
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
 
 <h1>index page</h1>
-<p>Welcome back!</p>
+<p>Welcome back {{ name[0] }} {{ name[1] }}!</p>
 <a href="/member">member</a>
 <a href="/school">school</a>
 <a href="/destination">destination</a>

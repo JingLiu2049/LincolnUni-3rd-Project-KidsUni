@@ -6,7 +6,6 @@ import datetime
 from openpyxl import load_workbook
 import datetime as dt
 
-
 def new_sheet(path, sql, name):
     book =load_workbook(path)
     writer = pd.ExcelWriter(path,engine='openpyxl')
@@ -167,6 +166,5 @@ def gen_mem_comp(schoolid):
         new_sheet(newPath,pd_sql_event,'Events')
         new_sheet(newPath,pd_sql_hours,'Hours')
         return newPath
-
 
 

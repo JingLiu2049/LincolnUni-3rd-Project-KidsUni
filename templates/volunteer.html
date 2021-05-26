@@ -4,4 +4,17 @@
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
 <h1>volunteer page</h1>
+<form action="/volunteer_upload" method="POST" enctype="multipart/form-data">
+    <input type="file" id="file" name="file">
+    <button type="submit" id="btn">submit</button>
+</form>
+<table class="table">
+    {%for i in voluns%}
+    <tr>
+        {%for j in i%}
+        <td>{{j}}</td>
+        {%endfor%}
+    </tr>
+    {%endfor%}
+</table>
 {%endblock%}

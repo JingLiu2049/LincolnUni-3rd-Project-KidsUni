@@ -12,13 +12,10 @@ from flask_mail import Mail, Message
 import smtplib
 import os
 from werkzeug.utils import secure_filename
-import openpyxl as op
 import pandas as pd
-import numpy
 import member_info
 import db
 import zipfile
-import getid
 import spreadsheet
 import uuid
 import dest_info
@@ -202,7 +199,6 @@ def member_upload():
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
-
         try:
             df_list= member_info.get_df(excelpath)
             df_member = df_list[0]
@@ -262,9 +258,7 @@ def destination_upload():
     else:
         excelpath = upload_path('file')
         try:
-            df_des = pd.read_excel(excelpath,0)
-            df_des.fillna('',inplace=True)
-            df_des.loc[:,'index'] = df_des.index
+            df_des = dest_info.get_df(excelpath)
             des_cols = df_des.columns
             des_data = df_des.values
             
@@ -288,7 +282,6 @@ def event():
     events = cur.fetchall()
     return render_template('event.html', events=events, name=session['name'])
 
-
 @app.route("/edit_event", methods=['POST', 'GET'])
 @login_required
 def edit_event():
@@ -303,21 +296,16 @@ def edit_event():
         eventid = int(request.args.get('eventid'))
         operation = request.args.get('oper')
         if operation == 'edit':
-            cur.execute(
-                "SELECT * FROM events WHERE event_id = %s;", (eventid,))
+            cur.execute("SELECT * FROM events WHERE event_id = %s;", (eventid,))
             eventinfo = cur.fetchone()
             return render_template("edit_event.html", eventinfo=eventinfo, name=session['name'])
         elif operation == 'delete':
             try:
-                cur.execute(
-                    "DELETE FROM events WHERE event_id = %s;", (eventid,))
+                cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
             except:
-                cur.execute(
-                    "DELETE FROM attendance WHERE event_id = %s;", (eventid,))
-                cur.execute(
-                    "DELETE FROM events WHERE event_id = %s;", (eventid,))
+                cur.execute("DELETE FROM attendance WHERE event_id = %s;", (eventid,))
+                cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
             return redirect(url_for('event'))
-
 
 @app.route("/add_event", methods=['POST', 'GET'])
 @login_required
@@ -432,7 +420,14 @@ def download_mem_sheet():
                 attachment_filename= 'Competed.zip',
                 as_attachment = True)
     return render_template('download_mem_sheet.html',schools=schools, name=session['name'])
-    
+
+@app.route("/download_dest_sheet", methods=['POST', 'GET'])
+def download_dest_sheet():
+    print('lailemalailemalailema')
+    file = spreadsheet.gen_dest_sheet()
+    print(file,'ffffffffffffffffffffffffff')
+    return send_file(file,mimetype = 'xlsx', as_attachment=True)
+
 @app.route("/school_upload",methods = ['POST'])
 @login_required
 def school_upload():

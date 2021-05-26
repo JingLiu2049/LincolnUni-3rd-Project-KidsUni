@@ -5,6 +5,7 @@ import os
 import datetime
 from openpyxl import load_workbook
 import datetime as dt
+basepath  = os.path.dirname(__file__)
 
 def new_sheet(path, sql, name):
     book =load_workbook(path)
@@ -16,7 +17,6 @@ def new_sheet(path, sql, name):
 
 def gen_mem_tmp(schoolid):
     # get spreadsheet template object
-    basepath  = os.path.dirname(__file__)
     templatePath =os.path.join(basepath,'downloads','End year template.xlsx')
     bg = op.load_workbook(templatePath)
     sheet1 = bg['Sheet1']
@@ -83,7 +83,6 @@ def gen_mem_tmp(schoolid):
 
 def gen_mem_comp(schoolid):
         # get template object
-        basepath  = os.path.dirname(__file__)
         templatePath =os.path.join(basepath,'downloads','End year template.xlsx')
         bg = op.load_workbook(templatePath)
         sheet1 = bg['Sheet1']
@@ -168,3 +167,24 @@ def gen_mem_comp(schoolid):
         return newPath
 
 
+def gen_dest_sheet():
+    templatePath =os.path.join(basepath,'downloads','Learning Destination template.xlsx')
+    bg = op.load_workbook(templatePath)
+    sheet1 = bg['Sheet1']
+
+    # generating new path 
+    filename = f'{datetime.datetime.now().year}_Learning Destination.xlsx'
+    newPath = os.path.join(basepath,'downloads',filename)
+
+    sql ="SELECT * FROM destinations ORDER BY ld_id;"
+    cur = db.getCursor()
+    cur.execute(sql)
+    dests = cur.fetchall()
+    for i in range(0,len(dests)):
+        for j in range(0,len(dests[i])):
+            sheet1.cell(column = j+1,row = 2+i,value = dests[i][j])
+    bg.save(newPath)
+    return newPath
+
+
+    

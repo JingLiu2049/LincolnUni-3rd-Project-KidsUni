@@ -2,9 +2,9 @@ input.columns{
     border: none;
     outline: none;
 }
-div.member th:last-child, div.member td:last-child{
+/* div.member th:last-child, div.member td:last-child{
 display: none;
-}
+} */
 div.wrapper{
     width: 100%;
     overflow-x: scroll;

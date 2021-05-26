@@ -221,7 +221,7 @@ def school():
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
-    cur = db.getCursor()
+    cur = getCursor()
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
     return render_template('destination.html',dests = dests, name=session['name']) 
@@ -254,13 +254,43 @@ def destination_upload():
 @app.route("/volunteer", methods=['POST', 'GET'])
 @login_required
 def volunteer():
-    return render_template('volunteer.html', name=session['name'])
+    cur = getCursor()
+    cur.execute("SELECT * FROM volunteer ORDER BY volunteer_id;")
+    voluns = cur.fetchall()
+    return render_template('volunteer.html', name=session['name'],voluns = voluns)
+@app.route("/volunteer_upload",methods=['POST', 'GET'])
+@login_required
+def volunteer_upload():
+    form = request.form
+    # get data from client-side and insert into database
+    if form:
+        # paperwork = request.form.getlist('des_col')[20:-1]
+        # for i in range(0,len(form)-1):
+        #     des_info = request.form.getlist(f'des{i}')
+        #     des_obj = dest_info.des_obj(des_info[:-1])
+        #     des_obj.insert_db()
+        return redirect(url_for('destination'))
+    #  read uploaded excel file and send info to client-side
+    else:
+        excelpath = upload_path('file')
+        try:
+            df_volun = pd.read_excel(excelpath,0)
+            df_volun.fillna('',inplace=True)
+            df_volun.loc[:,'index'] = df_volun.index
+            volun_cols = df_volun.columns
+            volun_data = df_volun.values
+            
+        except Exception as e:
+            # return render_template('error.html')
+            return print(e)
+        return render_template('volunteer_upload.html',cols = volun_cols, data = volun_data, name=session['name'])
+
 
 
 @app.route("/event", methods=['POST', 'GET'])
 @login_required
 def event():
-    cur = db.getCursor()
+    cur = getCursor()
     cur.execute("SELECT events.*, event_attend.number FROM events LEFT JOIN event_attend\
         ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
@@ -406,6 +436,7 @@ def download_mem_sheet():
     return render_template('download_mem_sheet.html',schools=schools, name=session['name'])
 
 @app.route("/download_dest_sheet", methods=['POST', 'GET'])
+@login_required
 def download_dest_sheet():
     print('lailemalailemalailema')
     file = spreadsheet.gen_dest_sheet()
@@ -453,3 +484,14 @@ def school_upload():
         #     coor_col = coor_col, coor_data = coor_data)
         return render_template('school_upload.html',cols = des_cols, data = des_data, name=session['name'])
 
+
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -45,12 +45,6 @@
      })
     });
 
-  type="text/javascript">
-  $(document).ready(function() {
-    $('.multiselect').multiselect({
-      enableFiltering: true
-    });
-  });
 
 </script>
 
@@ -59,25 +53,29 @@
 <div class="container-fluid">
   <h1>Student Information List</h1>
     <form action="/member_upload" method="POST" enctype="multipart/form-data">
-        <input type="file" id="file" name="file">
-        <button type="submit" id="btn">submit</button>
-    </form>
+
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFile01">Upload</label>
+        <input type="file" class="form-control" id="inputGroupFile01" required>
+        <button class="btn btn-outline-secondary" type="button" id="btn">Submit</button>
+      </div>
+
     </br>
 
-  <div>
-    <div class="row">
-        <div class="col-md-5">
-          <input type="text" id="input" onkeyup="myFunction()" placeholder="Search for key words...">
-        </div>
+  <div name="input group">
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="inputGroupFile01">Search</label>
+      <input type="text" class="form-control" id="input" onkeyup="myFunction()">
+    </div>
     </div>
 
     <div class="row">
         <div class="col-md-2">
-            <h6>School</h6>
-           <select id="schoolfilter" name="schoolfilter" class="table-filter form-control" data-col="1" >
+            <h7>School</h7>
+           <select id="schoolfilter" name="schoolfilter" class="table-filter form-control" data-col="1">
              <option value="">Select one</option>           
               {% for col in school_filter %}
-                {% for result in col %}
+                {% for result in col %}               
                 <option value="{{result}}">{{result}}</option>
                 {% endfor %}
               {% endfor %}
@@ -85,7 +83,7 @@
 
         </div>
         <div class="col-md-2">
-            <h6>Gender</h6>
+            <h7>Gender</h7>
             <select id="genderfilter" name="genderfilter" class="table-filter form-control" data-col="6" >
                 <option value="">Select one</option>         
                    <option value="Girl">Girl</option>
@@ -93,7 +91,7 @@
                </select>
         </div>
         <div class="col-md-2">
-            <h6>Age</h6>
+            <h7>Age</h7>
             <select id="agefilter" name="agefilter" class="table-filter form-control" data-col="7">
               <option value="">Select one</option> 
               {% for col in member_age %}
@@ -105,7 +103,7 @@
         </div>
 
         <div class="col-md-2">
-          <h6>Ethnicity</h6>
+          <h7>Ethnicity</h7>
           <select id="ethnicityfilter" name="ethnicityfilter" class="table-filter form-control" data-col="8">
             <option value="">Select one</option> 
             {% for col in ethnicity %}
@@ -117,7 +115,7 @@
       </div>
 
       <div class="col-md-2">
-        <h6>Continuing/New</h6>
+        <h7>Continuing/New</h7>
         <select id="filter" name="filter" class="table-filter form-control" data-col="9">
           <option value="">Select one</option> 
           <option value="Continuing">Continuing</option>
@@ -125,7 +123,7 @@
         </select>
     </div>
         <div class="col-md-2">
-            <h6>Previous Hours</h6>
+            <h7>Previous Hours</h7>
            <select id="previoushoursfilter" name="previoushoursfilter" class="table-filter form-control"  data-col="11">
             <option value="">Select one</option> 
             {% for col in previous_hours %}
@@ -137,12 +135,12 @@
         </div>
 
         <div class="col-md-3">
-          <h6>Passport Date Issued</h6>
+          <h7>Passport Date Issued</h7>
           <input type="date" class="form-control" id="datefilterfrom" data-date-split-input="true"  data-col="12">
         </div>
 
       <div class="col-md-2">
-        <h6>Ethnicity Info</h6>
+        <h7>Ethnicity Info</h7>
         <select id="ethnicityfilter" name="ethnicityfilter" class="table-filter form-control" data-col="13">
           <option value="">Select one</option> 
           <option value="True">True</option>
@@ -151,7 +149,7 @@
       </div>
 
       <div class="col-md-3">
-        <h6>Teaching Research</h6>
+        <h7>Teaching Research</h7>
         <select id="teachfilter" name="teachfilter" class="table-filter form-control" data-col="14">
           <option value="">Select one</option> 
           <option value="True">True</option>
@@ -160,7 +158,7 @@
       </div>
 
       <div class="col-md-3">
-        <h6>Pubilication Promos</h6>
+        <h7>Pubilication Promos</h7>
         <select id="promofilter" name="promofilter" class="table-filter form-control" data-col="15">
           <option value="">Select one</option> 
           <option value="True">True</option>
@@ -169,7 +167,7 @@
       </div>
 
       <div class="col-md-2">
-        <h6>Social Media</h6>
+        <h7>Social Media</h7>
         <select id="socialfilter" name="socialfilter" class="table-filter form-control" data-col="16">
           <option value="">Select one</option> 
           <option value="True">True</option>
@@ -178,7 +176,7 @@
       </div>
 
       <div class="col-md-2">
-        <h6>Total Hours</h6>
+        <h7>Total Hours</h7>
         <select id="hoursfilter" name="hoursfilter" class="table-filter form-control" data-col="17">
           <option value="">Select one</option>
           {% for col in total_hours %}
@@ -190,7 +188,7 @@
         </div>
 
         <div class="col-md-2">
-          <h6>Gown Size</h6>
+          <h7>Gown Size</h7>
           <select id="gownfilter" name="gownfilter" class="table-filter form-control" data-col="18">
             <option value="">Select one</option>
             {% for col in gown_size %}
@@ -202,7 +200,7 @@
           </div>
 
           <div class="col-md-2">
-            <h6>Hat Size</h6>
+            <h7>Hat Size</h7>
             <select id="hatfilter" name="hatfilter" class="table-filter form-control" data-col="19">
               <option value="">Select one</option>
               {% for col in hat_size %}
@@ -213,8 +211,8 @@
             </select>
           </div>
 
-            <div class="col-md-2">
-              <h6>Status</h6>
+          <div class="col-md-2">
+              <h7>Status</h7>
               <select id="statusfilter" name="statusfilter" class="table-filter form-control" data-col="20">
                 <option value="">Select one</option>
                 {% for col in status%}
@@ -224,14 +222,18 @@
                 {% endfor %}
               </select>           
           </div>
-
+          <div class="col-md-2">
+          </br>
+            <button type="reset" id="reset" role="button" class="btn btn-outline-secondary" onclick="window.location.reload()">Reset</button>
+          </div>
+        </form>
     </div>
     <div class="table-responsive">
     <table class="table table-striped table-hover table-sm" style="font-size: .875rem">
         <thead>
             <tr>
                 <th scope="col">Member ID</th>
-                <th scope="col">School ID</th>
+                <th scope="col">School Name</th>
                 <th scope="col">First Name</th>
                 <th scope="col">Last Name</th>
                 <th scope="col">Username</th>
@@ -239,7 +241,7 @@
                 <th scope="col">Gender</th>
                 <th scope="col">Age</th>
                 <th scope="col">Ethnicity</th>
-                <th scope="col">Continuing/New</th>
+                <th scope="col">Continuing/ New</th>
                 <th scope="col">Passport Number</th>
                 <th scope="col">Previous Hours</th>
                 <th scope="col">Passport Date Issued </th>
@@ -268,5 +270,4 @@
     </div>
 </div>
 
-    {%endblock%}
-    
+{%endblock%}

@@ -48,3 +48,9 @@ def des_obj(l=[]):
     if int(des_obj.id)/10000 < 1:
         des_obj.id = getid.get_des_id()
     return des_obj
+
+def get_df(excelpath):
+    df_des = pd.read_excel(excelpath,0)
+    df_des.fillna('',inplace=True)
+    df_des.loc[:,'index'] = df_des.index
+    return df_des

@@ -245,9 +245,7 @@ def destination_upload():
     else:
         excelpath = upload_path('file')
         try:
-            df_des = pd.read_excel(excelpath,0)
-            df_des.fillna('',inplace=True)
-            df_des.loc[:,'index'] = df_des.index
+            df_des = dest_info.get_df(excelpath)
             des_cols = df_des.columns
             des_data = df_des.values
             
@@ -270,7 +268,6 @@ def event():
         ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
     return render_template('event.html', events=events, name=session['name'])
-
 
 @app.route("/edit_event", methods=['POST', 'GET'])
 @login_required
@@ -296,7 +293,6 @@ def edit_event():
                 cur.execute("DELETE FROM attendance WHERE event_id = %s;", (eventid,))
                 cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
             return redirect(url_for('event'))
-
 
 @app.route("/add_event", methods=['POST', 'GET'])
 @login_required
@@ -411,7 +407,14 @@ def download_mem_sheet():
                 attachment_filename= 'Competed.zip',
                 as_attachment = True)
     return render_template('download_mem_sheet.html',schools=schools, name=session['name'])
-    
+
+@app.route("/download_dest_sheet", methods=['POST', 'GET'])
+def download_dest_sheet():
+    print('lailemalailemalailema')
+    file = spreadsheet.gen_dest_sheet()
+    print(file,'ffffffffffffffffffffffffff')
+    return send_file(file,mimetype = 'xlsx', as_attachment=True)
+
 @app.route("/school_upload",methods = ['POST'])
 @login_required
 def school_upload():

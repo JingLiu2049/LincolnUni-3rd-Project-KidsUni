@@ -161,11 +161,27 @@ def member():
     date=datetime.today().year
 
     if request.method == 'POST':
+        
         return render_template("member.html", name=session['name'])
     else:
-        return render_template("member.html",result=result, date=date, school_filter=school_filter,
+        return render_template("member.html",result=result, date=date, school_filter=school_filter, 
          member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
         total_hours=total_hours, gown_size=gown_size, hat_size=hat_size, status=status, name=session['name'])
+
+
+@app.route("/member_filter", methods=['POST'])
+@login_required
+def member_filter():
+    if request.method == 'POST':
+        cur = getCursor() 
+        school=request.form.get('schoolfilter')
+        
+        cur.execute(f"select * from member_info where school_name='{school}';")
+        filter_result=cur.fetchall()
+        return render_template("member.html", name=session['name'], filter=filter_result)
+    else:
+        return redirect(url_for(member))
+
 
 @app.route("/member_upload", methods=['POST'])
 @login_required

@@ -5,6 +5,16 @@
 {% block content %}
 
   <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+          {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <div class="row">
       <div class="col md-12">
         <div class="jumbotron p-3">
@@ -30,9 +40,9 @@
                 {% for row in user[0:6] %}
                 <td> {{ row }}</td>
                 {% endfor %}
-                <td class="float-end"> 
-                  <a class="btn btn-primary" href="/edit_user?user_id={{user[0]}}&oper=edit" role="button">Edit</a>
-                  <a class="btn btn-primary" href="#" role="button">Deactivate</a>
+                <td> 
+                  <a class="btn" href="/edit_user?user_id={{user[0]}}" role="button">
+                    <img src="/static/image/pencil-square.svg" alt="Bootstrap" width="25" height="25"></a>
                 </td>
               </tr>  
             {% endfor %}

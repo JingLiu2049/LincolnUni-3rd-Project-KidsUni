@@ -1,12 +1,11 @@
 # Imports
 ################################################
 from flask import Flask, url_for, session, redirect, flash, render_template, request, send_from_directory, send_file, g
-import datetime as dt
 import psycopg2
 from psycopg2.extras import RealDictCursor, NamedTupleCursor
 import connect
 import re
-from datetime import datetime, timedelta, date
+from datetime import datetime, time, timedelta, date
 from dateutil.relativedelta import *
 from flask_mail import Mail, Message
 import smtplib
@@ -26,6 +25,7 @@ from functools import wraps
 ################################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'project2_kids_uni'
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
 
 
 #app.secret_key = 'project2_kids_uni'
@@ -69,6 +69,7 @@ def login_required(f):
         if 'loggedin' in session:
             return f(*args, **kwargs)
         else: 
+            flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
 
@@ -86,6 +87,10 @@ def login():
         username = request.form['username']
         password = request.form['password']
         next_url = request.form.get('next')
+        remember_me = request.form.get('remember_me')
+        print(username)
+        print(next_url)
+        print(remember_me)
         # Check if account exists using MySQL
         cur = getCursor() 
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
@@ -104,12 +109,15 @@ def login():
             session['user_id'] = account[0]
             session['username'] = account[1]
             session['name'] = name
+            session['remember_me'] = True if request.form.get('remember_me') else False
+            print(session['remember_me'])
             if next_url:
                 return redirect(next_url)
             # Redirect to home page
             return redirect(url_for('index'))
         else:
             # Account doesnt exist or username/password incorrect
+            flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
             msg ='Login Unsuccessful. Please check your email and password!'
     return render_template('login.html', title='Login', msg=msg) 
 
@@ -122,6 +130,7 @@ def logout():
    session.pop('loggedin', None)
    session.pop('user_id', None)
    session.pop('username', None)
+   session.pop('remember', None)
    # Redirect to login page
    return redirect(url_for('login'))
 
@@ -368,40 +377,48 @@ def users():
 def edit_user():
     cur = getCursor()
     if request.method =='POST':
-        user = request.form.to_dict()
-        sql = "UPDATE admin SET firstname = '%s', surname = '%s', phonenumber = '%s', email = '%s' \
-            WHERE user_id = %s" %(user['firstname'],user['surname'],user['phonenumber'],user['email'],int(user['user_id']))
-        cur.execute(sql)
-        return redirect(url_for('users'))
+        updated_status = request.form.get('updated_status')
+        print(updated_status)
+        if updated_status == None:
+            user = request.form.to_dict()
+            sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \
+                WHERE user_id = %s" %(user['first_name'],user['surname'],user['phone_number'],user['email'], \
+                int(user['user_id']))
+            cur.execute(sql)
+            flash(f'User successfully updated.', 'success')
+            return redirect(url_for('users'))
+        elif updated_status == 'active':
+            user = request.form.to_dict()
+            sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s', status = '%s' \
+                WHERE user_id = %s" %(user['first_name'],user['surname'],user['phone_number'],user['email'], user['updated_status'],int(user['user_id']))
+            cur.execute(sql) 
+            flash(f'User successfully updated.', 'success')
+            return redirect(url_for('users'))
     else:
-        user_id = int(request.args.get('user_id'))
-        operation = request.args.get('oper')
-        if operation == 'edit':
-            cur.execute("SELECT * FROM admin WHERE user_id = %s;",(user_id,))
-            userinfo = cur.fetchone()
-            return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
-        elif operation == 'deactivate':
-            cur.execute("UPDATE admin SET status='deactivate' WHERE user_id = %s;",(user_id,))
+        user_id = request.args.get('user_id')
+        cur.execute("SELECT * FROM admin WHERE user_id = %s;",(user_id,))
+        userinfo = cur.fetchone()
+        return render_template("edit_user.html", userinfo=userinfo, name=session['name'])   
 
 @app.route("/new_user",methods = ['POST','GET']) 
 @login_required    
 def new_user():
     if request.method == 'POST':
         user_id = genID()
-        firstname = request.form.get('firstname')
+        first_name = request.form.get('first_name')
         surname = request.form.get('surname')
         email = request.form.get('email')
-        phonenumber = request.form.get('phonenumber')
+        phone_number = request.form.get('phone_number')
         status = "active"
         print(user_id)
-        print(firstname)
+        print(first_name)
         print(surname)
         print(email)
-        print(phonenumber)
+        print(phone_number)
 
         cur = getCursor()              
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);", \
-            (int(user_id), firstname, surname, phonenumber, email, status,))
+            (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute("INSERT INTO authorisation(user_id, username) VALUES (%s,%s);",(user_id, email,))
         return redirect(url_for('users'))
     return render_template('new_user.html', name=session['name']) 
@@ -499,12 +516,6 @@ def school_upload():
         # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
         #     coor_col = coor_col, coor_data = coor_data)
         return render_template('school_upload.html',cols = des_cols, data = des_data, name=session['name'])
-
-
-
-
-
-
 
 
 

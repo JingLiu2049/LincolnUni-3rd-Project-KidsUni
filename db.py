@@ -12,3 +12,9 @@ def getCursor():
     else:
         return dbconn
 
+def getOne(query, parameters):
+    # Parameters: query (string), parameters (list)
+    # Output: first result from the database based on the search criteria provided in the query string and parameters
+    cur = getCursor()
+    cur.execute(query, parameters)
+    return cur.fetchone()

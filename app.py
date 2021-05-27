@@ -79,8 +79,7 @@ def login_required(f):
 # This will be the login page, we need to use both GET and POST requests
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    # Output message if something goes wrong...
-    msg = ''
+
     # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password in request.form':
         # Create variables for easy access
@@ -97,13 +96,18 @@ def login():
         # Fetch one record and return result
         account = cur.fetchone()
         print(account)
+        print(account[0])
+        print(type(account[0]))
+        cur = getCursor() 
+        cur.execute('SELECT status FROM admin WHERE user_id = %s', (int(account[0]),))
+        status = cur.fetchone()
+        print(status)
         # If account exists in accounts table in our database
-        if account:
+        if account and status[0] == 'active':
             sql = "SELECT first_name, surname FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
                 WHERE authorisation.user_id = %s;" % account[0]
             cur.execute(sql)
             name = cur.fetchone()
-            
             # Create session data, we can access this data in other routes
             session['loggedin'] = True
             session['user_id'] = account[0]
@@ -115,11 +119,13 @@ def login():
                 return redirect(next_url)
             # Redirect to home page
             return redirect(url_for('index'))
+        if account and status[0] == 'deactivated':
+            flash(f'Login unsuccessful. Please contact admin to check your account.', 'danger')
+            return redirect(url_for('login'))
         else:
             # Account doesnt exist or username/password incorrect
             flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
-            msg ='Login Unsuccessful. Please check your email and password!'
-    return render_template('login.html', title='Login', msg=msg) 
+    return render_template('login.html', title='Login') 
 
 
 # This will be the logout page
@@ -377,7 +383,10 @@ def users():
 def edit_user():
     cur = getCursor()
     if request.method =='POST':
+        current_status = request.form.get('current_status')
         updated_status = request.form.get('updated_status')
+
+        print(current_status)
         print(updated_status)
         if updated_status == None:
             user = request.form.to_dict()
@@ -387,7 +396,7 @@ def edit_user():
             cur.execute(sql)
             flash(f'User successfully updated.', 'success')
             return redirect(url_for('users'))
-        elif updated_status == 'active':
+        if updated_status == 'deactivated' or updated_status =='active':
             user = request.form.to_dict()
             sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s', status = '%s' \
                 WHERE user_id = %s" %(user['first_name'],user['surname'],user['phone_number'],user['email'], user['updated_status'],int(user['user_id']))

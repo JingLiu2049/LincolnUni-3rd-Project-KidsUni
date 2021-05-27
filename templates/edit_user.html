@@ -42,7 +42,7 @@
             <div class="mb-3 row">
                 <label class="col-sm-2 col-form-label">Status</label>
                 <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user" required="required" name="id" value="{{ userinfo[5] }}" readonly>
+                    <input type="text" class="form-control form-control-user" required="required" name="current_status" value="{{ userinfo[5] }}" readonly>
                 </div>
             </div>
         </div>
@@ -53,10 +53,10 @@
         {% if userinfo[5] == 'active' %}
             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Deactivate</button>
         {% elif userinfo[5] == 'deactivated' %}
-            <button type="submit" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Reactivate</button>
+            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Reactivate</button>
         {% endif %}
 
-        <!-- Modal -->
+        <!-- Deactivate/Reactivate Modal -->
         <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog">
             <div class="modal-content">

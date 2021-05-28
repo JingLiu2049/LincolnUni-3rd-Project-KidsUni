@@ -3,6 +3,7 @@
 {%endblock%}
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
+<main class="m-4">
 <h1>volunteer page</h1>
 <form action="/volunteer_upload" method="POST" enctype="multipart/form-data">
     <input type="file" id="file" name="file">
@@ -17,4 +18,5 @@
     </tr>
     {%endfor%}
 </table>
+</main>
 {%endblock%}

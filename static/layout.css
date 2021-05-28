@@ -1,6 +1,6 @@
 a{
     text-decoration: none;
 }
-header img{
-    height: 2.5rem;
+.navbar-brand {
+    width:50px;
 }

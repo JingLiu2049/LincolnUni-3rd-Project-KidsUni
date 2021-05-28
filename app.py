@@ -5,7 +5,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor, NamedTupleCursor
 import connect
 import re
-from datetime import datetime, timedelta, date
+from datetime import datetime, time, timedelta, date
 from dateutil.relativedelta import *
 from flask_mail import Mail, Message
 import smtplib
@@ -17,6 +17,8 @@ import zipfile
 import spreadsheet
 import uuid
 import uploads
+import dest_info
+import schools_info
 from functools import wraps
 
 
@@ -25,6 +27,7 @@ from functools import wraps
 ################################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'project2_kids_uni'
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
 
 
 
@@ -37,7 +40,7 @@ def getCursor():
     if dbconn == None:
         conn = psycopg2.connect(connect.conn_string)
         conn.autocommit = True
-        dbconn = conn.cursor(cursor_factory = psycopg2.extras.NamedTupleCursor)
+        dbconn = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
         return dbconn
     else:
         return dbconn
@@ -60,12 +63,14 @@ def test(obj):
 def genID():
     return uuid.uuid4().fields[1]
 
+
 def login_required(f):
     @wraps(f)
     def secure_function(*args, **kwargs):
         if 'loggedin' in session:
             return f(*args, **kwargs)
-        else: 
+        else:
+            flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
 # Disable browser downloads from cache
@@ -83,42 +88,61 @@ def no_cache(fun):
 ##################################################
 
 # This will be the login page, we need to use both GET and POST requests
+
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
-    # Output message if something goes wrong...
-    msg = ''
+
     # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password in request.form':
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
         next_url = request.form.get('next')
+        remember_me = request.form.get('remember_me')
+        print(username)
+        print(next_url)
+        print(remember_me)
         # Check if account exists using MySQL
-        cur = getCursor() 
-        cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
+        cur = getCursor()
+        cur.execute(
+            'SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
         print(account)
+        print(account[0])
+        print(type(account[0]))
+        cur = getCursor()
+        cur.execute('SELECT status FROM admin WHERE user_id = %s',
+                    (int(account[0]),))
+        status = cur.fetchone()
+        print(status)
         # If account exists in accounts table in our database
-        if account:
+        if account and status[0] == 'active':
             sql = "SELECT first_name, surname FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
                 WHERE authorisation.user_id = %s;" % account[0]
             cur.execute(sql)
             name = cur.fetchone()
-            
             # Create session data, we can access this data in other routes
             session['loggedin'] = True
             session['user_id'] = account[0]
             session['username'] = account[1]
             session['name'] = name
+            session['remember_me'] = True if request.form.get(
+                'remember_me') else False
+            print(session['remember_me'])
             if next_url:
                 return redirect(next_url)
             # Redirect to home page
             return redirect(url_for('index'))
+        if account and status[0] == 'deactivated':
+            flash(
+                f'Login unsuccessful. Please contact admin to check your account.', 'danger')
+            return redirect(url_for('login'))
         else:
             # Account doesnt exist or username/password incorrect
-            msg ='Login Unsuccessful. Please check your email and password!'
-    return render_template('login.html', title='Login', msg=msg) 
+            flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
+    return render_template('login.html', title='Login')
 
 
 # This will be the logout page
@@ -126,62 +150,86 @@ def login():
 @login_required
 def logout():
     # Remove session data, this will log the user out
-   session.pop('loggedin', None)
-   session.pop('user_id', None)
-   session.pop('username', None)
-   # Redirect to login page
-   return redirect(url_for('login'))
+    session.pop('loggedin', None)
+    session.pop('user_id', None)
+    session.pop('username', None)
+    session.pop('remember', None)
+    # Redirect to login page
+    return redirect(url_for('login'))
+
 
 @app.route("/index", methods=['POST', 'GET'])
 @login_required
 def index():
-    return render_template("index.html", name=session['name'])
+    cur = getCursor()
+    cur.execute("SELECT COUNT(member_id) FROM members;")
+    total_members = cur.fetchone()
+    cur.execute("SELECT SUM(total) FROM members;")
+    total_members_hours = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM schools WHERE status='active';")
+    active_schools = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM schools WHERE status='in progress';")
+    in_progress_schools = cur.fetchone()
+    cur.execute("SELECT COUNT(school_id) FROM schools;")
+    total_schools = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM destinations WHERE status='active';")
+    active_destinations = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM destinations WHERE status='pending';")
+    pending_destinations = cur.fetchone()
+    cur.execute("SELECT COUNT(ld_id) FROM destinations;")
+    total_destinations = cur.fetchone()
+    return render_template("index.html", name=session['name'], total_members=total_members,
+        total_members_hours=total_members_hours, active_schools=active_schools, in_progress_schools=in_progress_schools,
+        total_schools=total_schools, active_destinations=active_destinations, pending_destinations=pending_destinations,
+        total_destinations=total_destinations)
 
-@app.route("/member", methods = ['POST','GET'])
+
+@app.route("/member", methods=['POST', 'GET'])
 @login_required
-def member(): 
-    cur = getCursor() 
+def member():
+    cur = getCursor()
     cur.execute("select * from member_info;")
     result = cur.fetchall()
     cur.execute("select distinct school_name from schools;")
     school_name = cur.fetchall()
-    school_filter=school_name
-    cur.execute("select distinct member_age from members order by member_age asc;;")
-    member_age=cur.fetchall()
+    school_filter = school_name
+    cur.execute(
+        "select distinct member_age from members order by member_age asc;;")
+    member_age = cur.fetchall()
     cur.execute("select distinct ethnicity from members;")
-    ethnicity=cur.fetchall()
+    ethnicity = cur.fetchall()
     cur.execute("select distinct previous from members;")
-    previous_hours=cur.fetchall()
+    previous_hours = cur.fetchall()
     cur.execute("select distinct passport_date_issued from members;")
-    passport_date_issued=cur.fetchall()
+    passport_date_issued = cur.fetchall()
     cur.execute("select distinct total from members;")
-    total_hours=cur.fetchall()
+    total_hours = cur.fetchall()
     cur.execute("select distinct gown_size from members;")
-    gown_size=cur.fetchall()
+    gown_size = cur.fetchall()
     cur.execute("select distinct hat_size from members;")
-    hat_size=cur.fetchall()
+    hat_size = cur.fetchall()
     cur.execute("select distinct status from members;")
-    status=cur.fetchall()
-    date=datetime.today().year
+    status = cur.fetchall()
+    date = datetime.today().year
 
     if request.method == 'POST':
-        
+
         return render_template("member.html", name=session['name'])
     else:
-        return render_template("member.html",result=result, date=date, school_filter=school_filter, 
-         member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
-        total_hours=total_hours, gown_size=gown_size, hat_size=hat_size, status=status, name=session['name'])
+        return render_template("member.html", result=result, date=date, school_filter=school_filter,
+                               member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
+                               total_hours=total_hours, gown_size=gown_size, hat_size=hat_size, status=status, name=session['name'])
 
 
 @app.route("/member_filter", methods=['POST'])
 @login_required
 def member_filter():
     if request.method == 'POST':
-        cur = getCursor() 
-        school=request.form.get('schoolfilter')
-        
+        cur = getCursor()
+        school = request.form.get('schoolfilter')
+
         cur.execute(f"select * from member_info where school_name='{school}';")
-        filter_result=cur.fetchall()
+        filter_result = cur.fetchall()
         return render_template("member.html", name=session['name'], filter=filter_result)
     else:
         return redirect(url_for(member))
@@ -196,7 +244,7 @@ def member_upload():
         coor = request.form.getlist('coor')
         uploads.insert_coor(coor)
         events = request.form.getlist('mem_col')[25:-1]
-        for i in range(0,len(form)-3):
+        for i in range(0, len(form)-3):
             mem = request.form.getlist(f'mem{i}')
             mem.insert(25,coor[-1]) # insert collecting date for the data
             member = uploads.mem_obj(mem)
@@ -218,7 +266,6 @@ def member_upload():
             # return render_template('error.html')
             return print(e)
 
-
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                                coor_col=coor_col, coor_data=coor_data, name=session['name'])
 
@@ -227,29 +274,102 @@ def member_upload():
 @login_required
 def school():
     cur = getCursor()
-    cur.execute(f"select * from schools ORDER BY school_id;")
-    # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
+    cur.execute("select * from schools;")
     result = cur.fetchall()
-    column_name = [desc[0] for desc in cur.description]
-    cur.execute("select school_id from schools;")
-    school_id = cur.fetchall()
+    cur.execute("select distinct school_name from schools;")
+    school_name = cur.fetchall()
+    school_filter = school_name
+    cur.execute("select distinct who from schools;")
+    who = cur.fetchall()
+    cur.execute("select distinct council from schools;")
+    council = cur.fetchall()
+    cur.execute("select distinct category from schools;")
+    category = cur.fetchall()
+    cur.execute("select distinct status from schools;")
+    status = cur.fetchall()
+    cur.execute("select distinct returning_number from schools order by returning_number asc;;")
+    returning_number = cur.fetchall()
+    cur.execute("select distinct max_num_2021 from schools order by max_num_2021 asc;;")
+    max_num_2021= cur.fetchall()
+    cur.execute("select distinct confirmed_num from schools order by confirmed_num asc;;")
+    confirmed_num = cur.fetchall()
+    cur.execute("select distinct training from schools;")
+    training = cur.fetchall()
+    cur.execute("select distinct launch from schools;")
+    launch = cur.fetchall()
+    cur.execute("select distinct passport_presentation from schools;")
+    passport_presentation = cur.fetchall()
+    cur.execute("select distinct portal from schools;")
+    portal = cur.fetchall()
+    cur.execute("select distinct passports from schools;")
+    passports = cur.fetchall()
+    cur.execute("select distinct agreement from schools;")
+    agreement = cur.fetchall()
+    cur.execute("select distinct consent from schools;")
+    consent = cur.fetchall()
+    cur.execute("select distinct notes from schools;")
+    notes = cur.fetchall()
     date = datetime.today().year
 
     if request.method == 'POST':
+
         return render_template("school.html", name=session['name'])
     else:
-        return render_template("school.html", result=result, column=column_name, date=date, school_id=school_id,
-            name=session['name'])
-    
+        return render_template("school.html", result=result, date=date, school_filter=school_filter,
+                               school_name=school_name, who=who, council=council, category=category, status=status, 
+                               returning_number=returning_number, max_num_2021=max_num_2021, confirmed_num=confirmed_num,
+                               training=training, launch=launch, passport_presentation=passport_presentation, portal=portal,
+                                passports=passports, agreement=agreement, consent=consent,notes=notes, name=session['name'])
+
+@app.route("/school_filter", methods=['POST'])
+@login_required
+def school_filter():
+    if request.method == 'POST':
+        cur = getCursor()
+        school = request.form.get('schoolfilter')
+
+        cur.execute(f"select * from schools where school_name='{school}';")
+        filter_result = cur.fetchall()
+        return render_template("school.html", name=session['name'], filter=filter_result)
+    else:
+        return redirect(url_for(school))
+
+@app.route("/school_upload", methods=['POST'])
+@login_required
+def school_upload():
+    form = request.form
+    # get data from client-side and insert into database
+    if form:
+        total = request.form.getlist('school_col')[18:-1]
+        for i in range(0, len(form)-1):
+            school_info = request.form.getlist(f'school{i}')
+            school_obj = schools_info.school_obj(school_info[:-1])
+            school_obj.insert_db()
+        return redirect(url_for('school'))
+    #  read uploaded excel file and send info to client-side
+    else:
+        excelpath = upload_path('file')
+        try:
+            df_school = schools_info.get_df(excelpath)
+            school_cols = df_school.columns
+            school_data = df_school.values
+
+        except Exception as e:
+            # return render_template('error.html')
+            return print(e)
+        return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
+
+
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
     cur = getCursor()
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
-    return render_template('destination.html',dests = dests, name=session['name']) 
+    return render_template('destination.html', dests=dests, name=session['name'])
 
-@app.route("/destination_upload",methods = ['POST'])
+
+@app.route("/destination_upload", methods=['POST'])
 @login_required
 def destination_upload():
     form = request.form
@@ -280,8 +400,10 @@ def volunteer():
     cur = getCursor()
     cur.execute("SELECT * FROM volunteers ORDER BY volun_id;")
     voluns = cur.fetchall()
-    return render_template('volunteer.html', name=session['name'],voluns = voluns)
-@app.route("/volunteer_upload",methods=['POST', 'GET'])
+    return render_template('volunteer.html', name=session['name'], voluns=voluns)
+
+
+@app.route("/volunteer_upload", methods=['POST', 'GET'])
 @login_required
 def volunteer_upload():
     form = request.form
@@ -304,8 +426,7 @@ def volunteer_upload():
         except Exception as e:
             # return render_template('error.html')
             return print(e)
-        return render_template('volunteer_upload.html',cols = volun_cols, data = volun_data, name=session['name'])
-
+        return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data, name=session['name'])
 
 
 @app.route("/event", methods=['POST', 'GET'])
@@ -318,6 +439,7 @@ def event():
     events = cur.fetchall()
     print(events,'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
     return render_template('event.html', events=events, name=session['name'])
+
 
 @app.route("/edit_event", methods=['POST', 'GET'])
 @login_required
@@ -333,16 +455,21 @@ def edit_event():
         eventid = int(request.args.get('eventid'))
         operation = request.args.get('oper')
         if operation == 'edit':
-            cur.execute("SELECT * FROM events WHERE event_id = %s;", (eventid,))
+            cur.execute(
+                "SELECT * FROM events WHERE event_id = %s;", (eventid,))
             eventinfo = cur.fetchone()
             return render_template("edit_event.html", eventinfo=eventinfo, name=session['name'])
         elif operation == 'delete':
             try:
-                cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
+                cur.execute(
+                    "DELETE FROM events WHERE event_id = %s;", (eventid,))
             except:
-                cur.execute("DELETE FROM attendance WHERE event_id = %s;", (eventid,))
-                cur.execute("DELETE FROM events WHERE event_id = %s;", (eventid,))
+                cur.execute(
+                    "DELETE FROM attendance WHERE event_id = %s;", (eventid,))
+                cur.execute(
+                    "DELETE FROM events WHERE event_id = %s;", (eventid,))
             return redirect(url_for('event'))
+
 
 @app.route("/add_event", methods=['POST', 'GET'])
 @login_required
@@ -361,57 +488,73 @@ def add_event():
         return redirect(url_for('event'))
     return render_template('add_event.html', name=session['name'])
 
-@app.route("/users",methods = ['POST','GET'])     
+
+@app.route("/users", methods=['POST', 'GET'])
 @login_required
 def users():
-    cur = getCursor()              
+    cur = getCursor()
     cur.execute("SELECT * FROM admin ORDER BY surname;")
     select_result = cur.fetchall()
     column_names = [desc[0] for desc in cur.description]
-    return render_template('users.html', users=select_result, dbcols=column_names, name=session['name']) 
+    return render_template('users.html', users=select_result, dbcols=column_names, name=session['name'])
 
-@app.route("/edit_user", methods = ['POST','GET'])
+
+@app.route("/edit_user", methods=['POST', 'GET'])
 @login_required
 def edit_user():
     cur = getCursor()
-    if request.method =='POST':
-        user = request.form.to_dict()
-        sql = "UPDATE admin SET firstname = '%s', surname = '%s', phonenumber = '%s', email = '%s' \
-            WHERE user_id = %s" %(user['firstname'],user['surname'],user['phonenumber'],user['email'],int(user['user_id']))
-        cur.execute(sql)
-        return redirect(url_for('users'))
-    else:
-        user_id = int(request.args.get('user_id'))
-        operation = request.args.get('oper')
-        if operation == 'edit':
-            cur.execute("SELECT * FROM admin WHERE user_id = %s;",(user_id,))
-            userinfo = cur.fetchone()
-            return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
-        elif operation == 'deactivate':
-            cur.execute("UPDATE admin SET status='deactivate' WHERE user_id = %s;",(user_id,))
+    if request.method == 'POST':
+        current_status = request.form.get('current_status')
+        updated_status = request.form.get('updated_status')
 
-@app.route("/new_user",methods = ['POST','GET']) 
-@login_required    
+        print(current_status)
+        print(updated_status)
+        if updated_status == None:
+            user = request.form.to_dict()
+            sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \
+                WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'],
+                                       int(user['user_id']))
+            cur.execute(sql)
+            flash(f'User successfully updated.', 'success')
+            return redirect(url_for('users'))
+        if updated_status == 'deactivated' or updated_status == 'active':
+            user = request.form.to_dict()
+            sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s', status = '%s' \
+                WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'], user['updated_status'], int(user['user_id']))
+            cur.execute(sql)
+            flash(f'User successfully updated.', 'success')
+            return redirect(url_for('users'))
+    else:
+        user_id = request.args.get('user_id')
+        cur.execute("SELECT * FROM admin WHERE user_id = %s;", (user_id,))
+        userinfo = cur.fetchone()
+        return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
+
+
+@app.route("/new_user", methods=['POST', 'GET'])
+@login_required
 def new_user():
     if request.method == 'POST':
         user_id = genID()
-        firstname = request.form.get('firstname')
+        first_name = request.form.get('first_name')
         surname = request.form.get('surname')
         email = request.form.get('email')
-        phonenumber = request.form.get('phonenumber')
+        phone_number = request.form.get('phone_number')
         status = "active"
         print(user_id)
-        print(firstname)
+        print(first_name)
         print(surname)
         print(email)
-        print(phonenumber)
+        print(phone_number)
 
-        cur = getCursor()              
-        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);", \
-            (int(user_id), firstname, surname, phonenumber, email, status,))
-        cur.execute("INSERT INTO authorisation(user_id, username) VALUES (%s,%s);",(user_id, email,))
+        cur = getCursor()
+        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
+                    (int(user_id), first_name, surname, phone_number, email, status,))
+        cur.execute(
+            "INSERT INTO authorisation(user_id, username) VALUES (%s,%s);", (user_id, email,))
         return redirect(url_for('users'))
-    return render_template('new_user.html', name=session['name']) 
+    return render_template('new_user.html', name=session['name'])
+
 
 @app.route("/download", methods=['POST', 'GET'])
 @login_required
@@ -453,10 +596,11 @@ def download_mem_sheet():
                 zfile.write(filename)
             zfile.close()
             return send_file(f'{app.root_path}\downloads\Competed.zip',
-                mimetype = 'zip',
-                attachment_filename= 'Competed.zip',
-                as_attachment = True)
-    return render_template('download_mem_sheet.html',schools=schools, name=session['name'])
+                             mimetype='zip',
+                             attachment_filename='Competed.zip',
+                             as_attachment=True)
+    return render_template('download_mem_sheet.html', schools=schools, name=session['name'])
+
 
 
 @app.route("/download_dest_sheet", methods=['POST', 'GET'])
@@ -476,46 +620,46 @@ def download_volun_sheet():
     return send_file(file, mimetype = 'xlsx', as_attachment=True)
 
 
-@app.route("/school_upload",methods = ['POST'])
-@login_required
-def school_upload():
-    form = request.form
-    # get data from client-side and insert into database
-    if form:
-        # coor = request.form.getlist('coor')
-        # member_info.insert_coor(coor)
-        # events = request.form.getlist('mem_col')[25:-1]
-        # for i in range(0,len(form)-3):
-        #     mem = request.form.getlist(f'mem{i}')
-        #     mem.insert(25,coor[-1]) # insert collecting date for the data
-        #     member = member_info.mem_obj(mem)
-        #     member.insert_db(events)
-        # return redirect(url_for('member'))
-        pass
-    #  read uploaded excel file and send info to client-side
-    else:
-        excelpath = upload_path('file')
-        try:
-            df_des = pd.read_excel(excelpath,0)
-            df_des.fillna('',inplace=True)
-            dest_cols = df_des.columns
-            dest_data = df_des.values
+# @app.route("/school_upload",methods = ['POST'])
+# @login_required
+# def school_upload():
+#     form = request.form
+#     # get data from client-side and insert into database
+#     if form:
+#         # coor = request.form.getlist('coor')
+#         # member_info.insert_coor(coor)
+#         # events = request.form.getlist('mem_col')[25:-1]
+#         # for i in range(0,len(form)-3):
+#         #     mem = request.form.getlist(f'mem{i}')
+#         #     mem.insert(25,coor[-1]) # insert collecting date for the data
+#         #     member = member_info.mem_obj(mem)
+#         #     member.insert_db(events)
+#         # return redirect(url_for('member'))
+#         pass
+#     #  read uploaded excel file and send info to client-side
+#     else:
+#         excelpath = upload_path('file')
+#         try:
+#             df_des = pd.read_excel(excelpath,0)
+#             df_des.fillna('',inplace=True)
+#             dest_cols = df_des.columns
+#             dest_data = df_des.values
 
-            print(df_des)
-            # df_list= member_info.get_df(excelpath)
-            # df_member = df_list[0]
-            # df_coor = df_list[1]
-            # mem_col = df_member.columns
-            # mem_data = df_member.values
-            # coor_col = df_coor.columns
-            # coor_data = df_coor.values
-        except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+#             print(df_des)
+#             # df_list= member_info.get_df(excelpath)
+#             # df_member = df_list[0]
+#             # df_coor = df_list[1]
+#             # mem_col = df_member.columns
+#             # mem_data = df_member.values
+#             # coor_col = df_coor.columns
+#             # coor_data = df_coor.values
+#         except Exception as e:
+#             # return render_template('error.html')
+#             return print(e)
 
-        # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
-        #     coor_col = coor_col, coor_data = coor_data)
-        return render_template('school_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
+#         # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
+#         #     coor_col = coor_col, coor_data = coor_data)
+#         return render_template('school_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
 
 
 

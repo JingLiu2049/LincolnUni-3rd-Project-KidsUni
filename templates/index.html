@@ -6,15 +6,56 @@
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
 
-<h1>index page</h1>
-<p>Welcome back {{ name[0] }} {{ name[1] }}!</p>
-<a href="/member">member</a>
-<a href="/school">school</a>
-<a href="/destination">destination</a>
-<a href="/volunteer">volunteer</a>
-<a href="/event">event</a>
-<a href="/new_user">new_user</a>
-<a href="/download">Download Excel</a>
-
+<main class="m-4">
+    <h1>Dashboard</h1>
+    <div class="container-fluid mt-30">
+        <div class="row row row-cols-1 row-cols-md-2 row-cols-lg-4">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="badge badge-success float-right">year</span>
+                        <h6 class="card-title">Members</h6>
+                        <p class="mb-0">Members active: {{ total_members[0] }}</p>
+                        <p class="mb-0">Members hours(current total): {{ total_members_hours[0] }} hours</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="badge badge-success float-right">year</span>
+                        <h6 class="card-title">Schools</h6>
+                        <p class="mb-0">Schools and rūnanga active: {{ active_schools[0] }}</p>
+                        <p class="mb-0">Schools and rūnanga in progress: {{ in_progress_schools[0] }}</p>
+                        <p class="mb-0">Schools and rūnanga total: {{ total_schools[0] }}</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="badge badge-success float-right">year</span>
+                        <h6 class="card-title">Learning Destinations</h6>
+                        <p class="mb-0">Learning Destinations active: {{ active_destinations[0] }}</p>
+                        <p class="mb-0">Learning Destinations pending: {{ pending_destinations[0] }}</p>
+                        <p class="mb-0">Learning Destinations total: {{ total_destinations[0] }}</p>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <span class="badge badge-success float-right">year</span>
+                        <h6 class="card-title ">Volunteers</h6>
+                        <p class="mb-0">Volunteers active:</p>
+                        <p class="mb-0">Volunteers hours:</p>
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+    </main>
 {%endblock%}
     

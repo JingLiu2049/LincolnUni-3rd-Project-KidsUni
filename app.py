@@ -236,7 +236,6 @@ def member_upload():
 def school():
     cur = getCursor()
     cur.execute(f"select * from schools ORDER BY school_id;")
-    # cur.execute(f"select * from members join schools on members.school_id=schools.school_id ORDER BY member_id;")
     result = cur.fetchall()
     column_name = [desc[0] for desc in cur.description]
     cur.execute("select school_id from schools;")

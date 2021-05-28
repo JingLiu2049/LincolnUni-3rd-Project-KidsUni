@@ -1,7 +1,6 @@
 # Imports
 ################################################
-from flask import Flask, url_for, session, redirect, flash, render_template, request, send_from_directory, send_file, g
-import datetime as dt
+from flask import Flask, url_for, session, redirect, flash, render_template, request, send_file,make_response
 import psycopg2
 from psycopg2.extras import RealDictCursor, NamedTupleCursor
 import connect
@@ -13,19 +12,20 @@ import smtplib
 import os
 from werkzeug.utils import secure_filename
 import pandas as pd
-import member_info
 import db
 import zipfile
 import spreadsheet
 import uuid
-import dest_info
+import uploads
 from functools import wraps
+
 
 
 # Global Functions
 ################################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'project2_kids_uni'
+
 
 
 #app.secret_key = 'project2_kids_uni'
@@ -53,13 +53,10 @@ def upload_path(name):
     file.save(excelpath)
     return excelpath
 
-
 def test(obj):
     print(obj, type(obj), 'tttttttttttttttttttttttttt', datetime.now)
 
 # Generate ID
-
-
 def genID():
     return uuid.uuid4().fields[1]
 
@@ -71,6 +68,16 @@ def login_required(f):
         else: 
             return redirect(url_for('login', next=request.url))
     return secure_function
+# Disable browser downloads from cache
+def no_cache(fun):
+    @wraps(fun)
+    def inner(*args,**kwargs):
+        response = make_response(fun(*args,**kwargs))
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate" 
+        response.headers["Pragma"] = "no-cache" 
+        response.headers["Expires"] = "0"
+        return response
+    return inner
 
 # App Route
 ##################################################
@@ -187,12 +194,12 @@ def member_upload():
     # get data from client-side and insert into database
     if form:
         coor = request.form.getlist('coor')
-        member_info.insert_coor(coor)
+        uploads.insert_coor(coor)
         events = request.form.getlist('mem_col')[25:-1]
         for i in range(0,len(form)-3):
             mem = request.form.getlist(f'mem{i}')
             mem.insert(25,coor[-1]) # insert collecting date for the data
-            member = member_info.mem_obj(mem)
+            member = uploads.mem_obj(mem)
             member.insert_db(events)
 
         return redirect(url_for('member'))
@@ -200,7 +207,7 @@ def member_upload():
     else:
         excelpath = upload_path('file')
         try:
-            df_list= member_info.get_df(excelpath)
+            df_list= uploads.get_mem_df(excelpath)
             df_member = df_list[0]
             df_coor = df_list[1]
             mem_col = df_member.columns
@@ -250,28 +257,28 @@ def destination_upload():
     if form:
         paperwork = request.form.getlist('des_col')[20:-1]
         for i in range(0,len(form)-1):
-            des_info = request.form.getlist(f'des{i}')
-            des_obj = dest_info.des_obj(des_info[:-1])
-            des_obj.insert_db()
+            dest_info = request.form.getlist(f'des{i}')
+            dest_obj = uploads.dest_obj(dest_info[:-1])
+            dest_obj.insert_db()
         return redirect(url_for('destination'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
         try:
-            df_des = dest_info.get_df(excelpath)
-            des_cols = df_des.columns
-            des_data = df_des.values
+            df_dest = uploads.get_dest_df(excelpath)
+            dest_cols = df_dest.columns
+            dest_data = df_dest.values
             
         except Exception as e:
             # return render_template('error.html')
             return print(e)
-        return render_template('destination_upload.html',cols = des_cols, data = des_data, name=session['name'])
+        return render_template('destination_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
 
 @app.route("/volunteer", methods=['POST', 'GET'])
 @login_required
 def volunteer():
     cur = getCursor()
-    cur.execute("SELECT * FROM volunteer ORDER BY volunteer_id;")
+    cur.execute("SELECT * FROM volunteers ORDER BY volun_id;")
     voluns = cur.fetchall()
     return render_template('volunteer.html', name=session['name'],voluns = voluns)
 @app.route("/volunteer_upload",methods=['POST', 'GET'])
@@ -280,21 +287,19 @@ def volunteer_upload():
     form = request.form
     # get data from client-side and insert into database
     if form:
-        # paperwork = request.form.getlist('des_col')[20:-1]
-        # for i in range(0,len(form)-1):
-        #     des_info = request.form.getlist(f'des{i}')
-        #     des_obj = dest_info.des_obj(des_info[:-1])
-        #     des_obj.insert_db()
-        return redirect(url_for('destination'))
-    #  read uploaded excel file and send info to client-side
+        events = request.form.getlist('col')[38:-1]
+        for i in range(0,len(form)-1):
+            volun_info = request.form.getlist(f'index{i}')
+            volun_obj = uploads.volun_obj(volun_info)
+            volun_obj.insert_db(events)
+        return redirect(url_for('volunteer'))
     else:
         excelpath = upload_path('file')
         try:
-            df_volun = pd.read_excel(excelpath,0)
-            df_volun.fillna('',inplace=True)
-            df_volun.loc[:,'index'] = df_volun.index
+            df_volun = uploads.get_volun_df(excelpath)
             volun_cols = df_volun.columns
             volun_data = df_volun.values
+
             
         except Exception as e:
             # return render_template('error.html')
@@ -307,9 +312,11 @@ def volunteer_upload():
 @login_required
 def event():
     cur = getCursor()
-    cur.execute("SELECT events.*, event_attend.number FROM events LEFT JOIN event_attend\
-        ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
+    cur.execute("SELECT events.*, event_attend.number,volun_attend.attend FROM events\
+        LEFT JOIN event_attend ON events.event_id = event_attend.event_id LEFT JOIN \
+        volun_attend ON events.event_id = volun_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
+    print(events,'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
     return render_template('event.html', events=events, name=session['name'])
 
 @app.route("/edit_event", methods=['POST', 'GET'])
@@ -410,11 +417,11 @@ def new_user():
 @login_required
 def download():
     return render_template('download.html', name=session['name'])
+
 # generating excel file of member for downloading
-
-
 @app.route("/download_mem_sheet", methods=['POST', 'GET'])
 @login_required
+@no_cache
 def download_mem_sheet():
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
     cur = getCursor()
@@ -451,12 +458,14 @@ def download_mem_sheet():
                 as_attachment = True)
     return render_template('download_mem_sheet.html',schools=schools, name=session['name'])
 
+
 @app.route("/download_dest_sheet", methods=['POST', 'GET'])
 @login_required
+@no_cache
 def download_dest_sheet():
     print('lailemalailemalailema')
     file = spreadsheet.gen_dest_sheet()
-    print(file,'ffffffffffffffffffffffffff')
+    print('lailemalailemalailema')
     return send_file(file,mimetype = 'xlsx', as_attachment=True)
 
 @app.route("/school_upload",methods = ['POST'])
@@ -481,8 +490,8 @@ def school_upload():
         try:
             df_des = pd.read_excel(excelpath,0)
             df_des.fillna('',inplace=True)
-            des_cols = df_des.columns
-            des_data = df_des.values
+            dest_cols = df_des.columns
+            dest_data = df_des.values
 
             print(df_des)
             # df_list= member_info.get_df(excelpath)
@@ -498,7 +507,7 @@ def school_upload():
 
         # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
         #     coor_col = coor_col, coor_data = coor_data)
-        return render_template('school_upload.html',cols = des_cols, data = des_data, name=session['name'])
+        return render_template('school_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
 
 
 

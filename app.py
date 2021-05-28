@@ -17,7 +17,6 @@ import zipfile
 import spreadsheet
 import uuid
 import uploads
-import dest_info
 import schools_info
 from functools import wraps
 
@@ -332,7 +331,7 @@ def school_filter():
         filter_result = cur.fetchall()
         return render_template("school.html", name=session['name'], filter=filter_result)
     else:
-        return redirect(url_for(school))
+        return redirect(url_for('school'))
 
 @app.route("/school_upload", methods=['POST'])
 @login_required

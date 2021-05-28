@@ -111,13 +111,14 @@
 <div class="container-fluid">
      <h1>School Information List</h1>
      <form action="/school_upload" method="POST" enctype="multipart/form-data">
-
-          <div class="input-group mb-3">
+               <input type="file" id="file" name="file">
+               <button type="submit" id="btn">submit</button>
+          <!--<div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" class="form-control" id="inputGroupFile01" required>
             <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
             
-          </div>
+          </div>-->
         </form>
         </br>
 
@@ -197,7 +198,7 @@
                     <th scope="col">Notes</th>
                </tr>
           </thead>
-          <tfoot>
+          <!--<tfoot>
                <tr>
                     <th>School ID</th>
                     <th>School Name</th>
@@ -218,7 +219,7 @@
                     <th>Consent</th>
                     <th>Notes</th>    
                </tr>
-          </tfoot>
+          </tfoot>-->
           <tbody id="mytable">
                {% for item in result %}
                <tr>

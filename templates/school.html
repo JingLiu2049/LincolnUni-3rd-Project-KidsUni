@@ -1,5 +1,6 @@
 {%extends "layout.html"%}
 {%block title%}School Page{%endblock%}
+
 {% block head %}
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
 <link rel="stylesheet" href="{{url_for('static', filename = 'table.css')}}">
@@ -63,7 +64,7 @@
                 title = $(title).html().replace(/[\W]/g, '-');
                 var column = this;
                 var select = $('<select id="' + title + '" class="select2" ></select>')
-                    .appendTo( $(column.header()).empty() )
+                    .appendTo( $(column.footer()).empty() )
                     .on( 'change', function () {
                       //Get the "text" property from each selected data 
                       //regex escape the value and store in array
@@ -114,7 +115,8 @@
           <div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" class="form-control" id="inputGroupFile01" required>
-            <button class="btn btn-outline-secondary" type="button" id="btn">Submit</button>
+            <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+            
           </div>
         </form>
         </br>
@@ -126,6 +128,43 @@
               <input type="text" class="form-control" id="input" onkeyup="myFunction()">
             </div>
         </div>
+        
+     <div class="row">
+          <div class="col-md-2">
+               <h4>School</h4>
+               <select id="schoolfilter" name="schoolfilter" class="table-filter form-control" data-col="1" multiple>
+                    <option value="">Select one</option>
+                    {% for col in school_filter %}
+                    {% for result in col%}
+                    <option value="{{result}}">{{result}}</option>
+                    {% endfor %}
+                    {% endfor %}
+               </select>
+
+     </div>
+          <div class="col-md-3">
+               <h4>Who</h4>
+               <select id="genderfilter" name="genderfilter" class="table-filter form-control">
+                    <option value="">Select one</option>
+                    <option value="Jack">Jack</option>
+                    
+               </select>
+          </div>
+          <div class="col-md-3">
+               <h4>Council</h4>
+               <input type="text" class="form-control" id="table-filter form-control">
+          </div>
+          <div class="col-md-3">
+               <h4>Category</h4>
+               <input type="text" class="form-control" id="table-filter form-control">
+          </div>
+          <div class="col-md-2">
+               <h4>Status</h4>
+               <select id="servicefilter" name="servicefilter" class="table-filter form-control" data-col="3">
+                    <option value="">Select one</option>
+                    <option value="1">Active</option>
+                    <option value="2">Inactive</option>
+               </select>
 
           <div class="col-md-2">
           </br>
@@ -158,6 +197,34 @@
                     <th scope="col">Notes</th>
                </tr>
           </thead>
+          <tfoot>
+               <tr>
+                    <th>School ID</th>
+                    <th>School Name</th>
+                    <th>Who</th>
+                    <th>Council</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Returning Number</th>
+                    <th>Max Number 2021</th>
+                    <th>Confirmed Number</th>
+                    <th>Coordinator ID</th>
+                    <th>Training</th>
+                    <th>Launch</th>
+                    <th>Passport Presentation</th>
+                    <th>Portal</th>
+                    <th>Passports</th>
+                    <th>Agreement</th>
+                    <th>Consent</th>
+                    <th>Notes</th>
+                    {% if date %}
+                    <th>{{date}} Total Hours </th>
+                    {% endif %}
+                    <th>Gown Size</th>
+                    <th>Hat Size</th>
+                    <th>Status</th>     
+               </tr>
+          </tfoot>
           <tbody id="mytable">
                {% for item in result %}
                <tr>

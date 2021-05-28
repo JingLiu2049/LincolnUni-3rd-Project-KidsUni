@@ -466,7 +466,15 @@ def download_dest_sheet():
     print('lailemalailemalailema')
     file = spreadsheet.gen_dest_sheet()
     print('lailemalailemalailema')
-    return send_file(file,mimetype = 'xlsx', as_attachment=True)
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
+
+@app.route("/download_volun_sheet", methods=['POST', 'GET'])
+@login_required
+@no_cache
+def download_volun_sheet():
+    file = spreadsheet.gen_volun_sheet()
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
+
 
 @app.route("/school_upload",methods = ['POST'])
 @login_required

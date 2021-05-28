@@ -187,4 +187,50 @@ def gen_dest_sheet():
     return newPath
 
 
+def gen_volun_sheet():
+    templatePath =os.path.join(basepath,'downloads','Volunteer database template.xlsx')
+    bg = op.load_workbook(templatePath)
+    sheet1 = bg['Volunteer Details']
+    sheet2 = bg['Volunteer Hours']
+
+    # generating new path 
+    filename = f'{datetime.datetime.now().year}_Volunteers.xlsx'
+    newPath = os.path.join(basepath,'downloads',filename)
+
     
+    cur = db.getCursor()
+    sql ="SELECT volunteers.*, volunteerform.* FROM volunteers INNER JOIN volunteerform \
+        ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
+    cur.execute(sql)
+    voluns = cur.fetchall()
+    cur.execute("SELECT total FROM volun_total ORDER BY volun_id;")
+    total = cur.fetchall()
+    for i in range(0,len(voluns)):
+        allData = list(voluns[i])
+        allData.pop(14)
+        pData = [allData[0]]+allData[6:8]
+        for j in range(0,len(allData)):
+            sheet1.cell(column = j+1,row = 2+i,value = allData[j])
+        for k in range(0,3):
+            sheet2.cell(column = k+1, row = 6+i, value=pData[k] )
+        sheet2.cell(column=5,row=6+i, value=total[i][0])
+
+    cur.execute("SELECT name, event_date, event_id FROM events ORDER BY event_id;")
+    events = cur.fetchall()
+    if events:
+        for i in range(0,len(events)):
+            for j in range(0,3):
+                sheet2.cell(column = 6+i, row = 3+j, value = events[i][j])
+    
+    # get attendance info of each member and insert into spreadsheet
+        for i in range(0,len(events)):
+            eventid = events[i][2]
+            sql = "SELECT volun_hours.hours FROM volunteers LEFT JOIN \
+            volun_hours ON volunteers.volun_id = volun_hours.volun_id WHERE volun_hours.event_id \
+            = %s ORDER BY volunteers.volun_id" % eventid
+            cur.execute(sql)
+            attends = cur.fetchall()
+            for j in range(0,len(attends)):
+                sheet2.cell(column = 6+i, row = 6+j, value = attends[j][0])
+    bg.save(newPath)
+    return newPath

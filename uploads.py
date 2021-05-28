@@ -180,6 +180,9 @@ class volunteer:
     def __init__(self,l=[]):
         self.id = int(l[0])
         self.status = l[1]
+        self.induction = l[2]
+        self.interview = l[3]
+        self.photo = l[4]
         self.studentid = int(l[5])
         self.firstname = l[6]
         self.surname = l[7]
@@ -190,9 +193,7 @@ class volunteer:
         self.phone = l[12]
         self.address = l[13]
 
-        self.induction = l[2]
-        self.interview = l[3]
-        self.photo = l[4]
+        
         self.experience = l[14]
         self.leader = l[15]
         self.medical = l[16]
@@ -223,15 +224,16 @@ class volunteer:
     def insert_db(self,events):
         cur = db.getCursor()
         sql = "UPDATE volunteers SET  first_name = '%s', surname = '%s', preferred_name = '%s', status = '%s', student_id = %s, \
-            gender = '%s', dob = '%s', email= '%s',mobile= '%s',address= '%s'WHERE volun_id = %s" % (self.firstname, self.surname,
-            self.prefer,self.status,self.studentid,self.gender,self.birthday,self.email,self.phone,self.address,self.id)
+            gender = '%s', dob = '%s', email= '%s',mobile= '%s',address= '%s', induction = '%s', interview = '%s', photo = '%s' \
+            WHERE volun_id = %s" % (self.firstname, self.surname, self.prefer,self.status,self.studentid,self.gender,self.birthday,
+            self.email,self.phone,self.address, self.induction, self.interview, self.photo, self.id)
         cur.execute(sql)
-        sql = f"INSERT INTO volunteerform VALUES({self.id},'{self.induction}','{self.interview}','{self.photo}','{self.experience}',\
+        sql = f"INSERT INTO volunteerform VALUES({self.id},'{self.experience}',\
             '{self.leader}','{self.medical}','{self.police}','{self.emer_name}','{self.emer_relation}','{self.emer_phone}','{self.uni}',\
             '{self.graduate}','{self.course}','{self.current_year}','{self.comp_date}','{self.refer1_name}','{self.refer1_phone}',\
             '{self.refer1_emal}','{self.refer1_relation}','{self.refer2_name}','{self.refer2_phone}','{self.refer2_emal}',\
             '{self.refer2_relation}',$${self.overview}$$,$${self.session}$$,$${self.role}$$,$${self.consent}$$) ON CONFLICT (volun_id) DO UPDATE SET \
-            volun_id = EXCLUDED.volun_id, induction = EXCLUDED.induction, interview = EXCLUDED.interview, photo = EXCLUDED.photo, experience = \
+            volun_id = EXCLUDED.volun_id,  experience = \
             EXCLUDED.experience, future_leader = EXCLUDED.future_leader, medical_information= EXCLUDED.medical_information, police_check = \
             EXCLUDED.police_check, emer_name = EXCLUDED.emer_name, emerrelation = EXCLUDED.emerrelation, emer_phone = EXCLUDED.emer_phone, \
             studying_uni = EXCLUDED.studying_uni, graduated_uni = EXCLUDED.graduated_uni, course = EXCLUDED.course, current_year = EXCLUDED.current_year, \

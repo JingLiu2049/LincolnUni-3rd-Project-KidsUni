@@ -5,7 +5,9 @@
 <link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
 {% endblock head %}
 {%block content%}
-<div class="container">
+<main class="m-4">
+    <div class="bg-light p-5 rounded">
+        <h1>Edit User</h1>
     <form action="{{ url_for('edit_user') }}" method="POST">
         <div class="input_wrapper">
         <div id="base" class="eventinfo">
@@ -86,5 +88,5 @@
         </div>
     </form>
 </div>
-
+</main> 
 {%endblock%}

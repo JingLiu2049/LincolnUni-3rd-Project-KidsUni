@@ -3,7 +3,7 @@
 {%endblock%}
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
-<div class="container">
+<main class="m-4">
 <h1>Events</h1>
 <a href="{{ url_for('add_event') }}" type="button" role="button" class="btn btn-primary float-end">
     Add Event</a>
@@ -35,7 +35,7 @@
     
 </table>
 </form>
-</div>
+</main>
 <script type="text/javascript">
 var events = JSON.parse('{{events|tojson}}')
 console.log(events)

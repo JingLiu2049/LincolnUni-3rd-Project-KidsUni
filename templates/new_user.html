@@ -14,55 +14,46 @@ Register New User
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
 
-<main class="container">
-    <div class="bg-light p-5 rounded">
-
-        <h1>Register New User</h1>
-
-            <form action="/new_user" method="POST">
-                
-                    <div class="mb-3 row">
-                        <label for="firstname" class="col-sm-2 col-form-label">First Name</label>
-                        
-                        <div class="col-sm-6">
-                        <input type="text" class="form-control form-control-user"
-                            id="first_name" name="first_name" required="required">
-                        </div>
-                    </div>
-
-                    <div class="mb-3 row">
-                        <label for="lastname" class="col-sm-2 col-form-label">Surname</label>
-
-                        <div class="col-sm-6">
-                        <input type="text" class="form-control form-control-user"
-                            id="lastname" name="surname" required="required"></div>
-                    </div>
-
-                    <div class="mb-3 row">
-                        <label for="email" class="col-sm-2 col-form-label">Email</label>
-
-                        <div class="col-sm-6">
-                        <input type="email" class="form-control form-control-user"
-                            id="#" name="email" placeholder="firstname.lastname@childrensuniversity.co.nz" required="required">
-                        </div>
-                    </div>
-
-                    <div class="mb-3 row">
-                        <label for="phone_number" class="col-sm-2 col-form-label">Phone number</label>
-
-                        <div class="col-sm-6">
-                        <input type="phonenumber" class="form-control form-control-user"
-                            id="phone_number" name="phone_number" placeholder="" required="required">
-                        </div>
-                    </div>
-
-
-                    <button type="submit" role="button" class="btn btn-primary" 
-                        onclick="newuser_successful()">Submit</button>
-                    <button type="reset" role="button" class="btn btn-primary">Reset</button>
-            
-            </form>
+<main class="m-5">
+    <div class="container bg-light p-4 rounded">
+        <div class="mb-3 row">
+            <h1>Register New User</h1>
+        </div>
+        <form action="/new_user" method="POST">
+            <div class="mb-3 row">
+                <label for="firstname" class="col-sm-2 col-form-label">First Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user"
+                        id="first_name" name="first_name" required="required">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="lastname" class="col-sm-2 col-form-label">Surname</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control form-control-user"
+                        id="lastname" name="surname" required="required"></div>
+                </div>
+            <div class="mb-3 row">
+                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                <div class="col-sm-6">
+                    <input type="email" class="form-control form-control-user"
+                        id="#" name="email" placeholder="firstname.lastname@childrensuniversity.co.nz" required="required">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="phone_number" class="col-sm-2 col-form-label">Phone number</label>
+                <div class="col-sm-6">
+                    <input type="phonenumber" class="form-control form-control-user"
+                        id="phone_number" name="phone_number" placeholder="" required="required">
+                </div>
+            </div>
+            <div class="d-grid gap-2 d-md-block float-end">
+                <button type="submit" role="button" class="btn btn-outline-primary" 
+                    onclick="newuser_successful()">Submit</button>
+                <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>
+                <button type="reset" role="button" class="btn btn-outline-primary">Cancel</button>
+            </div>
+        </form>
     </div>
 </main>
-
 {% endblock content%}

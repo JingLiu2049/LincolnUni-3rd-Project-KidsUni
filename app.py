@@ -152,7 +152,27 @@ def logout():
 @app.route("/index", methods=['POST', 'GET'])
 @login_required
 def index():
-    return render_template("index.html", name=session['name'])
+    cur = getCursor()
+    cur.execute("SELECT COUNT(member_id) FROM members;")
+    total_members = cur.fetchone()
+    cur.execute("SELECT SUM(total) FROM members;")
+    total_members_hours = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM schools WHERE status='active';")
+    active_schools = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM schools WHERE status='in progress';")
+    in_progress_schools = cur.fetchone()
+    cur.execute("SELECT COUNT(school_id) FROM schools;")
+    total_schools = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM destinations WHERE status='active';")
+    active_destinations = cur.fetchone()
+    cur.execute("SELECT COUNT(status) FROM destinations WHERE status='pending';")
+    pending_destinations = cur.fetchone()
+    cur.execute("SELECT COUNT(ld_id) FROM destinations;")
+    total_destinations = cur.fetchone()
+    return render_template("index.html", name=session['name'], total_members=total_members,
+        total_members_hours=total_members_hours, active_schools=active_schools, in_progress_schools=in_progress_schools,
+        total_schools=total_schools, active_destinations=active_destinations, pending_destinations=pending_destinations,
+        total_destinations=total_destinations)
 
 
 @app.route("/member", methods=['POST', 'GET'])

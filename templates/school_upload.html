@@ -14,7 +14,7 @@
     <thead>
         <tr>
         {% for item in cols%}
-        <th><input type="text" value="{{item}}" name="mem_col" class="columns" readonly></th>
+        <th><input type="text" value="{{item}}" name="school_col" class="columns" readonly></th>
         {%endfor%}
      </tr>
     </thead>
@@ -22,7 +22,7 @@
     <tr>
         {% for entrens in item%}
         <td>
-            <input type="text" value="{{entrens}}" name="mem{{item[-1]}}">
+            <input type="text" value="{{entrens}}" name="school{{item[-1]}}">
         </td>
         {%endfor%}
     </tr>
@@ -30,6 +30,9 @@
     {%endfor%}
 
 </table>
-</form>
 </div>
+<button type="submit">Submit</button>
+<button type="reset">Reset</button>
+</form>
+
 {%endblock%}

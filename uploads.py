@@ -2,6 +2,16 @@ import db
 import pandas as pd
 import getid
 
+def add_index(fun):
+    def inner(*args,**kwargs):
+        df = fun(*args,**kwargs)
+        df.fillna('',inplace=True)
+        df.loc[:,'index'] = df.index
+        return df
+    return inner
+
+
+
 class members:
     def __init__(self,l=[]):
         self.id = int(l[0])
@@ -13,9 +23,9 @@ class members:
         self.mtype = l[6]
 
         self.status = l[7]
-        self.passport = l[8]
+        self.passport = l[8] 
         
-        self.date = l[9]
+        self.date = l[9] if l[9] !='' else None
         self.eth_info = l[10]
         self.research = l[11]
         self.promos = l[12]
@@ -47,14 +57,13 @@ class members:
     def insert_db(self,events=[]):
         cur = db.getCursor()
         print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
-        sql = "UPDATE members SET school_id = %s, first_name = '%s', last_name = '%s', username='%s', \
-            password='%s', gender='%s', member_age=%s, ethnicity='%s', continuing_new = '%s', \
-            passport_number='%s', previous = %s, passport_date_issued='%s', ethnicity_info='%s', teaching_research='%s', \
-            publication_promos='%s', social_media='%s', total = %s, gown_size='%s', hat_size='%s', status = '%s' WHERE \
-            member_id = %s;" %(int(self.school), self.first, self.last, self.username, self.password, self.gender, 
+        cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
+            password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
+             passport_number=%s, previous = %s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \
+             publication_promos=%s, social_media=%s, total = %s, gown_size=%s, hat_size=%s, status = %s WHERE \
+             member_id = %s;",(self.school, self.first, self.last, self.username, self.password, self.gender, 
             self.age,self.ethnicity,self.mtype, self.passport, self.previous, self.date, self.eth_info, self.research, self.promos, 
-            self.social, self.total, self.gown, self.hat, self.status,self.id)
-        cur.execute(sql)
+            self.social, self.total, self.gown, self.hat, self.status,self.id,))
         if events:
             for i in range(0,len(events)):
                 sql = "INSERT INTO attendance VALUES(%s, %s,'%s') ON CONFLICT (member_id, event_id) \
@@ -66,14 +75,16 @@ class members:
         self.hours('term2',self.term2)
         self.hours('term3',self.term3)
         self.hours('term4',self.term4)
-
     
 def mem_obj(l=[]):
     mem_obj = members(l)
     school_id = getid.get_schoolid(mem_obj.school)
     mem_obj.school = school_id
-    if int(mem_obj.id)/100000 < 1:
-        mem_obj.id = getid.get_memid()
+    cur = db.getCursor()
+    cur.execute("SELECT * FROM members WHERE member_id = %s",mem_obj.id)
+    result =cur.fetchone()
+    if not result:
+        mem_obj.id = int(getid.get_memid())
     return mem_obj
 # obj = mem_obj('aaaaaaaaaaaaaaaaaaaaaaaa')
 # print(obj.school)
@@ -84,17 +95,17 @@ def get_mem_df(excelpath):
     df_school.dropna(axis='columns',how='all',inplace=True)
     df_school.fillna('', inplace=True)
     name = df_school.loc[0,3]
-    df1 = pd.read_excel(excelpath,0,header=[5])
+    df_mem = pd.read_excel(excelpath,0,header=[5])
     # df1.iloc[:,14].fillna('NA', inplace=True)
-    df1.update(df1.iloc[:,[14,15,16,17,18,19]].fillna(0)) 
-    df1.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
-    df1.fillna('', inplace=True)
-    df1.rename(columns={'#':'Memberid'},inplace = True)
-    df2 = pd.read_excel(excelpath,1,header=[5])
-    df1.insert(14,'USERNAME',df2['USERNAME'].values)
-    df1.insert(15,'PASSWORD',df2['PASSWORD'].values)
-    df1.insert(16,'School name',name)
-    df1.loc[:,'index'] = df1.index
+    df_mem.update(df_mem.iloc[:,[14,15,16,17,18,19]].fillna(0)) 
+    df_mem.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
+    df_mem.fillna('', inplace=True)
+    df_mem.rename(columns={'#':'Memberid'},inplace = True)
+    df_up = pd.read_excel(excelpath,1,header=[5])
+    df_mem.insert(14,'USERNAME',df_up['USERNAME'].values)
+    df_mem.insert(15,'PASSWORD',df_up['PASSWORD'].values)
+    df_mem.insert(16,'School name',name)
+    df_mem.loc[:,'index'] = df_mem.index
     df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1)
     df_coor.dropna(axis='columns',how='all',inplace=True)
     df_coor.loc[:,'School'] = df_school.loc[0,3]
@@ -102,7 +113,7 @@ def get_mem_df(excelpath):
     df_coor.loc[:,'Phone'] = df_school.loc[3,3]
     df_coor.loc[:,'year'] = df_school.loc[4,3]
     
-    return [df1,df_coor]
+    return [df_mem,df_coor]
 
 #  insert info of coordinator into database
 def insert_coor(l=[]):
@@ -121,8 +132,6 @@ def insert_coor(l=[]):
     cur.execute(sql)
 
 
-
-
 class destination:
     def __init__(self,l=[]):
         self.id = int(l[0])
@@ -138,8 +147,8 @@ class destination:
         self.web = l[10]
         self.cost = l[11]
         self.adult_cost = l[12]
-        self.agreement = l[13]
-        self.rov = l[14]
+        self.agreement = l[13] if l[13] != '' else None
+        self.rov = l[14] if l[14] != '' else None
         self.poster = l[15]
         self.logo = l[16]
         self.promo = l[17]
@@ -150,13 +159,12 @@ class destination:
         self.paperwork = l[20:] if len(l)>20 else False
     def insert_db(self,paperwork):
         cur = db.getCursor()
-        sql = "UPDATE destinations SET status = '%s', ld_name = '%s', contact_person = '%s', position = '%s', \
-            address = '%s', region = '%s', postal_address = '%s', phone_number = '%s',email = '%s', web_address = '%s', \
-            member_cost = '%s', adult_cost = '%s', agrt_signed = '%s', rov_signed = '%s', poster_sent = '%s', logo_sent = '%s', \
-            promo = '%s', photo = '%s', note = '%s' WHERE ld_id = %s;" %(self.status, self.name, self.contact, self.position, self.address,
+        cur.execute("UPDATE destinations SET status = %s, ld_name = %s, contact_person = %s, position = %s, \
+            address = %s, region = %s, postal_address = %s, phone_number = %s,email = %s, web_address = %s, \
+            member_cost = %s, adult_cost = %s, agrt_signed = %s, rov_signed = %s, poster_sent = %s, logo_sent = %s, \
+            promo = %s, photo = %s, note = %s WHERE ld_id = %s;",(self.status, self.name, self.contact, self.position, self.address,
             self.region, self.post, self.phone, self.email, self.web, self.cost, self.adult_cost, self.agreement, self.rov,
-            self.poster, self.logo, self.promo, self.photo, self.note, self.id ) 
-        cur.execute(sql)
+            self.poster, self.logo, self.promo, self.photo, self.note, self.id, ))
         if paperwork:
             for i in range(0,len(paperwork)):
                 sql = "INSERT INTO paperwork VALUES(%s, '%s','%s') ON CONFLICT (ld_id, year) \
@@ -167,21 +175,22 @@ class destination:
     # def __del__(self):
     #     print('dest obj has been delated',self)
 
-
-
-
 def dest_obj(l=[]):
     dest_obj = destination(l)
-    if int(dest_obj.id)/10000 < 1:
-        dest_obj.id = getid.get_dest_id()
+    sql = "SELECT * FROM destinations WHERE ld_id = %s" % int(dest_obj.id)
+    cur = db.getCursor()
+    cur.execute(sql)
+    result = cur.fetchone()
+    if not result:
+        dest_obj.id = int(getid.get_dest_id())
     return dest_obj
 
+@add_index
 def get_dest_df(excelpath):
     df_des = pd.read_excel(excelpath,0,header=[1])
     df_des.dropna(axis = 0, how='all', inplace=True)
-    df_des.update(df_des.iloc[:,20:].fillna('No'))  
-    df_des.fillna('',inplace=True)
-    df_des.loc[:,'index'] = df_des.index
+    df_des.update(df_des.iloc[:,15:19].fillna('No'))
+    df_des.update(df_des.iloc[:,20:].fillna('No'))
     return df_des
 
 
@@ -197,7 +206,7 @@ class volunteer:
         self.surname = l[7]
         self.prefer = l[8]
         self.gender = l[9]
-        self.birthday = l[10]
+        self.birthday = l[10] if l[10] != '' else None
         self.email = l[11]
         self.phone = l[12]
         self.address = l[13]
@@ -232,11 +241,11 @@ class volunteer:
 
     def insert_db(self,events):
         cur = db.getCursor()
-        sql = "UPDATE volunteers SET  first_name = '%s', surname = '%s', preferred_name = '%s', status = '%s', student_id = %s, \
-            gender = '%s', dob = '%s', email= '%s',mobile= '%s',address= '%s', induction = '%s', interview = '%s', photo = '%s' \
-            WHERE volun_id = %s" % (self.firstname, self.surname, self.prefer,self.status,self.studentid,self.gender,self.birthday,
-            self.email,self.phone,self.address, self.induction, self.interview, self.photo, self.id)
-        cur.execute(sql)
+        cur.execute("UPDATE volunteers SET  first_name = %s, surname = %s, preferred_name = %s, status = %s, student_id = %s, \
+            gender = %s, dob = %s, email= %s,mobile= %s,address= %s, induction = %s, interview = %s, photo = %s \
+            WHERE volun_id = %s",(self.firstname, self.surname, self.prefer,self.status,self.studentid,self.gender,self.birthday,
+            self.email,self.phone,self.address, self.induction, self.interview, self.photo, self.id,))
+
         sql = f"INSERT INTO volunteerform VALUES({self.id},'{self.experience}',\
             '{self.leader}','{self.medical}','{self.police}','{self.emer_name}','{self.emer_relation}','{self.emer_phone}','{self.uni}',\
             '{self.graduate}','{self.course}','{self.current_year}','{self.comp_date}','{self.refer1_name}','{self.refer1_phone}',\
@@ -257,14 +266,18 @@ class volunteer:
                 DO UPDATE SET volun_id = EXCLUDED.volun_id, event_id = EXCLUDED.event_id, hours = \
                 EXCLUDED.hours" %(self.id,int(events[i]),float(self.hours[i]))
                 cur.execute(sql)
-        
 
 def volun_obj(l=[]):
     volun_obj = volunteer(l)
-    if int(volun_obj.id)/10000 < 1:
-        volun_obj.id = getid.get_volun_id()
+    sql = "SELECT * FROM volunteers WHERE volun_id = %s" % int(volun_obj.id)
+    cur = db.getCursor()
+    cur.execute(sql)
+    result = cur.fetchone()
+    if not result:
+        volun_obj.id = int(getid.get_volun_id())
     return volun_obj    
 
+@add_index
 def get_volun_df(excelpath):
     df_volun = pd.read_excel(excelpath,0)
     df_hours = pd.read_excel(excelpath,1,header=[4])
@@ -272,8 +285,6 @@ def get_volun_df(excelpath):
     df_joined.dropna(axis = 0, how='all', inplace=True)
     df_joined.update(df_joined.iloc[:,[4,14,15]].fillna('No'))
     df_joined.update(df_joined.iloc[:,38:].fillna('0')) 
-    df_joined.fillna('',inplace=True)
-    df_joined .loc[:,'index'] = df_volun.index
     return df_joined
     
 

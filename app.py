@@ -248,7 +248,6 @@ def member_upload():
             mem.insert(25,coor[-1]) # insert collecting date for the data
             member = uploads.mem_obj(mem)
             member.insert_db(events)
-
         return redirect(url_for('member'))
     #  read uploaded excel file and send info to client-side
     else:
@@ -262,11 +261,12 @@ def member_upload():
             coor_col = df_coor.columns
             coor_data = df_coor.values
         except Exception as e:
-            # return render_template('error.html')
+            # return render_template('error.html', name=session['name'])
             return print(e)
-
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
-                               coor_col=coor_col, coor_data=coor_data, name=session['name'])
+                    coor_col=coor_col, coor_data=coor_data, name=session['name'])
+
+        
 
 
 @app.route("/school", methods=['POST', 'GET'])
@@ -388,8 +388,10 @@ def destination_upload():
         excelpath = upload_path('file')
         try:
             df_dest = uploads.get_dest_df(excelpath)
+            # df_dest = pd.read_excel(excelpath,0,header=[1])
             dest_cols = df_dest.columns
             dest_data = df_dest.values
+            print(df_dest.iloc[:,15:19])
             
         except Exception as e:
             # return render_template('error.html')

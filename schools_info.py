@@ -42,7 +42,7 @@ def get_df(path):
 
 def school_obj(l=[]):
     school_obj = school(l)
-    if int(school_obj.id)/10000 < 1:
+    if int(school_obj.id)/1000 < 1:
         school_name = school_obj.name 
         school_obj.id = getid.get_schoolid(school_name)
     return school_obj

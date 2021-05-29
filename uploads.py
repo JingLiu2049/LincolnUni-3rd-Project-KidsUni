@@ -147,8 +147,8 @@ class destination:
         self.note = l[19]
 
         
-        self.paperwork = l[20:-1] if len(l)>20 else False
-    def insert_db(self):
+        self.paperwork = l[20:] if len(l)>20 else False
+    def insert_db(self,paperwork):
         cur = db.getCursor()
         sql = "UPDATE destinations SET status = '%s', ld_name = '%s', contact_person = '%s', position = '%s', \
             address = '%s', region = '%s', postal_address = '%s', phone_number = '%s',email = '%s', web_address = '%s', \
@@ -157,6 +157,13 @@ class destination:
             self.region, self.post, self.phone, self.email, self.web, self.cost, self.adult_cost, self.agreement, self.rov,
             self.poster, self.logo, self.promo, self.photo, self.note, self.id ) 
         cur.execute(sql)
+        if paperwork:
+            for i in range(0,len(paperwork)):
+                sql = "INSERT INTO paperwork VALUES(%s, '%s','%s') ON CONFLICT (ld_id, year) \
+                DO UPDATE SET ld_id = EXCLUDED.ld_id, year = EXCLUDED.year, status = \
+                EXCLUDED.status" %(self.id,f'{paperwork[i]}-12-31',self.paperwork[i])
+                cur.execute(sql)
+
     # def __del__(self):
     #     print('dest obj has been delated',self)
 
@@ -170,7 +177,9 @@ def dest_obj(l=[]):
     return dest_obj
 
 def get_dest_df(excelpath):
-    df_des = pd.read_excel(excelpath,0)
+    df_des = pd.read_excel(excelpath,0,header=[1])
+    df_des.dropna(axis = 0, how='all', inplace=True)
+    df_des.update(df_des.iloc[:,20:].fillna('No'))  
     df_des.fillna('',inplace=True)
     df_des.loc[:,'index'] = df_des.index
     return df_des
@@ -249,8 +258,6 @@ class volunteer:
                 EXCLUDED.hours" %(self.id,int(events[i]),float(self.hours[i]))
                 cur.execute(sql)
         
-        
-    
 
 def volun_obj(l=[]):
     volun_obj = volunteer(l)

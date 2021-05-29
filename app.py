@@ -375,10 +375,13 @@ def destination_upload():
     # get data from client-side and insert into database
     if form:
         paperwork = request.form.getlist('des_col')[20:-1]
+        print(paperwork,'ppppppppppppppppppppppppp')
         for i in range(0,len(form)-1):
             dest_info = request.form.getlist(f'des{i}')
+            print(dest_info[:-1])
             dest_obj = uploads.dest_obj(dest_info[:-1])
-            dest_obj.insert_db()
+            print(dest_obj.paperwork)
+            dest_obj.insert_db(paperwork)
         return redirect(url_for('destination'))
     #  read uploaded excel file and send info to client-side
     else:

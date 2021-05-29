@@ -176,13 +176,26 @@ def gen_dest_sheet():
     filename = f'{datetime.datetime.now().year}_Learning Destination.xlsx'
     newPath = os.path.join(basepath,'downloads',filename)
 
-    sql ="SELECT * FROM destinations ORDER BY ld_id;"
     cur = db.getCursor()
-    cur.execute(sql)
+    cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
     for i in range(0,len(dests)):
         for j in range(0,len(dests[i])):
-            sheet1.cell(column = j+1,row = 2+i,value = dests[i][j])
+            sheet1.cell(column = j+1,row = 3+i,value = dests[i][j])
+
+    cur.execute("SELECT DISTINCT extract(year from year) as year from paperwork ORDER BY year;")
+    years = cur.fetchall()
+    
+    for i in range(0,len(years)):
+        year = years[i][0]
+        sheet1.cell(column = 21+i, row = 2, value = year)
+        cur.execute("SELECT status FROM ld_paperwork where year = %s ORDER BY ld_id;",(float(year),))
+        ppw_status = cur.fetchall()
+        for j in range(0,len(ppw_status)):
+            sheet1.cell(column = 21+i, row = 3+j, value = ppw_status[j][0])
+    
+
+
     bg.save(newPath)
     return newPath
 
@@ -222,7 +235,7 @@ def gen_volun_sheet():
             for j in range(0,3):
                 sheet2.cell(column = 6+i, row = 3+j, value = events[i][j])
     
-    # get attendance info of each member and insert into spreadsheet
+    # get attendance info of each volunteer and insert into spreadsheet
         for i in range(0,len(events)):
             eventid = events[i][2]
             sql = "SELECT volun_hours.hours FROM volunteers LEFT JOIN \

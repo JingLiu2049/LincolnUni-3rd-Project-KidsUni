@@ -611,9 +611,7 @@ def download_mem_sheet():
 @login_required
 @no_cache
 def download_dest_sheet():
-    print('lailemalailemalailema')
     file = spreadsheet.gen_dest_sheet()
-    print('lailemalailemalailema')
     return send_file(file, mimetype = 'xlsx', as_attachment=True)
 
 @app.route("/download_volun_sheet", methods=['POST', 'GET'])

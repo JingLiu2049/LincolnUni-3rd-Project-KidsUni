@@ -7,3 +7,8 @@ a{
 #logo_img{
     height: 2.5rem;
 }
+.clearfix::before, .clearfix::after{
+    content: '';
+    display: table;
+    clear: both;
+}

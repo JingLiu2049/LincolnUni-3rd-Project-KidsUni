@@ -19,6 +19,7 @@ import uuid
 import uploads
 import schools_info, member_info, destinations
 from functools import wraps
+import classes
 
 
 
@@ -93,7 +94,7 @@ def no_cache(fun):
 def login():
 
     # Check if "username" and "password" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'username' in request.form and 'password in request.form':
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
@@ -104,16 +105,14 @@ def login():
         print(remember_me)
         # Check if account exists using MySQL
         cur = getCursor()
-        cur.execute(
-            'SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
+        cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
-        print(account)
-        print(account[0])
-        print(type(account[0]))
-        cur = getCursor()
-        cur.execute('SELECT status FROM admin WHERE user_id = %s',
-                    (int(account[0]),))
+        # print(account)
+        # print(account[0])
+        # print(type(account[0]))
+
+        cur.execute('SELECT status FROM admin WHERE user_id = %s',(int(account[0]),))
         status = cur.fetchone()
         print(status)
         # If account exists in accounts table in our database
@@ -392,9 +391,19 @@ def destination_upload():
 @app.route("/volunteer", methods=['POST', 'GET'])
 @login_required
 def volunteer():
-    cur = getCursor()
-    cur.execute("SELECT * FROM volunteers ORDER BY volun_id;")
-    voluns = cur.fetchall()
+    cur = db.getCursor()
+    sql ="SELECT volunteers.*, volunteerform.* FROM volunteers INNER JOIN volunteerform \
+        ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
+    cur.execute(sql)
+        
+    results = cur.fetchall()
+    voluns = []
+    for i in results:
+        volun = list(i)
+        volun.pop(14)
+        volun_obj = classes.volunteer(volun)
+        voluns.append(volun_obj)
+        # print(volun,'vvvvvvvvvvvvvvvvvvvv')
     return render_template('volunteer.html', name=session['name'], voluns=voluns)
 
 
@@ -461,6 +470,8 @@ def edit_event():
             except:
                 cur.execute(
                     "DELETE FROM attendance WHERE event_id = %s;", (eventid,))
+                cur.execute(
+                    "DELETE FROM volun_hours WHERE event_id = %s;", (eventid,))
                 cur.execute(
                     "DELETE FROM events WHERE event_id = %s;", (eventid,))
             return redirect(url_for('event'))

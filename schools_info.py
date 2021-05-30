@@ -52,3 +52,21 @@ def get_df(excelpath):
     df_school.fillna('',inplace=True)
     df_school.loc[:,'index'] = df_school.index
     return df_school
+
+def active_schools_count():
+    # Function returns the number of active schools in the system to display on dashboard
+    query = "SELECT COUNT(status) FROM schools WHERE status='active' OR status='Active';"
+    result = db.getOne(query, [])
+    return result[0]
+
+def in_progress_schools_count():
+    # Function returns the number of in progress schools in the system to display on dashboard
+    query = "SELECT COUNT(status) FROM schools WHERE status='in progress' OR status='In Progress';"
+    result = db.getOne(query, [])
+    return result[0]
+
+def total_schools_count():
+    # Function returns the total number of schools in the system to display on dashboard
+    query = "SELECT COUNT(school_id) FROM schools;"
+    result = db.getOne(query, [])
+    return result[0]

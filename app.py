@@ -17,7 +17,7 @@ import zipfile
 import spreadsheet
 import uuid
 import uploads
-import schools_info
+import schools_info, member_info, destinations
 from functools import wraps
 
 
@@ -160,23 +160,14 @@ def logout():
 @app.route("/index", methods=['POST', 'GET'])
 @login_required
 def index():
-    cur = getCursor()
-    cur.execute("SELECT COUNT(member_id) FROM members;")
-    total_members = cur.fetchone()
-    cur.execute("SELECT SUM(total) FROM members;")
-    total_members_hours = cur.fetchone()
-    cur.execute("SELECT COUNT(status) FROM schools WHERE status='active';")
-    active_schools = cur.fetchone()
-    cur.execute("SELECT COUNT(status) FROM schools WHERE status='in progress';")
-    in_progress_schools = cur.fetchone()
-    cur.execute("SELECT COUNT(school_id) FROM schools;")
-    total_schools = cur.fetchone()
-    cur.execute("SELECT COUNT(status) FROM destinations WHERE status='active';")
-    active_destinations = cur.fetchone()
-    cur.execute("SELECT COUNT(status) FROM destinations WHERE status='pending';")
-    pending_destinations = cur.fetchone()
-    cur.execute("SELECT COUNT(ld_id) FROM destinations;")
-    total_destinations = cur.fetchone()
+    total_members = member_info.active_members_count()
+    total_members_hours = member_info.total_members_hours()
+    active_schools = schools_info.active_schools_count()
+    in_progress_schools = schools_info.in_progress_schools_count()
+    total_schools = schools_info.total_schools_count()
+    active_destinations = destinations.active_destinations_count()
+    pending_destinations = destinations.pending_destinations_count()
+    total_destinations = destinations.total_destinations_count()
     return render_template("index.html", name=session['name'], total_members=total_members,
         total_members_hours=total_members_hours, active_schools=active_schools, in_progress_schools=in_progress_schools,
         total_schools=total_schools, active_destinations=active_destinations, pending_destinations=pending_destinations,
@@ -535,9 +526,9 @@ def edit_user():
         return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
 
 
-@app.route("/new_user", methods=['POST', 'GET'])
+@app.route("/add_user", methods=['POST', 'GET'])
 @login_required
-def new_user():
+def add_user():
     if request.method == 'POST':
         user_id = genID()
         first_name = request.form.get('first_name')
@@ -556,8 +547,9 @@ def new_user():
                     (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute(
             "INSERT INTO authorisation(user_id, username) VALUES (%s,%s);", (user_id, email,))
+        flash(f'User successfully added!', 'success')
         return redirect(url_for('users'))
-    return render_template('new_user.html', name=session['name'])
+    return render_template('add_user.html', name=session['name'])
 
 
 @app.route("/download", methods=['POST', 'GET'])

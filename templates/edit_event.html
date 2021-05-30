@@ -7,9 +7,11 @@ Add Event
 <link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
 {%endblock%}
 {%block content%}
-<main class="m-4">
-    <div class="bg-light p-5 rounded">
-    <h1>Edit Event</h1>
+<main class="m-5">
+    <div class="container bg-light p-4 pb-5 rounded">
+        <div class="mb-3 row">
+            <h1>Edit Event</h1>
+            </div>
     <form action="edit_event" method="POST">
         <div class="input_wrapper">
         <div id="base" class="eventinfo">
@@ -50,7 +52,11 @@ Add Event
             </div>
         </div>
         </div>
-        <button type="submit">submit</button>
+        <div class="d-grid gap-2 d-md-block">
+            <button type="button" role="button" class="btn btn-outline-primary" onclick="history.back()">Cancel</button>
+            <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>
+            <button type="submit" role="button" class="btn btn-outline-primary">Submit</button>   
+        </div>
     </form>
 </div>
 </main>

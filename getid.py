@@ -24,8 +24,14 @@ def get_event_id():
     eventid = cur.fetchone()[0]
     return eventid
 
-def get_des_id():
+def get_dest_id():
     cur = db.getCursor()
     cur.execute("INSERT INTO destinations(ld_id) VALUES (nextval('destinationid_seq')) RETURNING ld_id;")
-    des_id =  cur.fetchone()[0]
-    return des_id
+    dest_id =  cur.fetchone()[0]
+    return dest_id
+
+def get_volun_id():
+    cur = db.getCursor()
+    cur.execute("INSERT INTO volunteers(volun_id) VALUES (nextval('volunteerid_seq')) RETURNING volun_id;")
+    volun_id =  cur.fetchone()[0]
+    return volun_id

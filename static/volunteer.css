@@ -1,0 +1,30 @@
+
+main{
+    position: relative;
+}
+div.form_wrap{
+    background-color: rgba(255, 254, 203, 0.9);
+    position: absolute;
+    width: 80%;
+    height: 500px;
+    left: 10%;
+    top: 3rem;
+}
+div.details{
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 300px;
+}
+
+#close{
+    position: absolute;
+    bottom: 0;
+}
+
+.hidden{
+    display: none;
+}
+.show {
+    display: block;
+}

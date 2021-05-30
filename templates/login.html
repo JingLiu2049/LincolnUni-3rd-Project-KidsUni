@@ -36,28 +36,36 @@
     
 <main class="form-signin">
 
-  {% if htmlMessage %}
-      <div class="alert alert-primary alert-dismissible fade show" role="alert">
-          {{ htmlMessage }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+        {{ message }}
+        </div>
+      {% endfor %}
     {% endif %}
+  {% endwith %}
 
   <form action="{{ url_for('login') }}" method="POST">
     <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
     <img class="mb-4" src="../static/image/CU logo.jpeg" width="300px">
     <h1 class="h3 mb-3 fw-normal">Staff Login</h1>
-    <div class="form-floating pb-3">
+    <div class="form-floating">
       <input type="email" class="form-control" id="username" name="username" placeholder="Email">
       <label for="username" required="required">Email</label>
     </div>
-    <div class="form-floating pb-3">
+    <div class="form-floating">
       <input type="password" class="form-control" id="password" name="password" placeholder="Password">
       <label for="password" required="required">Password</label>
     </div>
-    <div class="msg">{{ msg }}</div>
+    <div class="checkbox mb-3">
+      <label>
+        <input type="checkbox" id="remember_me" name="remember_me" value="remember_me"> Remember me
+      </label>
+    </div>
     <button type="submit" class="w-100 btn btn-lg btn-primary">Login</button>
   </form>
+  
 </main>
   </body>
 </html>

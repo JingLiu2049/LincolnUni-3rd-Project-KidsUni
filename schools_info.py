@@ -4,7 +4,7 @@ import getid
 
 class school:
     def __init__(self,l=[]):
-        self.id = int(float(l[0]))
+        self.id = int(l[0])
         self.name = l[1]
         self.who = l[2]
         self.council = l[3]

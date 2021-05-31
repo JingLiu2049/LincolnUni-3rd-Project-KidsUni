@@ -4,7 +4,8 @@
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {% block content %}
 
-  <div class="container">
+  <main class="m-5">
+    <div class="container bg-light p-4 rounded">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -15,12 +16,16 @@
       {% endif %}
     {% endwith %}
 
-    <div class="row">
-      <div class="col md-12">
-        <div class="jumbotron p-3">
-          <h1>Users</h1>
-          <a href="{{ url_for('new_user') }}" type="button" role="button" class="btn btn-primary float-end">
+      <div class="row">
+        <h1>Users</h1>
+      </div>
+      <div class="row mb-2">
+        <div class="col-12 mb-2">
+          <a href="{{ url_for('add_user') }}" type="button" role="button" class="btn btn-outline-primary float-end">
             Add New User</a>
+        </div>
+      </div>
+      <div class="table-responsive">
           <table class="table">
             <thead>
               <tr>
@@ -41,17 +46,17 @@
                 <td> {{ row }}</td>
                 {% endfor %}
                 <td> 
-                  <a class="btn" href="/edit_user?user_id={{user[0]}}" role="button">
-                    <img src="/static/image/pencil-square.svg" alt="Bootstrap" width="25" height="25"></a>
+                  <a href="/edit_user?user_id={{user[0]}}" role="button">
+                    <img src="/static/image/pencil-square.svg" alt="Edit" width="20" height="20"></a>
                 </td>
               </tr>  
             {% endfor %}
             </tbody>
           </table>
         </div>
-      </div>
     </div>
-  </div>
+    </div>
+  </main>
 {% endblock content %}
 
     

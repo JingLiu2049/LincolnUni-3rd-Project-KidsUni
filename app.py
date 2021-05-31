@@ -1,6 +1,6 @@
 # Imports
 ################################################
-from flask import Flask, url_for, session, redirect, flash, render_template, request, send_from_directory, send_file, g
+from flask import Flask, url_for, session, redirect, flash, render_template, request, send_file,make_response
 import psycopg2
 from psycopg2.extras import RealDictCursor, NamedTupleCursor
 import connect
@@ -12,14 +12,15 @@ import smtplib
 import os
 from werkzeug.utils import secure_filename
 import pandas as pd
-import member_info
 import db
 import zipfile
 import spreadsheet
 import uuid
-import dest_info
-import schools_info
+import uploads
+import schools_info, member_info, destinations
 from functools import wraps
+import classes
+
 
 
 # Global Functions
@@ -27,6 +28,7 @@ from functools import wraps
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'project2_kids_uni'
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
+
 
 
 #app.secret_key = 'project2_kids_uni'
@@ -54,13 +56,10 @@ def upload_path(name):
     file.save(excelpath)
     return excelpath
 
-
 def test(obj):
     print(obj, type(obj), 'tttttttttttttttttttttttttt', datetime.now)
 
 # Generate ID
-
-
 def genID():
     return uuid.uuid4().fields[1]
 
@@ -74,6 +73,16 @@ def login_required(f):
             flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
+# Disable browser downloads from cache
+def no_cache(fun):
+    @wraps(fun)
+    def inner(*args,**kwargs):
+        response = make_response(fun(*args,**kwargs))
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate" 
+        response.headers["Pragma"] = "no-cache" 
+        response.headers["Expires"] = "0"
+        return response
+    return inner
 
 # App Route
 ##################################################
@@ -85,7 +94,7 @@ def login_required(f):
 def login():
 
     # Check if "username" and "password" POST requests exist (user submitted form)
-    if request.method == 'POST' and 'username' in request.form and 'password in request.form':
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
@@ -96,16 +105,14 @@ def login():
         print(remember_me)
         # Check if account exists using MySQL
         cur = getCursor()
-        cur.execute(
-            'SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
+        cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
-        print(account)
-        print(account[0])
-        print(type(account[0]))
-        cur = getCursor()
-        cur.execute('SELECT status FROM admin WHERE user_id = %s',
-                    (int(account[0]),))
+        # print(account)
+        # print(account[0])
+        # print(type(account[0]))
+
+        cur.execute('SELECT status FROM admin WHERE user_id = %s',(int(account[0]),))
         status = cur.fetchone()
         print(status)
         # If account exists in accounts table in our database
@@ -152,7 +159,18 @@ def logout():
 @app.route("/index", methods=['POST', 'GET'])
 @login_required
 def index():
-    return render_template("index.html", name=session['name'])
+    total_members = member_info.active_members_count()
+    total_members_hours = member_info.total_members_hours()
+    active_schools = schools_info.active_schools_count()
+    in_progress_schools = schools_info.in_progress_schools_count()
+    total_schools = schools_info.total_schools_count()
+    active_destinations = destinations.active_destinations_count()
+    pending_destinations = destinations.pending_destinations_count()
+    total_destinations = destinations.total_destinations_count()
+    return render_template("index.html", name=session['name'], total_members=total_members,
+        total_members_hours=total_members_hours, active_schools=active_schools, in_progress_schools=in_progress_schools,
+        total_schools=total_schools, active_destinations=active_destinations, pending_destinations=pending_destinations,
+        total_destinations=total_destinations)
 
 
 @app.route("/member", methods=['POST', 'GET'])
@@ -161,49 +179,13 @@ def member():
     cur = getCursor()
     cur.execute("select * from member_info;")
     result = cur.fetchall()
-    cur.execute("select distinct school_name from schools;")
-    school_name = cur.fetchall()
-    school_filter = school_name
-    cur.execute(
-        "select distinct member_age from members order by member_age asc;;")
-    member_age = cur.fetchall()
-    cur.execute("select distinct ethnicity from members;")
-    ethnicity = cur.fetchall()
-    cur.execute("select distinct previous from members;")
-    previous_hours = cur.fetchall()
-    cur.execute("select distinct passport_date_issued from members;")
-    passport_date_issued = cur.fetchall()
-    cur.execute("select distinct total from members;")
-    total_hours = cur.fetchall()
-    cur.execute("select distinct gown_size from members;")
-    gown_size = cur.fetchall()
-    cur.execute("select distinct hat_size from members;")
-    hat_size = cur.fetchall()
-    cur.execute("select distinct status from members;")
-    status = cur.fetchall()
-    date = datetime.today().year
-
+    date=datetime.today().year
     if request.method == 'POST':
 
         return render_template("member.html", name=session['name'])
     else:
-        return render_template("member.html", result=result, date=date, school_filter=school_filter,
-                               member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
-                               total_hours=total_hours, gown_size=gown_size, hat_size=hat_size, status=status, name=session['name'])
+        return render_template("member.html",result=result, date=date, name=session['name'])
 
-
-@app.route("/member_filter", methods=['POST'])
-@login_required
-def member_filter():
-    if request.method == 'POST':
-        cur = getCursor()
-        school = request.form.get('schoolfilter')
-
-        cur.execute(f"select * from member_info where school_name='{school}';")
-        filter_result = cur.fetchall()
-        return render_template("member.html", name=session['name'], filter=filter_result)
-    else:
-        return redirect(url_for(member))
 
 
 @app.route("/member_upload", methods=['POST'])
@@ -213,20 +195,19 @@ def member_upload():
     # get data from client-side and insert into database
     if form:
         coor = request.form.getlist('coor')
-        member_info.insert_coor(coor)
+        uploads.insert_coor(coor)
         events = request.form.getlist('mem_col')[25:-1]
         for i in range(0, len(form)-3):
             mem = request.form.getlist(f'mem{i}')
-            mem.insert(25, coor[-1])  # insert collecting date for the data
-            member = member_info.mem_obj(mem)
+            mem.insert(25,coor[-1]) # insert collecting date for the data
+            member = uploads.mem_obj(mem)
             member.insert_db(events)
-
         return redirect(url_for('member'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
         try:
-            df_list = member_info.get_df(excelpath)
+            df_list= uploads.get_mem_df(excelpath)
             df_member = df_list[0]
             df_coor = df_list[1]
             mem_col = df_member.columns
@@ -234,11 +215,12 @@ def member_upload():
             coor_col = df_coor.columns
             coor_data = df_coor.values
         except Exception as e:
-            # return render_template('error.html')
+            # return render_template('error.html', name=session['name'])
             return print(e)
-
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
-                               coor_col=coor_col, coor_data=coor_data, name=session['name'])
+                    coor_col=coor_col, coor_data=coor_data, name=session['name'])
+
+        
 
 
 @app.route("/school", methods=['POST', 'GET'])
@@ -303,7 +285,7 @@ def school_filter():
         filter_result = cur.fetchall()
         return render_template("school.html", name=session['name'], filter=filter_result)
     else:
-        return redirect(url_for(school))
+        return redirect(url_for('school'))
 
 @app.route("/school_upload", methods=['POST'])
 @login_required
@@ -347,31 +329,45 @@ def destination_upload():
     # get data from client-side and insert into database
     if form:
         paperwork = request.form.getlist('des_col')[20:-1]
-        for i in range(0, len(form)-1):
-            des_info = request.form.getlist(f'des{i}')
-            des_obj = dest_info.des_obj(des_info[:-1])
-            des_obj.insert_db()
+        print(paperwork,'ppppppppppppppppppppppppp')
+        for i in range(0,len(form)-1):
+            dest_info = request.form.getlist(f'des{i}')
+            print(dest_info[:-1])
+            dest_obj = uploads.dest_obj(dest_info[:-1])
+            print(dest_obj.paperwork)
+            dest_obj.insert_db(paperwork)
         return redirect(url_for('destination'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
         try:
-            df_des = dest_info.get_df(excelpath)
-            des_cols = df_des.columns
-            des_data = df_des.values
-
+            df_dest = uploads.get_dest_df(excelpath)
+            # df_dest = pd.read_excel(excelpath,0,header=[1])
+            dest_cols = df_dest.columns
+            dest_data = df_dest.values
+            print(df_dest.iloc[:,15:19])
+            
         except Exception as e:
             # return render_template('error.html')
             return print(e)
-        return render_template('destination_upload.html', cols=des_cols, data=des_data, name=session['name'])
-
+        return render_template('destination_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
 
 @app.route("/volunteer", methods=['POST', 'GET'])
 @login_required
 def volunteer():
-    cur = getCursor()
-    cur.execute("SELECT * FROM volunteer ORDER BY volunteer_id;")
-    voluns = cur.fetchall()
+    cur = db.getCursor()
+    sql ="SELECT volunteers.*, volunteerform.* FROM volunteers INNER JOIN volunteerform \
+        ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
+    cur.execute(sql)
+        
+    results = cur.fetchall()
+    voluns = []
+    for i in results:
+        volun = list(i)
+        volun.pop(14)
+        volun_obj = classes.volunteer(volun)
+        voluns.append(volun_obj)
+        # print(volun,'vvvvvvvvvvvvvvvvvvvv')
     return render_template('volunteer.html', name=session['name'], voluns=voluns)
 
 
@@ -381,22 +377,20 @@ def volunteer_upload():
     form = request.form
     # get data from client-side and insert into database
     if form:
-        # paperwork = request.form.getlist('des_col')[20:-1]
-        # for i in range(0,len(form)-1):
-        #     des_info = request.form.getlist(f'des{i}')
-        #     des_obj = dest_info.des_obj(des_info[:-1])
-        #     des_obj.insert_db()
-        return redirect(url_for('destination'))
-    #  read uploaded excel file and send info to client-side
+        events = request.form.getlist('col')[38:-1]
+        for i in range(0,len(form)-1):
+            volun_info = request.form.getlist(f'index{i}')
+            volun_obj = uploads.volun_obj(volun_info)
+            volun_obj.insert_db(events)
+        return redirect(url_for('volunteer'))
     else:
         excelpath = upload_path('file')
         try:
-            df_volun = pd.read_excel(excelpath, 0)
-            df_volun.fillna('', inplace=True)
-            df_volun.loc[:, 'index'] = df_volun.index
+            df_volun = uploads.get_volun_df(excelpath)
             volun_cols = df_volun.columns
             volun_data = df_volun.values
 
+            
         except Exception as e:
             # return render_template('error.html')
             return print(e)
@@ -407,9 +401,11 @@ def volunteer_upload():
 @login_required
 def event():
     cur = getCursor()
-    cur.execute("SELECT events.*, event_attend.number FROM events LEFT JOIN event_attend\
-        ON events.event_id = event_attend.event_id ORDER BY events.event_date DESC;")
+    cur.execute("SELECT events.*, event_attend.number,volun_attend.attend FROM events\
+        LEFT JOIN event_attend ON events.event_id = event_attend.event_id LEFT JOIN \
+        volun_attend ON events.event_id = volun_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
+    print(events,'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
     return render_template('event.html', events=events, name=session['name'])
 
 
@@ -438,6 +434,8 @@ def edit_event():
             except:
                 cur.execute(
                     "DELETE FROM attendance WHERE event_id = %s;", (eventid,))
+                cur.execute(
+                    "DELETE FROM volun_hours WHERE event_id = %s;", (eventid,))
                 cur.execute(
                     "DELETE FROM events WHERE event_id = %s;", (eventid,))
             return redirect(url_for('event'))
@@ -503,9 +501,9 @@ def edit_user():
         return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
 
 
-@app.route("/new_user", methods=['POST', 'GET'])
+@app.route("/add_user", methods=['POST', 'GET'])
 @login_required
-def new_user():
+def add_user():
     if request.method == 'POST':
         user_id = genID()
         first_name = request.form.get('first_name')
@@ -524,19 +522,20 @@ def new_user():
                     (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute(
             "INSERT INTO authorisation(user_id, username) VALUES (%s,%s);", (user_id, email,))
+        flash(f'User successfully added!', 'success')
         return redirect(url_for('users'))
-    return render_template('new_user.html', name=session['name'])
+    return render_template('add_user.html', name=session['name'])
 
 
 @app.route("/download", methods=['POST', 'GET'])
 @login_required
 def download():
     return render_template('download.html', name=session['name'])
+
 # generating excel file of member for downloading
-
-
 @app.route("/download_mem_sheet", methods=['POST', 'GET'])
 @login_required
+@no_cache
 def download_mem_sheet():
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
     cur = getCursor()
@@ -574,13 +573,70 @@ def download_mem_sheet():
     return render_template('download_mem_sheet.html', schools=schools, name=session['name'])
 
 
+
 @app.route("/download_dest_sheet", methods=['POST', 'GET'])
 @login_required
+@no_cache
 def download_dest_sheet():
-    print('lailemalailemalailema')
     file = spreadsheet.gen_dest_sheet()
-    print(file, 'ffffffffffffffffffffffffff')
-    return send_file(file, mimetype='xlsx', as_attachment=True)
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
+
+@app.route("/download_volun_sheet", methods=['POST', 'GET'])
+@login_required
+@no_cache
+def download_volun_sheet():
+    file = spreadsheet.gen_volun_sheet()
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
+
+
+# @app.route("/school_upload",methods = ['POST'])
+# @login_required
+# def school_upload():
+#     form = request.form
+#     # get data from client-side and insert into database
+#     if form:
+#         # coor = request.form.getlist('coor')
+#         # member_info.insert_coor(coor)
+#         # events = request.form.getlist('mem_col')[25:-1]
+#         # for i in range(0,len(form)-3):
+#         #     mem = request.form.getlist(f'mem{i}')
+#         #     mem.insert(25,coor[-1]) # insert collecting date for the data
+#         #     member = member_info.mem_obj(mem)
+#         #     member.insert_db(events)
+#         # return redirect(url_for('member'))
+#         pass
+#     #  read uploaded excel file and send info to client-side
+#     else:
+#         excelpath = upload_path('file')
+#         try:
+#             df_des = pd.read_excel(excelpath,0)
+#             df_des.fillna('',inplace=True)
+#             dest_cols = df_des.columns
+#             dest_data = df_des.values
+
+#             print(df_des)
+#             # df_list= member_info.get_df(excelpath)
+#             # df_member = df_list[0]
+#             # df_coor = df_list[1]
+#             # mem_col = df_member.columns
+#             # mem_data = df_member.values
+#             # coor_col = df_coor.columns
+#             # coor_data = df_coor.values
+#         except Exception as e:
+#             # return render_template('error.html')
+#             return print(e)
+
+#         # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
+#         #     coor_col = coor_col, coor_data = coor_data)
+#         return render_template('school_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

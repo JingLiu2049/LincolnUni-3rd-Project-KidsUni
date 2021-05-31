@@ -2,9 +2,6 @@ import db
 import pandas as pd
 import getid
 
-
-
-
 class members:
     def __init__(self,l=[]):
         self.id = int(l[0])
@@ -122,6 +119,16 @@ def insert_coor(l=[]):
             school_id,l[0],l[5],l[6],l[2],l[3])
     cur.execute(sql)
 
+def active_members_count():
+    # Function returns the number of active schools in the system to display on dashboard
+    query = "SELECT COUNT(member_id) FROM members;"
+    result = db.getOne(query, [])
+    return result[0]
 
+def total_members_hours():
+    # Function returns the number of active schools in the system to display on dashboard
+    query = "SELECT SUM(total) FROM members;"
+    result = db.getOne(query, [])
+    return result[0]
     
 

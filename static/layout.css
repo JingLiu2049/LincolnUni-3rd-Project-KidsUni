@@ -1,6 +1,14 @@
 a{
     text-decoration: none;
 }
-header img{
+.navbar-brand {
+    width:50px;
+}
+#logo_img{
     height: 2.5rem;
+}
+.clearfix::before, .clearfix::after{
+    content: '';
+    display: table;
+    clear: both;
 }

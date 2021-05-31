@@ -12,24 +12,29 @@
   <link rel="stylesheet" href="{{url_for('static', filename = 'layout.css')}}">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/static/tools.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+  <style>
+    body{
+      padding-top: 50px;
+    }
+  </style>
   {%block head%}
   {%endblock%}
 </head>
 
 <body>
-  <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="/index"><img src="../static/image/CU logo.jpeg"></a>
+        <a class="navbar-brand w-auto" href="/index"><img id="logo_img" src="../static/image/CU logo.jpeg"></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
           aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Home</a>
+              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Dashboard</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('member') }}">Members</a>
@@ -58,11 +63,10 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
             </li>
-          </div>
+          </ul>
         </div>
       </div>
     </nav>
-  </header>
   {% block content %}
   {% endblock %}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>

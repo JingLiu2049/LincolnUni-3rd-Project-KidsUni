@@ -3,39 +3,54 @@
 {%endblock%}
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block content%}
-<div class="container">
-<h1>Events</h1>
-<a href="{{ url_for('add_event') }}" type="button" role="button" class="btn btn-primary float-end">
-    Add Event</a>
-<form action="event">
-<table class="table">
-    <thead>
-        <tr>
-            <th>Event ID</th>
-            <th>Event Name</th>
-            <th>Event Date</th>
-            <th>Event Location</th>
-            <th>Event Description</th>
-            <th>Member Attendance</th>
-            <th>Volunteer Attendance</th>
-            <th></th>
-        </tr>
-    </thead>
-    {% for i in events%}
-    <tr>{% for j in i%}
-        <td>{{j}}</td>
-        {%endfor%}
-        <td></td>
-        <td class="float-end"><a href="/edit_event?eventid={{i[0]}}&oper=edit" class="btn btn-primary" role="button">Edit</a>
-            <a href="/edit_event?eventid={{i[0]}}&oper=delete" class="delete btn btn-primary" role="button">Delete</a></td>
-            <!-- <a href="javascript:;" class="delete" >Delete</a></td> -->
 
-    </tr>
-    {%endfor%}
-    
-</table>
-</form>
-</div>
+<main class="m-5">
+    <div class="container bg-light p-4 rounded">
+        <div class="row">
+            <h1>Events</h1>
+        </div>
+        <div class="row mb-2">
+            <div class="col-12 mb-2">
+                <a href="{{ url_for('add_event') }}" type="button" role="button" class="btn btn-outline-primary float-end">
+                Add Event</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <form action="event">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Event Name</th>
+                        <th>Event Date</th>
+                        <th>Event Location</th>
+                        <th>Event Description</th>
+                        <th>Member Attendance</th>
+                        <th>Volunteer Attendance</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                {# this is a comment the line below prints the db result #}
+                <tbody>
+                {% for i in events%}
+                    <tr>
+                        {% for j in i%}
+                            <td>{{j}}</td>
+                        {%endfor%}
+                        <td><a href="/edit_event?eventid={{i[0]}}&oper=edit" role="button">
+                                <img src="/static/image/pencil-square.svg" alt="Edit" width="20" height="20"></a>
+                            <a href="/edit_event?eventid={{i[0]}}&oper=delete" role="button" class="delete">
+                                <img src="/static/image/trash.svg" alt="Edit" width="20" height="20"></a>
+                        </td>
+                        <!-- <a href="javascript:;" class="delete" >Delete</a></td> -->
+                    </tr>
+                {%endfor%}
+                </tbody>    
+            </table>
+            </form>
+        </div>
+    </div>
+</main>
 <script type="text/javascript">
 var events = JSON.parse('{{events|tojson}}')
 console.log(events)

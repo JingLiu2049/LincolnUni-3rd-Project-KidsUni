@@ -180,3 +180,9 @@ class destination:
 
     # def __del__(self):
     #     print('dest obj has been delated',self)
+
+class criteria:
+    def __init__(self, d = {}):
+        self.key = [i for i in d.keys()][0]
+        self.column = [i for i in d.values()][0][1]
+        self.table = [i for i in d.values()][0][1]

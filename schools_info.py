@@ -11,12 +11,12 @@ class school:
         self.category = l[4]
         self.status = l[5]
         self.returningnumber = int(l[6])
-        self.maxnumber2021 = int(l[7])
+        self.maxnumber2021 = int(l[7]) 
         self.confirmednumber = int(l[8])
         self.coordinatorid = int(l[9])
-        self.training = str(l[10])
-        self.launch = str(l[11])
-        self.passportpresentation = str(l[12])
+        self.training = l[10] if l[10] != '' else None
+        self.launch = l[11] if l[11] != '' else None
+        self.passportpresentation = l[12] if l[12] != '' else None
         self.portal = l[13]
         self.passports = l[14]
         self.agreement = l[15]
@@ -26,13 +26,13 @@ class school:
 
     def insert_db(self):
         cur = db.getCursor()
-        sql = "UPDATE schools SET school_name = '%s', who = '%s', council = '%s', category = '%s', \
-            status = '%s', returning_number = '%s', max_num_2021 = '%s', confirmed_num = '%s',coordinator_id = '%s', training = '%s', \
-            launch = '%s', passport_presentation = '%s', portal = '%s', passports = '%s', agreement = '%s', consent = '%s', \
-            notes = '%s' WHERE school_id = %s;" %(self.name, self.who, self.council, self.category, self.status,
-            self.returningnumber, self.maxnumber2021, self.confirmednumber,self.coordinatorid, self.training, self.launch, self.passportpresentation, self.portal, self.passports,self.agreement,
-            self.consent, self.notes, self.id ) 
-        cur.execute(sql)
+        cur.execute("UPDATE schools SET school_name = %s, who = %s, council = %s, category = %s, \
+            status = %s, returning_number = %s, max_num_2021 = %s, confirmed_num = %s,coordinator_id = %s, training = %s, \
+            launch = %s, passport_presentation = %s, portal = %s, passports = %s, agreement = %s, consent = %s, \
+            notes = %s WHERE school_id = %s;" ,(self.name, self.who, self.council, self.category, self.status,
+            self.returningnumber, self.maxnumber2021, self.confirmednumber,self.coordinatorid, self.training, self.launch, self.passportpresentation, self.portal, self.passports, self.agreement,
+            self.consent, self.notes, self.id,))
+        
 
 
 

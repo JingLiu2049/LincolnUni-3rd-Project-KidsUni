@@ -245,7 +245,7 @@ def member_upload():
 @login_required
 def school():
     cur = getCursor()
-    cur.execute("select * from schools;")
+    cur.execute("select * from schools ORDER BY school_id;")
     result = cur.fetchall()
     cur.execute("select distinct school_name from schools;")
     school_name = cur.fetchall()

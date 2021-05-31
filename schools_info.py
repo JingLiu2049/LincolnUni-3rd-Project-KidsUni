@@ -4,19 +4,19 @@ import getid
 
 class school:
     def __init__(self,l=[]):
-        self.id = int(l[0])
+        self.id = int(float(l[0]))
         self.name = l[1]
         self.who = l[2]
         self.council = l[3]
         self.category = l[4]
         self.status = l[5]
-        self.returningnumber = l[6] 
-        self.maxnumber2021 = l[7]
-        self.confirmednumber = l[8]
-        self.coordinatorid = l[9]
-        self.training = l[10]
-        self.launch = l[11]
-        self.passportpresentation = l[12]
+        self.returningnumber = int(l[6])
+        self.maxnumber2021 = int(l[7])
+        self.confirmednumber = int(l[8])
+        self.coordinatorid = int(l[9])
+        self.training = str(l[10])
+        self.launch = str(l[11])
+        self.passportpresentation = str(l[12])
         self.portal = l[13]
         self.passports = l[14]
         self.agreement = l[15]

@@ -1,19 +1,25 @@
 {% extends "layout.html" %}
-{% block title %}
-{% endblock title %}
+{% block title %} Learning Destinations{% endblock title %}
+{% block head %}
+{% endblock head %}
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {% block content %}
+
 <main class="m-4">
     <h1>Learning Destinations</h1>
-<form action="/destination_upload" method="POST" enctype="multipart/form-data">
-    <input type="file" id="file" name="file">
-    <button type="submit" id="btn">submit</button>
-</form>
+    <form action="/member_upload" method="POST" enctype="multipart/form-data">
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="inputGroupFile01">Upload</label>
+            <input type="file" id="file" name="file" class="form-control" required>
+            <button type="submit" id="btn" class="btn btn-outline-secondary" >submit</button>
+        </div>
+    </form>
+    </br>
 <div class="table-responsive">
-    <table class="table table-striped table-hover table-sm" style="font-size: .875rem">
+    <table class="table table-striped table-hover table-sm" style="font-size: .875rem" id="table">
         <thead>
              <tr>
-                  <th scope="col">LD ID</th>
+                  <th scope="col">ID</th>
                   <th scope="col">Status</th>
                   <th scope="col">Name</th>
                   <th scope="col">Contact Person</th>
@@ -33,14 +39,14 @@
                   <th scope="col">FB Promo</th>
                   <th scope="col">Paperwork Received</th>
                   <th scope="col">Year</th>
-                  <th scope="col">Photo Provided</th>
+                  <th scope="col">Photo Provided</th> 
              </tr>
         </thead>
         <tbody id="mytable">
-            {%for i in dests%}
+            {%for cols in dests%}
             <tr>
-                {%for j in i %}
-                <td>{{j}}</td>
+                {%for result in cols %}
+                <td>{{result}}</td>
                 {%endfor%}
             </tr>
             {%endfor%}

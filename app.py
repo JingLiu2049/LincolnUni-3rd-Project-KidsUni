@@ -20,6 +20,7 @@ import uploads
 import schools_info, member_info, destinations
 from functools import wraps
 import classes
+import filter_info
 
 
 
@@ -368,64 +369,16 @@ def destination_upload():
 @login_required
 def volunteer():
     cur = db.getCursor()
-    def get_criteria(d={}):
-        criteria = {}
-        for i in d.keys():
-            cur.execute(f"SELECT DISTINCT {d[i][0]} FROM {d[i][1]} WHERE {d[i][0]} IS NOT null;")
-            results = cur.fetchall()
-            value_list = []
-            if len(results) > 1:
-                for j in results:
-                    value_list.append(j) if j != None else False
-            else:
-                value_list =[results[0][0]] if results != None else []
-            criteria.setdefault(i,value_list)
-        return criteria
-
-    volun_criteria_dict= {
-        'Status':['status','volun_detail'],
-        'Induction':['induction','volun_detail'],
-        'Interview':['interview','volun_detail'],
-        'Gender':['gender','volun_detail'],
-        'Volunteer Experience':['experience','volun_detail'],
-        'Future Leader':['future_leader','volun_detail'],
-        'Police Check':['police_check','volun_detail'],
-        'University':['studying_uni','volun_detail'],
-        'Course':['course','volun_detail'],
-        'Current Year':['current_year','volun_detail'],
-        'Completion Date':['completion_date','volun_detail']
-        }
-    filter_criteria = get_criteria( volun_criteria_dict )
+    volun_criteria_dict = filter_info.volun_criteria_dict
+    filter_criteria = filter_info.get_criteria( volun_criteria_dict )
     if request.method == 'POST':
         form = request.form.to_dict()
-        query = ''
-        count = 0
-        for i in form.keys():
-            column = volun_criteria_dict[i][0]
-            values = request.form.getlist(i)
-            for j in range(0,len(values)):
-                if count == 0 and j == 0:
-                    query += f"{column} = '{values[j]}'"
-                elif j == 0:
-                    query += f" AND {column} = '{values[j]}'"
-                else:
-                    query += f" OR {column} = '{values[j]}'"
-            count += 1
-
-        sql = f'SELECT * FROM volun_detail WHERE {query} ORDER BY volun_id;'
+        sql = filter_info.get_sql(volun_criteria_dict,form)
     else:
         sql ="SELECT * FROM volun_detail ORDER BY volun_id;"
-
-    def get_volun_list(results):
-        volun_list = []
-        for i in results:
-            volun = list(i)
-            volun_obj = classes.volunteer(volun)
-            volun_list.append(volun_obj)
-        return volun_list
     cur.execute(sql)
     results = cur.fetchall()
-    volun_list = get_volun_list(results)
+    volun_list = filter_info.get_display_list(results,classes.volunteer)
     return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria = filter_criteria)
 
 

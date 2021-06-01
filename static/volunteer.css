@@ -32,9 +32,8 @@ form.criteria{
 }
 form.criteria div.each{
     float: left;
-    width: 40%;
     background-color: #F8F9FA;
-    margin: 5px;
+    margin: 10px 20px 5px 0;
     line-height: 1.5em;
 }
 form.criteria button{

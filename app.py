@@ -418,7 +418,6 @@ def volunteer():
         'Course':['course','volun_detail'],
         'Current Year':['current_year','volun_detail'],
         'Completion Date':['completion_date','volun_detail']
-
         }
     filter_criteria = get_criteria( volun_criteria_dict )
     if request.method == 'POST':

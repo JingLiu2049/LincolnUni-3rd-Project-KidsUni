@@ -181,12 +181,23 @@ def member():
     result = cur.fetchall()
     date=datetime.today().year
     if request.method == 'POST':
-
         return render_template("member.html", name=session['name'])
     else:
         return render_template("member.html",result=result, date=date, name=session['name'])
 
-
+@app.route("/edit_member", methods=['POST', 'GET'])
+@login_required
+def edit_member():
+    cur = getCursor()
+    member_id=request.args.get('id')
+    form = member_info.MemberInfoForm()
+    cur.execute(f"select * from member_info where member_id={member_id};")
+    result = cur.fetchone()
+    if request.method == 'POST':
+        # cur.execute(f"Update member_info set school_name='{}';")
+        return render_template("edit_member.html", name=session['name'])
+    else:
+        return render_template("edit_member.html",result=result, date=date, name=session['name'],form=form)
 
 @app.route("/member_upload", methods=['POST'])
 @login_required
@@ -280,7 +291,6 @@ def school_filter():
     if request.method == 'POST':
         cur = getCursor()
         school = request.form.get('schoolfilter')
-
         cur.execute(f"select * from schools where school_name='{school}';")
         filter_result = cur.fetchall()
         return render_template("school.html", name=session['name'], filter=filter_result)

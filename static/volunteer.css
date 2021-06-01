@@ -28,3 +28,22 @@ div.details{
 .show {
     display: block;
 }
+form.criteria{
+}
+form.criteria div.each{
+    float: left;
+    background-color: #F8F9FA;
+    margin: 10px 20px 5px 0;
+    line-height: 1.5em;
+}
+form.criteria button{
+    float: left;
+}
+form.criteria span{
+    background-color: rgb(192, 192, 192);
+    display: inline-block;
+    padding: 3px 10px;
+}
+form.criteria input{
+    margin: 0 5px;
+}

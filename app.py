@@ -104,7 +104,7 @@ def login():
         print(next_url)
         print(remember_me)
         # Check if account exists using MySQL
-        cur = getCursor()
+        cur = db.getCursor()
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
@@ -176,7 +176,7 @@ def index():
 @app.route("/member", methods=['POST', 'GET'])
 @login_required
 def member():
-    cur = getCursor()
+    cur = db.getCursor()
     cur.execute("select * from member_info;")
     result = cur.fetchall()
     date=datetime.today().year
@@ -237,7 +237,7 @@ def member_upload():
 @app.route("/school", methods=['POST', 'GET'])
 @login_required
 def school():
-    cur = getCursor()
+    cur = db.getCursor()
     cur.execute("select * from schools;")
     result = cur.fetchall()
     cur.execute("select distinct school_name from schools;")
@@ -289,7 +289,7 @@ def school():
 @login_required
 def school_filter():
     if request.method == 'POST':
-        cur = getCursor()
+        cur = db.getCursor()
         school = request.form.get('schoolfilter')
         cur.execute(f"select * from schools where school_name='{school}';")
         filter_result = cur.fetchall()
@@ -326,7 +326,7 @@ def school_upload():
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
-    cur = getCursor()
+    cur = db.getCursor()
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
     return render_template('destination.html', dests=dests, name=session['name'])
@@ -366,19 +366,17 @@ def destination_upload():
 @login_required
 def volunteer():
     cur = db.getCursor()
-    sql ="SELECT volunteers.*, volunteerform.* FROM volunteers INNER JOIN volunteerform \
-        ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
-    cur.execute(sql)
+    volun_criteria_dict = filter_info.volun_criteria_dict
+    filter_criteria = filter_info.get_criteria( volun_criteria_dict )
+    if request.method == 'POST':
         
+        sql = filter_info.get_sql('volun_detail','volun_id',volun_criteria_dict)
+    else:
+        sql ="SELECT * FROM volun_detail ORDER BY volun_id;"
+    cur.execute(sql)
     results = cur.fetchall()
-    voluns = []
-    for i in results:
-        volun = list(i)
-        volun.pop(14)
-        volun_obj = classes.volunteer(volun)
-        voluns.append(volun_obj)
-        # print(volun,'vvvvvvvvvvvvvvvvvvvv')
-    return render_template('volunteer.html', name=session['name'], voluns=voluns)
+    volun_list = filter_info.get_display_list(results,classes.volunteer)
+    return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria = filter_criteria)
 
 
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
@@ -410,7 +408,7 @@ def volunteer_upload():
 @app.route("/event", methods=['POST', 'GET'])
 @login_required
 def event():
-    cur = getCursor()
+    cur = db.getCursor()
     cur.execute("SELECT events.*, event_attend.number,volun_attend.attend FROM events\
         LEFT JOIN event_attend ON events.event_id = event_attend.event_id LEFT JOIN \
         volun_attend ON events.event_id = volun_attend.event_id ORDER BY events.event_date DESC;")
@@ -472,7 +470,7 @@ def add_event():
 @app.route("/users", methods=['POST', 'GET'])
 @login_required
 def users():
-    cur = getCursor()
+    cur = db.getCursor()
     cur.execute("SELECT * FROM admin ORDER BY surname;")
     select_result = cur.fetchall()
     column_names = [desc[0] for desc in cur.description]
@@ -482,7 +480,7 @@ def users():
 @app.route("/edit_user", methods=['POST', 'GET'])
 @login_required
 def edit_user():
-    cur = getCursor()
+    cur = db.getCursor()
     if request.method == 'POST':
         current_status = request.form.get('current_status')
         updated_status = request.form.get('updated_status')
@@ -527,7 +525,7 @@ def add_user():
         print(email)
         print(phone_number)
 
-        cur = getCursor()
+        cur = db.getCursor()
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute(
@@ -548,7 +546,7 @@ def download():
 @no_cache
 def download_mem_sheet():
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
-    cur = getCursor()
+    cur = db.getCursor()
     cur.execute("SELECT school_id, school_name FROM schools;")
     schools = cur.fetchall()
     # get selected info from clined-side

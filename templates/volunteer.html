@@ -13,6 +13,19 @@
         <input type="file" id="file" name="file">
         <button type="submit" id="btn">submit</button>
     </form>
+    <form action="/volunteer" method="POST" class="criteria clearfix">
+        {% for i in criteria.keys()%}
+        <div class="each">
+        <span>
+            {{i}}:
+        </span>
+            {%for j in criteria[i]%}
+            <label for="{{j[0]}}">{{j[0]}}</label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
+            {%endfor%}
+        </div>
+        {%endfor%}
+        <button type="submit">Submit</button>
+    </form>
     <table class="table">
         <thead>
             <tr>
@@ -33,7 +46,7 @@
         </thead>
         {%for i in voluns%}
         <tr>
-            <td class="volunid">{{i.id}}</td>
+            <td><a href="javascript:;" class="volunid">{{i.id}}</a></td>
             <td>{{i.status}}</td>
             <td>{{i.induction}}</td>
             <td>{{i.interview}}</td>
@@ -65,25 +78,36 @@
 </main>
 
 <script type="text/javascript">
-    var close = document.getElementById("close");
+    var closeBtn = document.getElementById("close");
     var showDetail = document.getElementById("showDetail");
     var id_list = document.getElementsByClassName("volunid")
     var details = document.getElementsByClassName("details")
-    close.addEventListener("click",function(){
-        for(var i = 0; i < details.length;i++){
-            if(!hasClass(i,'hidden')){
-                addClass(i,'hidden');
+    function closeForm() {
+        for (var i = 0; i < details.length; i++) {
+            if (!hasClass(i, 'hidden')) {
+                addClass(i, 'hidden');
             }
         }
-        addClass(showDetail,'hidden');
-    },false)
-    for(var i = 0; i<id_list.length;i++){
-        id_list[i].addEventListener("click",function(){
-            
-            let select = document.getElementById(this.innerHTML)
-            removeClass(showDetail,'hidden')
-            removeClass(select,'hidden')
-        },false)
+        addClass(showDetail, 'hidden');
     }
+    document.body.addEventListener("click", function (e) {
+        test(id_list)
+
+        if (!hasClass(showDetail, 'hidden')) {
+            test(e.target)
+        }
+    }, false)
+
+    for (var i = 0; i < id_list.length; i++) {
+        id_list[i].addEventListener("click", function () {
+
+            let select = document.getElementById(this.innerHTML)
+            removeClass(showDetail, 'hidden')
+            removeClass(select, 'hidden')
+        }, false)
+    }
+
+    closeBtn.addEventListener("click", closeForm, false)
+
 </script>
 {%endblock%}

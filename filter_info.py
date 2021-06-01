@@ -15,7 +15,7 @@ volun_criteria_dict= {
         'Current Year':['current_year','volun_detail'],
         'Completion Date':['completion_date','volun_detail']
         }
-        
+
 def get_criteria(d={}):
     cur = db.getCursor()
     criteria = {}
@@ -39,7 +39,8 @@ def get_display_list(results,target_class):
         lists.append(obj)
     return lists
 
-def get_sql(criteria_idct = {}, form={}):
+def get_sql(table, order,criteria_idct = {}):
+    form = request.form.to_dict()
     query = ''
     count = 0
     for i in form.keys():
@@ -54,7 +55,7 @@ def get_sql(criteria_idct = {}, form={}):
                 query += f" OR {column} = '{values[j]}'"
         count += 1
 
-        sql = f'SELECT * FROM volun_detail WHERE {query} ORDER BY volun_id;'
+        sql = f'SELECT * FROM {table} WHERE {query} ORDER BY {order};'
     return sql
 
 

@@ -372,8 +372,8 @@ def volunteer():
     volun_criteria_dict = filter_info.volun_criteria_dict
     filter_criteria = filter_info.get_criteria( volun_criteria_dict )
     if request.method == 'POST':
-        form = request.form.to_dict()
-        sql = filter_info.get_sql(volun_criteria_dict,form)
+        
+        sql = filter_info.get_sql('volun_detail','volun_id',volun_criteria_dict)
     else:
         sql ="SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)

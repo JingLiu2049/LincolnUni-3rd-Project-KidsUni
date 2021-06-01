@@ -66,6 +66,13 @@ $(document).ready( function () {
   });
 } );
 
+
+$(document).ready(function() {
+  $(".clickable").click(function() {
+    window.document.location = $(this).data("href");
+  });
+});
+
 </script>
 
 <div class="container-fluid">
@@ -136,7 +143,7 @@ $(document).ready( function () {
         <tbody id="mytable">
             {% for item in result %}
             <tr> 
-                <td><a href= "/edit_member?id={{item[0]}}">{{item[0]}}</a></td>
+                <td class="clickable" data-href="/edit_member?id={{item[0]}}" style="cursor: pointer;">{{item[0]}}</td>
                 <td>{{item[1]}}</td>
                 <td>{{item[2]}}</td>
                 <td>{{item[3]}}</td>
@@ -157,7 +164,6 @@ $(document).ready( function () {
                 <td>{{item[18]}}</td>
                 <td>{{item[19]}}</td>
                 <td>{{item[20]}}</td>              
-
             </tr>
             {%endfor%}
         </tbody>

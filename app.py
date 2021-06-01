@@ -20,7 +20,7 @@ import uploads
 import schools_info, member_info, destinations
 from functools import wraps
 import classes
-
+import filter_info
 
 
 # Global Functions
@@ -83,6 +83,35 @@ def no_cache(fun):
         response.headers["Expires"] = "0"
         return response
     return inner
+
+def upsertMember(form, member_id):
+    first_name= form.first_name.data
+    last_name= form.last_name.data
+    username= form.username.data
+    gender= form.gender.data
+    ethnicity= form.ethnicity.data
+    member_age= form.age.data
+    password= form.password.data
+    continuing_new= form.continuing_new.data
+    previous= form.previous_hours.data
+    passport_number= form.passport_number.data
+    passport_date_issued= form.passport_date.data
+    ethnicity_info= form.ethnicity_info.data
+    teaching_research= form.teaching_research.data
+    publication_promos= form.publication_promos.data
+    social_media= form.social_media.data
+    gown_size= form.gown_size.data
+    hat_size= form.hat_size.data
+    total= form.total_hours.data
+    status= form.status.data
+    cur = getCursor()   
+    cur.execute("Update members set first_name=%s, last_name=%s, \
+            username=%s, password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new=%s, passport_number=%s,\
+            previous=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, publication_promos=%s, \
+            social_media=%s, total=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;", (first_name, last_name, \
+            username, password, gender, member_age, ethnicity, continuing_new, passport_number,\
+            previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, \
+            social_media, total, gown_size, hat_size, status, member_id))
 
 # App Route
 ##################################################
@@ -192,12 +221,36 @@ def edit_member():
     member_id=request.args.get('id')
     form = member_info.MemberInfoForm()
     cur.execute(f"select * from member_info where member_id={member_id};")
-    result = cur.fetchone()
+    member = cur.fetchone()
     if request.method == 'POST':
-        # cur.execute(f"Update member_info set school_name='{}';")
-        return render_template("edit_member.html", name=session['name'])
-    else:
-        return render_template("edit_member.html",result=result, date=date, name=session['name'],form=form)
+        if form.validate_on_submit():
+            upsertMember(form, member_id)
+            return render_template('edit_member.html',name=session['name'], form=form)
+        else:
+            print(form.errors)
+            return render_template('edit_member.html',name=session['name'], form=form)
+    else:               
+        form.first_name.data= member.first_name
+        form.last_name.data= member.last_name
+        form.school_name.data= member.school_name
+        form.username.data=member.username
+        form.gender.data= member.gender
+        form.ethnicity.data= member.ethnicity
+        form.age.data= member.member_age
+        form.password.data= member.password
+        form.continuing_new.data= member.continuing_new
+        form.previous_hours.data= member.previous
+        form.passport_number.data= member.passport_number
+        form.passport_date.data= member.passport_date_issued
+        form.ethnicity_info.data= member.ethnicity_info
+        form.teaching_research.data= member.teaching_research
+        form.publication_promos.data= member.publication_promos
+        form.social_media.data= member.social_media
+        form.gown_size.data= member.gown_size
+        form.hat_size.data= member.hat_size
+        form.total_hours.data= member.total
+        form.status.data= member.status
+        return render_template("edit_member.html", date=date, name=session['name'], form=form)
 
 @app.route("/member_upload", methods=['POST'])
 @login_required

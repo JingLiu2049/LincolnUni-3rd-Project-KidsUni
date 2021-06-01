@@ -28,9 +28,7 @@ def today_year():
 
 class MemberInfoForm(FlaskForm):
     school_name = StringField(label='School Name *', validators=[
-        validators.DataRequired(),
-        validators.regexp('^\w+$', message='Letters only')
-    ])
+        validators.DataRequired()])
     first_name = StringField(label='First Name *', validators=[
         validators.DataRequired(),
         validators.regexp('^\w+$', message='Letters only')
@@ -43,7 +41,7 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
         validators.regexp('^\w+$', message='Letters only')
     ])
-    password = StringField(label='Passport *', validators=[
+    password = StringField(label='Password *', validators=[
         validators.DataRequired(),
         validators.regexp('^\w+$', message='Letters only')
     ])
@@ -51,11 +49,10 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),], choices=['Boy', 'Girl', 'Other'])
  
     age = IntegerField(label='Age *', validators=[
-        validators.DataRequired(),
-        validators.regexp('^\w+$', message='Letters only')
-    ])
+        validators.DataRequired()]
+    )
 
-    ethnicity = TextAreaField(label='Ethnicity *', validators=[
+    ethnicity = StringField(label='Ethnicity *', validators=[
         validators.DataRequired(),        
     ])
 
@@ -66,9 +63,9 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
     ])
 
-    previous_hours = IntegerField(label='Previous_hours *', validators=[
-        validators.DataRequired(),
-    ])
+    previous_hours = StringField(label='Previous_hours *', validators=[
+        validators.DataRequired()]
+    )
 
     passport_date = DateField(label='Passport Date Issued *', validators=[
         validators.DataRequired(),
@@ -90,7 +87,7 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
     ], choices=['True', 'False'])
 
-    total_hours = IntegerField(label='{year} *',validators=[
+    total_hours = StringField(label='Hours *',validators=[
         validators.DataRequired(),
     ])
     

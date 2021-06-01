@@ -179,36 +179,12 @@ def member():
     cur = db.getCursor()
     cur.execute("select * from member_info;")
     result = cur.fetchall()
-    cur.execute("select distinct school_name from schools;")
-    school_name = cur.fetchall()
-    school_filter = school_name
-    cur.execute(
-        "select distinct member_age from members order by member_age asc;;")
-    member_age = cur.fetchall()
-    cur.execute("select distinct ethnicity from members;")
-    ethnicity = cur.fetchall()
-    cur.execute("select distinct previous from members;")
-    previous_hours = cur.fetchall()
-    cur.execute("select distinct passport_date_issued from members;")
-    passport_date_issued = cur.fetchall()
-    cur.execute("select distinct total from members;")
-    total_hours = cur.fetchall()
-    cur.execute("select distinct gown_size from members;")
-    gown_size = cur.fetchall()
-    cur.execute("select distinct hat_size from members;")
-    hat_size = cur.fetchall()
-    cur.execute("select distinct status from members;")
-    status = cur.fetchall()
-    date = datetime.today().year
-
+    date=datetime.today().year
     if request.method == 'POST':
 
         return render_template("member.html", name=session['name'])
     else:
-        return render_template("member.html", result=result, date=date, school_filter=school_filter,
-                               member_age=member_age, ethnicity=ethnicity, previous_hours=previous_hours, passport_date_issued=passport_date_issued,
-                               total_hours=total_hours, gown_size=gown_size, hat_size=hat_size, status=status, name=session['name'])
-
+        return render_template("member.html",result=result, date=date, name=session['name'])
 
 @app.route("/member_filter", methods=['POST'])
 @login_required

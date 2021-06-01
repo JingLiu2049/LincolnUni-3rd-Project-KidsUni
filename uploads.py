@@ -20,7 +20,7 @@ def mem_obj(l=[]):
     school_id = getid.get_schoolid(mem_obj.school)
     mem_obj.school = school_id
     cur = db.getCursor()
-    cur.execute("SELECT * FROM members WHERE member_id = %s",mem_obj.id)
+    cur.execute("SELECT * FROM members WHERE member_id = %s",(mem_obj.id,))
     result =cur.fetchone()
     if not result:
         mem_obj.id = int(getid.get_memid())

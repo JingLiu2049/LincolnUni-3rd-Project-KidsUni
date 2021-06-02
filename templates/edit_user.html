@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block title %}Edit User{% endblock title %}
-{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
+
 {% block head %}
 <link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
 {% endblock head %}
@@ -56,9 +56,9 @@
                 </div>
                 <div class="col-sm-2">
                 <!-- Button trigger modal -->
-                {% if userinfo[5] == 'active' %}
+                {% if userinfo[6] == 'active' %}
                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Deactivate</button>
-                {% elif userinfo[5] == 'deactivated' %}
+                {% elif userinfo[6] == 'deactivated' %}
                     <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Reactivate</button>
                 {% endif %}
                 </div>

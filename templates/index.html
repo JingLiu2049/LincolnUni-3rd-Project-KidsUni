@@ -3,10 +3,22 @@
 
 {% block title %}Home Page{% endblock %}
 
-{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
+
 {%block content%}
 
 <main class="m-4">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <h1>Dashboard</h1>
     <div class="container-fluid mt-30">
         <div class="row row row-cols-1 row-cols-md-2 row-cols-lg-4">

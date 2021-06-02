@@ -17,7 +17,7 @@ import zipfile
 import spreadsheet
 import uuid
 import uploads
-import schools_info, member_info, destinations
+import schools_info, member_info, destinations, login_session
 from functools import wraps
 import classes
 import filter_info
@@ -73,6 +73,17 @@ def login_required(f):
             flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
+
+def admin_access(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session['user_access'] == "admin":
+            return f(*args, **kwargs)
+        else:
+            flash(f"You don't have access to this page.", 'danger')
+            return redirect(url_for('index'))
+    return decorated_function
+
     
 # Disable browser downloads from cache
 def no_cache(fun):
@@ -138,43 +149,34 @@ def login():
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
-        # print(account)
-        # print(account[0])
-        # print(type(account[0]))
 
-        cur.execute('SELECT status FROM admin WHERE user_id = %s',(int(account[0]),))
-        status = cur.fetchone()
-        print(status)
-        # If account exists in accounts table in our database
-        if account and status[0] == 'active':
-            sql = "SELECT admin.first_name, admin.surname, authorisation.user_access FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
-                WHERE authorisation.user_id = %s;" % account[0]
-            cur.execute(sql)
-            current_user = cur.fetchone()
-            # Create session data, we can access this data in other routes
-            session['loggedin'] = True
-            session['user_id'] = account[0]
-            session['username'] = account[1]
-            session['name'] = current_user
-            session['user_access'] = current_user[2]
-            session['remember_me'] = True if request.form.get(
-                'remember_me') else False
-            print(session['remember_me'])
-            print(session['user_access'])
-            if next_url:
-                return redirect(next_url)
-            # Redirect to home page
-            return redirect(url_for('index'))
-        if account and status[0] == 'deactivated':
-            flash(
-                f'Login unsuccessful. Please contact admin to check your account.', 'danger')
+        if account == None:
+            flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
             return redirect(url_for('login'))
         else:
-            # Account doesnt exist or username/password incorrect
-            flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
-    return render_template('login.html', title='Login')
-
-
+            if account:
+                cur.execute('SELECT * FROM admin WHERE user_id = %s',(int(account[0]),))
+                user = cur.fetchone()
+                print(user)
+                if user[5] == 'deactivated':
+                    flash(f'Login unsuccessful. Please contact admin to check your account.', 'danger')
+                    return redirect(url_for('login'))
+                if user[5] == 'active':
+                    session['loggedin'] = True
+                    session['user_id'] = account[0]
+                    session['username'] = account[1]
+                    session['first_name'] = user[1]
+                    session['surname'] = user[2]
+                    session['user_access'] = account[3]
+                    session['remember_me'] = True if request.form.get('remember_me') else False
+                    print(session['remember_me'])
+                    print(session['user_access'])
+                    if next_url:
+                        return redirect(next_url)
+                    # Redirect to home page
+                    return redirect(url_for('index'))
+    return render_template('login.html', title='Login', user_access=session['user_access'])
+                
 # This will be the logout page
 @app.route('/logout')
 @login_required
@@ -528,6 +530,7 @@ def add_event():
 
 @app.route("/users", methods=['POST', 'GET'])
 @login_required
+@admin_access
 def users():
     cur = db.getCursor()
     cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
@@ -540,6 +543,7 @@ def users():
 
 @app.route("/edit_user", methods=['POST', 'GET'])
 @login_required
+@admin_access
 def edit_user():
     cur = db.getCursor()
     if request.method == 'POST':
@@ -574,6 +578,7 @@ def edit_user():
 
 @app.route("/add_user", methods=['POST', 'GET'])
 @login_required
+@admin_access
 def add_user():
     if request.method == 'POST':
         user_id = genID()

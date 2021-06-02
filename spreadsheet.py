@@ -39,11 +39,12 @@ def gen_mem_tmp(schoolid):
     cur.execute("SELECT name, email, phone_number,username, password FROM coordinator \
         WHERE school_id  = %s;",(schoolid ,))
     coor = cur.fetchone()
-    for i in range(0,len(coor[0:3])):
-        sheet1.cell(column = 4,row = 2 + i,value = coor[0:3][i])
-    coor_u_p = [coor[0],'Coordinator']+list(coor[-2:])
-    for j in range(0,len(coor_u_p)):
-        sheet2.cell(column = j+1, row = 3, value = coor_u_p[j])
+    if coor:
+        for i in range(0,len(coor[0:3])):
+            sheet1.cell(column = 4,row = 2 + i,value = coor[0:3][i])
+        coor_u_p = [coor[0],'Coordinator']+list(coor[-2:])
+        for j in range(0,len(coor_u_p)):
+            sheet2.cell(column = j+1, row = 3, value = coor_u_p[j])
 
     # get member information from databse and insert into spreadsheet
     sheet1.cell(column = 4, row =1, value = sch_name.capitalize())
@@ -149,11 +150,12 @@ def gen_mem_comp(schoolid):
         cur.execute("SELECT name, email, phone_number,username, password FROM coordinator \
             WHERE school_id  = %s;",(schoolid ,))
         coor = cur.fetchone()
-        for i in range(0,len(coor[0:3])):
-            sheet1.cell(column = 4,row = 2 + i,value = coor[0:3][i])
-        coor_u_p = [coor[0],'Coordinator']+list(coor[-2:])
-        for j in range(0,len(coor_u_p)):
-            sheet2.cell(column = j+1, row = 3, value = coor_u_p[j])
+        if coor:
+            for i in range(0,len(coor[0:3])):
+                sheet1.cell(column = 4,row = 2 + i,value = coor[0:3][i])
+            coor_u_p = [coor[0],'Coordinator']+list(coor[-2:])
+            for j in range(0,len(coor_u_p)):
+                sheet2.cell(column = j+1, row = 3, value = coor_u_p[j])
 
         
         # insert event title
@@ -226,7 +228,7 @@ def gen_volun_sheet():
         ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
     cur.execute(sql)
     voluns = cur.fetchall()
-    cur.execute("SELECT total FROM volun_total ORDER BY volun_id;")
+    cur.execute("SELECT sum(hours) AS total FROM volun_hours GROUP BY volun_id ORDER BY volun_id;")
     total = cur.fetchall()
     for i in range(0,len(voluns)):
         allData = list(voluns[i])
@@ -256,4 +258,67 @@ def gen_volun_sheet():
             for j in range(0,len(attends)):
                 sheet2.cell(column = 6+i, row = 6+j, value = attends[j][0])
     bg.save(newPath)
+    return newPath
+
+
+def gen_sch_temp():
+    bg = excel_obj('School template.xlsx')
+    sheet1 = bg['School list']
+
+    # generating new path 
+    newPath = gen_newPath('Schools_Template')
+
+    cur = db.getCursor()
+    cur.execute("SELECT * FROM sch_detail ORDER BY school_id;")
+    schools = cur.fetchall()
+    current_year = f'{dt.datetime.now().year}'
+    cur.execute("SELECT MAX(year) FROM school_members;")
+    result = cur.fetchone()
+    last_year = int(result[0]) if result and int(result[0]) < int(current_year) else int(dt.datetime.now().year)-1
+
+    cur.execute("SELECT confirm_no FROM school_members WHERE year = %s ORDER BY school_id",(last_year,))
+    result = cur.fetchall()
+    totals = result if result else [0]*len(schools)
+    
+    for i in range(0,len(schools)):
+        sch_value = list(schools[i]) + [current_year] + [totals[i]]
+        for j in range(0,len(sch_value)):
+            sheet1.cell(column = j+1,row = 2+i,value = sch_value[j] )
+    bg.save(newPath)
+    return newPath
+
+def gen_sch_comp():
+    bg = excel_obj('School template.xlsx')
+    sheet1 = bg['School list']
+
+    # generating new path 
+    newPath = gen_newPath('Schools_Completed')
+
+    cur = db.getCursor()
+    cur.execute("SELECT * FROM sch_detail ORDER BY school_id;")
+    schools = cur.fetchall()
+    cur.execute("SELECT MAX(year) FROM school_members;")
+    result = cur.fetchone()
+    current_year = int(result[0]) if result else int(dt.datetime.now().year)
+    
+    for i in range(0,len(schools)):
+        sch_value = list(schools[i]) + [current_year]
+        for j in range(0,len(sch_value)):
+            sheet1.cell(column = j+1,row = 2+i,value = sch_value[j] )
+
+    cur.execute("SELECT return_no, max_no, request_no, confirm_no FROM school_members WHERE year = %s ORDER BY school_id;",(current_year,))
+    member_nos = cur.fetchall()
+    cur.execute("SELECT confirm_no FROM school_members WHERE year = %s ORDER BY school_id",(current_year-1,))
+    result = cur.fetchall()
+    totals = result if result else [0]*len(member_nos)
+
+    for i in range(0,len(member_nos)):
+        mem_no_detail = [totals[i]] + list(member_nos[i])
+        for j in range(0,len(mem_no_detail)):
+            sheet1.cell(column = j+18,row = 2+i,value = mem_no_detail[j] )
+
+    bg.save(newPath)
+    pd_sql = "SELECT schools.school_name, school_members.*  FROM school_members INNER JOIN schools ON \
+        school_members.school_id = schools.school_id ORDER BY school_id, year DESC;"
+    new_sheet(newPath,pd_sql,'Previous Member Details')
     return newPath

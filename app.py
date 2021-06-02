@@ -263,7 +263,7 @@ def member_upload():
         events = request.form.getlist('mem_col')[25:-1]
         for i in range(0, len(form)-3):
             mem = request.form.getlist(f'mem{i}')
-            mem.insert(25,coor[-1]) # insert collecting date for the data
+            mem.insert(25,coor[-1]) # insert cut-off date for the data
             member = uploads.mem_obj(mem)
             member.insert_db(events)
         return redirect(url_for('member'))
@@ -293,50 +293,52 @@ def school():
     cur = db.getCursor()
     cur.execute("select * from schools;")
     result = cur.fetchall()
-    cur.execute("select distinct school_name from schools;")
-    school_name = cur.fetchall()
-    school_filter = school_name
-    cur.execute("select distinct who from schools;")
-    who = cur.fetchall()
-    cur.execute("select distinct council from schools;")
-    council = cur.fetchall()
-    cur.execute("select distinct category from schools;")
-    category = cur.fetchall()
-    cur.execute("select distinct status from schools;")
-    status = cur.fetchall()
-    cur.execute("select distinct returning_number from schools order by returning_number asc;;")
-    returning_number = cur.fetchall()
-    cur.execute("select distinct max_num_2021 from schools order by max_num_2021 asc;;")
-    max_num_2021= cur.fetchall()
-    cur.execute("select distinct confirmed_num from schools order by confirmed_num asc;;")
-    confirmed_num = cur.fetchall()
-    cur.execute("select distinct training from schools;")
-    training = cur.fetchall()
-    cur.execute("select distinct launch from schools;")
-    launch = cur.fetchall()
-    cur.execute("select distinct passport_presentation from schools;")
-    passport_presentation = cur.fetchall()
-    cur.execute("select distinct portal from schools;")
-    portal = cur.fetchall()
-    cur.execute("select distinct passports from schools;")
-    passports = cur.fetchall()
-    cur.execute("select distinct agreement from schools;")
-    agreement = cur.fetchall()
-    cur.execute("select distinct consent from schools;")
-    consent = cur.fetchall()
-    cur.execute("select distinct notes from schools;")
-    notes = cur.fetchall()
-    date = datetime.today().year
+    return render_template("school.html",schools = result, name=session['name'])
+    # result = cur.fetchall()
+    # cur.execute("select distinct school_name from schools;")
+    # school_name = cur.fetchall()
+    # school_filter = school_name
+    # cur.execute("select distinct who from schools;")
+    # who = cur.fetchall()
+    # cur.execute("select distinct council from schools;")
+    # council = cur.fetchall()
+    # cur.execute("select distinct category from schools;")
+    # category = cur.fetchall()
+    # cur.execute("select distinct status from schools;")
+    # status = cur.fetchall()
+    # cur.execute("select distinct returning_number from schools order by returning_number asc;;")
+    # returning_number = cur.fetchall()
+    # cur.execute("select distinct max_num_2021 from schools order by max_num_2021 asc;;")
+    # max_num_2021= cur.fetchall()
+    # cur.execute("select distinct confirmed_num from schools order by confirmed_num asc;;")
+    # confirmed_num = cur.fetchall()
+    # cur.execute("select distinct training from schools;")
+    # training = cur.fetchall()
+    # cur.execute("select distinct launch from schools;")
+    # launch = cur.fetchall()
+    # cur.execute("select distinct passport_presentation from schools;")
+    # passport_presentation = cur.fetchall()
+    # cur.execute("select distinct portal from schools;")
+    # portal = cur.fetchall()
+    # cur.execute("select distinct passports from schools;")
+    # passports = cur.fetchall()
+    # cur.execute("select distinct agreement from schools;")
+    # agreement = cur.fetchall()
+    # cur.execute("select distinct consent from schools;")
+    # consent = cur.fetchall()
+    # cur.execute("select distinct notes from schools;")
+    # notes = cur.fetchall()
+    # date = datetime.today().year
 
-    if request.method == 'POST':
+    # if request.method == 'POST':
 
-        return render_template("school.html", name=session['name'])
-    else:
-        return render_template("school.html", result=result, date=date, school_filter=school_filter,
-                               school_name=school_name, who=who, council=council, category=category, status=status, 
-                               returning_number=returning_number, max_num_2021=max_num_2021, confirmed_num=confirmed_num,
-                               training=training, launch=launch, passport_presentation=passport_presentation, portal=portal,
-                                passports=passports, agreement=agreement, consent=consent,notes=notes, name=session['name'])
+    #     return render_template("school.html", name=session['name'])
+    # else:
+    #     return render_template("school.html", result=result, date=date, school_filter=school_filter,
+    #                            school_name=school_name, who=who, council=council, category=category, status=status, 
+    #                            returning_number=returning_number, max_num_2021=max_num_2021, confirmed_num=confirmed_num,
+    #                            training=training, launch=launch, passport_presentation=passport_presentation, portal=portal,
+    #                             passports=passports, agreement=agreement, consent=consent,notes=notes, name=session['name'])
 
 @app.route("/school_filter", methods=['POST'])
 @login_required
@@ -356,20 +358,21 @@ def school_upload():
     form = request.form
     # get data from client-side and insert into database
     if form:
-        total = request.form.getlist('school_col')[18:-1]
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
+            test(school_info[17])
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
         return redirect(url_for('school'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
+        print('daolemadaolemadaolemadaolemadaolemadaolemadaolemadaolema')
         try:
             df_school = schools_info.get_df(excelpath)
             school_cols = df_school.columns
             school_data = df_school.values
-
+            print(df_school.iloc[:,[16,17,18,19,20,21,22]])
         except Exception as e:
             # return render_template('error.html')
             return print(e)
@@ -422,9 +425,9 @@ def volunteer():
     volun_criteria_dict = filter_info.volun_criteria_dict
     filter_criteria = filter_info.get_criteria( volun_criteria_dict )
     if request.method == 'POST':
-        
         sql = filter_info.get_sql('volun_detail','volun_id',volun_criteria_dict)
     else:
+        print('lalemalalemalalemalalemalalemalalemalalemalalema')
         sql ="SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)
     results = cur.fetchall()
@@ -649,52 +652,17 @@ def download_volun_sheet():
     file = spreadsheet.gen_volun_sheet()
     return send_file(file, mimetype = 'xlsx', as_attachment=True)
 
-
-# @app.route("/school_upload",methods = ['POST'])
-# @login_required
-# def school_upload():
-#     form = request.form
-#     # get data from client-side and insert into database
-#     if form:
-#         # coor = request.form.getlist('coor')
-#         # member_info.insert_coor(coor)
-#         # events = request.form.getlist('mem_col')[25:-1]
-#         # for i in range(0,len(form)-3):
-#         #     mem = request.form.getlist(f'mem{i}')
-#         #     mem.insert(25,coor[-1]) # insert collecting date for the data
-#         #     member = member_info.mem_obj(mem)
-#         #     member.insert_db(events)
-#         # return redirect(url_for('member'))
-#         pass
-#     #  read uploaded excel file and send info to client-side
-#     else:
-#         excelpath = upload_path('file')
-#         try:
-#             df_des = pd.read_excel(excelpath,0)
-#             df_des.fillna('',inplace=True)
-#             dest_cols = df_des.columns
-#             dest_data = df_des.values
-
-#             print(df_des)
-#             # df_list= member_info.get_df(excelpath)
-#             # df_member = df_list[0]
-#             # df_coor = df_list[1]
-#             # mem_col = df_member.columns
-#             # mem_data = df_member.values
-#             # coor_col = df_coor.columns
-#             # coor_data = df_coor.values
-#         except Exception as e:
-#             # return render_template('error.html')
-#             return print(e)
-
-#         # return render_template('member_upload.html',mem_col = mem_col, mem_data = mem_data, 
-#         #     coor_col = coor_col, coor_data = coor_data)
-#         return render_template('school_upload.html',cols = dest_cols, data = dest_data, name=session['name'])
-
-
-
-
-
+@app.route("/download_school_sheet",methods = ['POST','GET'])
+@login_required
+@no_cache
+def download_school_sheet():
+    sheet = request.args.get('sheet')
+    if sheet == 'template':
+        file =  spreadsheet.gen_sch_temp()
+       
+    elif sheet == 'completed':
+        file = spreadsheet.gen_sch_comp()
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
 
 
 

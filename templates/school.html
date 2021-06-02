@@ -121,8 +121,17 @@
           </div>-->
         </form>
         </br>
+        <table class="table">
+             {% for i in schools%}
+             <tr>
+             {% for j in i%}
+             <td>{{j}}</td> 
+             {%endfor%}
+          </tr>
+             {% endfor %}
+        </table>
 
-        <div name="input group">
+        <!-- <div name="input group">
           <form method="POST" action="/school_filter">
             <div class="input-group mb-3">
               <label class="input-group-text" for="inputGroupFile01">Search</label>
@@ -198,7 +207,7 @@
                     <th scope="col">Notes</th>
                </tr>
           </thead>
-          <!--<tfoot>
+          <tfoot>
                <tr>
                     <th>School ID</th>
                     <th>School Name</th>
@@ -219,7 +228,7 @@
                     <th>Consent</th>
                     <th>Notes</th>    
                </tr>
-          </tfoot>-->
+          </tfoot>
           <tbody id="mytable">
                {% for item in result %}
                <tr>
@@ -232,5 +241,5 @@
      </table>
      </div>
 </div>
-</main>
+</main> -->
 {%endblock%}

@@ -73,6 +73,7 @@ def login_required(f):
             flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
+    
 # Disable browser downloads from cache
 def no_cache(fun):
     @wraps(fun)
@@ -146,18 +147,20 @@ def login():
         print(status)
         # If account exists in accounts table in our database
         if account and status[0] == 'active':
-            sql = "SELECT first_name, surname FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+            sql = "SELECT admin.first_name, admin.surname, authorisation.user_access FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
                 WHERE authorisation.user_id = %s;" % account[0]
             cur.execute(sql)
-            name = cur.fetchone()
+            current_user = cur.fetchone()
             # Create session data, we can access this data in other routes
             session['loggedin'] = True
             session['user_id'] = account[0]
             session['username'] = account[1]
-            session['name'] = name
+            session['name'] = current_user
+            session['user_access'] = current_user[2]
             session['remember_me'] = True if request.form.get(
                 'remember_me') else False
             print(session['remember_me'])
+            print(session['user_access'])
             if next_url:
                 return redirect(next_url)
             # Redirect to home page
@@ -524,7 +527,9 @@ def add_event():
 @login_required
 def users():
     cur = db.getCursor()
-    cur.execute("SELECT * FROM admin ORDER BY surname;")
+    cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+        authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+        ORDER BY surname;")
     select_result = cur.fetchall()
     column_names = [desc[0] for desc in cur.description]
     return render_template('users.html', users=select_result, dbcols=column_names, name=session['name'])
@@ -557,7 +562,9 @@ def edit_user():
             return redirect(url_for('users'))
     else:
         user_id = request.args.get('user_id')
-        cur.execute("SELECT * FROM admin WHERE user_id = %s;", (user_id,))
+        cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+            authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+             WHERE admin.user_id = %s;", (user_id,))
         userinfo = cur.fetchone()
         return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
 
@@ -571,18 +578,20 @@ def add_user():
         surname = request.form.get('surname')
         email = request.form.get('email')
         phone_number = request.form.get('phone_number')
+        user_access = request.form.get('user_access')
         status = "active"
         print(user_id)
         print(first_name)
         print(surname)
         print(email)
         print(phone_number)
+        print(user_access)
 
         cur = db.getCursor()
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute(
-            "INSERT INTO authorisation(user_id, username) VALUES (%s,%s);", (user_id, email,))
+            "INSERT INTO authorisation(user_id, username, user_access) VALUES (%s,%s,%s);", (user_id, email,user_access))
         flash(f'User successfully added!', 'success')
         return redirect(url_for('users'))
     return render_template('add_user.html', name=session['name'])

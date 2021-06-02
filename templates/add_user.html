@@ -40,6 +40,17 @@
                         id="phone_number" name="phone_number" placeholder="" required="required">
                 </div>
             </div>
+            <div class="mb-3 row">
+                <label for="phone_number" class="col-sm-2 col-form-label">User Access</label>
+                <div class="col-sm-6">
+                    <select class="form-select" aria-label="user_access" type="user_access" class="form-control form-control-user"
+                        id="user_access" name="user_access" placeholder="" required="required">
+                        <option selected>Select user access</option>
+                        <option value="admin">Admin</option>
+                        <option value="restricted">Restricted</option>
+                    </select>
+                </div>
+            </div>
             <div class="d-grid gap-2 d-md-block">
                 <button type="button" role="button" class="btn btn-outline-primary" onclick="history.back()">Cancel</button>
                 <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>

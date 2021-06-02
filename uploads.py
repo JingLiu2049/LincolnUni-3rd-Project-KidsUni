@@ -20,7 +20,7 @@ def mem_obj(l=[]):
     school_id = getid.get_schoolid(mem_obj.school)
     mem_obj.school = school_id
     cur = db.getCursor()
-    cur.execute("SELECT * FROM members WHERE member_id = %s",mem_obj.id)
+    cur.execute("SELECT * FROM members WHERE member_id = %s",(mem_obj.id,))
     result =cur.fetchone()
     if not result:
         mem_obj.id = int(getid.get_memid())
@@ -58,17 +58,25 @@ def get_mem_df(excelpath):
 def insert_coor(l=[]):
     cur = db.getCursor()
     school_id = getid.get_schoolid(l[4])
-    cur.execute("SELECT coordinator_id FROM coordinator WHERE name = %s AND school_id =%s;",(l[0],school_id,))
-    result = cur.fetchone()
-    if result:
-        coor_id = result[0]
-        sql = "UPDATE coordinator SET name = '%s',school_id =%s, email ='%s', phone_number \
-            = '%s',username = '%s',password='%s' WHERE coordinator_id = %s; " %(l[0],school_id,
-            l[5],l[6],l[2],l[3],int(coor_id))
-    else:
-        sql = "INSERT INTO coordinator values (nextval('coorid_seq'),%s,'%s',null,'%s','%s','%s','%s')" %(
-            school_id,l[0],l[5],l[6],l[2],l[3])
+
+    sql = "INSERT INTO coordinator VALUES(%s, '%s', '%s','%s','%s','%s') ON CONFLICT \
+        (school_id) DO UPDATE SET school_id = EXCLUDED.school_id, name = EXCLUDED.name, \
+        email = EXCLUDED.email, phone_number = EXCLUDED.phone_number, username = EXCLUDED.username,\
+        password = EXCLUDED.password;"%(school_id,l[0],l[5],l[6],l[2],l[3])
     cur.execute(sql)
+
+    # cur.execute("SELECT coordinator_id FROM coordinator WHERE school_id =%s;",(school_id,))
+    # result = cur.fetchone()
+    
+    # if result:
+    #     coor_id = result[0]
+    #     sql = "UPDATE coordinator SET name = '%s',school_id =%s, email ='%s', phone_number \
+    #         = '%s',username = '%s',password='%s' WHERE coordinator_id = %s; " %(l[0],school_id,
+    #         l[5],l[6],l[2],l[3],int(coor_id))
+    # else:
+    #     sql = "INSERT INTO coordinator values (nextval('coorid_seq'),%s,'%s',null,'%s','%s','%s','%s')" %(
+    #         school_id,l[0],l[5],l[6],l[2],l[3])
+    # cur.execute(sql)
 
 
 

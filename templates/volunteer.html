@@ -25,6 +25,7 @@
         </div>
         {%endfor%}
         <button type="submit">Submit</button>
+        <button><a href="/volunteer">Reset</a></button>
     </form>
     <table class="table">
         <thead>
@@ -92,12 +93,10 @@
     }
     document.body.addEventListener("click", function (e) {
         test(id_list)
-
         if (!hasClass(showDetail, 'hidden')) {
             test(e.target)
         }
     }, false)
-
     for (var i = 0; i < id_list.length; i++) {
         id_list[i].addEventListener("click", function () {
 

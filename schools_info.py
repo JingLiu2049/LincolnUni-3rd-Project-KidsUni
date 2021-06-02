@@ -10,46 +10,77 @@ class school:
         self.council = l[3]
         self.category = l[4]
         self.status = l[5]
-        self.returningnumber = int(l[6])
-        self.maxnumber2021 = int(l[7]) 
-        self.confirmednumber = int(l[8])
-        self.coordinatorid = int(l[9])
-        self.training = l[10] if l[10] != '' else None
-        self.launch = l[11] if l[11] != '' else None
-        self.passportpresentation = l[12] if l[12] != '' else None
-        self.portal = l[13]
-        self.passports = l[14]
-        self.agreement = l[15]
-        self.consent = l[16]
-        self.notes = l[17]
-        self.total = l[18:-1] if len(l)>18 else False
+        # self.coor_id = int(l[6])
+        self.coor_name = l[6]
+        self.coor_email = l[7]
+        self.training = l[8] if l[8] != '' and l[8] != 'NA' else None
+        self.launch = l[9] if l[9] != '' and l[9] != 'NA'else None
+        self.presentation = l[10] if l[10] != '' and l[10] != 'NA'else None
+        self.portal = l[11]
+        self.passports = l[12]
+        self.agreement = l[13]
+        self.consent = l[14]
+        self.notes = l[15]
+
+        self.year = int(l[16])
+        self.returning = int(l[17])
+        self.max = int(l[18])
+        self.request = int(l[19])
+        self.confirm = int(l[20])
+
+
 
     def insert_db(self):
         cur = db.getCursor()
         cur.execute("UPDATE schools SET school_name = %s, who = %s, council = %s, category = %s, \
-            status = %s, returning_number = %s, max_num_2021 = %s, confirmed_num = %s,coordinator_id = %s, training = %s, \
-            launch = %s, passport_presentation = %s, portal = %s, passports = %s, agreement = %s, consent = %s, \
-            notes = %s WHERE school_id = %s;" ,(self.name, self.who, self.council, self.category, self.status,
-            self.returningnumber, self.maxnumber2021, self.confirmednumber,self.coordinatorid, self.training, self.launch, self.passportpresentation, self.portal, self.passports, self.agreement,
-            self.consent, self.notes, self.id,))
-        
+            status = %s,  training = %s, launch = %s, presentation = %s, portal = %s, \
+            passports = %s, agreement = %s, consent = %s, notes = %s WHERE school_id = %s;" ,(self.name, self.who, 
+            self.council, self.category, self.status, self.training, self.launch, self.presentation, 
+            self.portal, self.passports, self.agreement, self.consent, self.notes, self.id,))
+        sql = "INSERT INTO coordinator(school_id, name, email) VALUES(%s, '%s', '%s') ON CONFLICT \
+        (school_id) DO UPDATE SET school_id = EXCLUDED.school_id, name = EXCLUDED.name, \
+        email = EXCLUDED.email;"%(self.id,self.coor_name,self.coor_email)
+        cur.execute(sql)
+        # cur.execute("UPDATE coordinator SET name = %s, email = %s WHERE school_id = %s;",( self.coor_name,self.coor_email,self.id))
+        sql = f"INSERT INTO school_members(school_id, year, return_no ,max_no, request_no, confirm_no) VALUES({self.id}, \
+            '{self.year}',{self.returning}, {self.max},{self.request},{self.confirm}) ON CONFLICT (school_id, year) DO UPDATE \
+            SET school_id = EXCLUDED.school_id, year = EXCLUDED.year, return_no = EXCLUDED.return_no, \
+            max_no =EXCLUDED.max_no, request_no = EXCLUDED.request_no, confirm_no = EXCLUDED.confirm_no;"
+        cur.execute(sql)
+        # sql = f" INSERT INTO school_members (school_id, year, return_no) VALUES ({self.id}, {self.year-1}, \
+        #     {self.returning}) ON CONFLICT (school_id, year) DO UPDATE SET school_id =EXCLUDED.school_id, \
+        #     year = EXCLUDED.year, return_no = EXCLUDED.return_no ;"
+        # cur.execute(sql)
 
 
 
 
-def get_df(path):
-    df_active = pd.read_excel(path,0)
+
+
 
 def school_obj(l=[]):
     school_obj = school(l)
-    if int(school_obj.id)/1000 < 1:
-        school_name = school_obj.name 
-        school_obj.id = getid.get_schoolid(school_name)
+    school_name = school_obj.name
+    school_obj.id = getid.get_schoolid(school_name)
     return school_obj
 
 def get_df(excelpath):
-    df_school = pd.read_excel(excelpath,0)
+    df_all = pd.read_excel(excelpath,0)
+    df_all.update(df_all.iloc[:,17:].fillna(0))
+    df_head = df_all.iloc[:,:17]
+    df_number = df_all.iloc[:,17:].astype(int)
+    df_school = pd.concat([df_head, df_number], axis=1)
     df_school.fillna('',inplace=True)
+    df_school.loc[:,'index'] = df_school.index
+
+
+    # df_school = pd.read_excel(excelpath,0)
+    # df_school.update(df_school.iloc[:,18:].fillna(0))
+    # df_school.fillna('',inplace=True)
+    # df_school.update(df_school.iloc[:,18:].astype(int))
+
+    # df_school = pd.to_numeric(df_school, downcast='integer')
+
     df_school.loc[:,'index'] = df_school.index
     return df_school
 

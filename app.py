@@ -591,10 +591,6 @@ def add_user():
     return render_template('add_user.html', name=session['name'])
 
 
-@app.route("/download", methods=['POST', 'GET'])
-@login_required
-def download():
-    return render_template('download.html', name=session['name'])
 
 # generating excel file of member for downloading
 @app.route("/download_mem_sheet", methods=['POST', 'GET'])
@@ -609,7 +605,7 @@ def download_mem_sheet():
     if request.method == 'POST':
         request_file = request.form.get('type')
         school_list = request.form.getlist('schools')
-    # generating excel of black template and send to client-side
+    # generating excel of blanck template and send to client-side
         if request_file == 'template':
             zfile = zipfile.ZipFile(
                 f'{app.root_path}\downloads\Templates.zip', 'w')

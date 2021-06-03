@@ -168,8 +168,7 @@ def login():
                     session['loggedin'] = True
                     session['user_id'] = account[0]
                     session['username'] = account[1]
-                    session['first_name'] = user[1]
-                    session['surname'] = user[2]
+                    session['name'] = user[1]
                     session['user_access'] = account[3]
                     session['remember_me'] = True if request.form.get('remember_me') else False
                     print(session['remember_me'])
@@ -180,7 +179,7 @@ def login():
                         return redirect(next_url)
                     # Redirect to home page
                     return redirect(url_for('index'))
-    return render_template('login.html', title='Login', user_access=session['user_access'])
+    return render_template('login.html', title='Login')
                 
 # This will be the logout page
 @app.route('/logout')
@@ -190,7 +189,10 @@ def logout():
     session.pop('loggedin', None)
     session.pop('user_id', None)
     session.pop('username', None)
-    session.pop('remember', None)
+    session.pop('name', None)
+    session.pop('user_access', None)
+    session.pop('remember_me', None)
+    
     # Redirect to login page
     return redirect(url_for('login'))
 
@@ -220,7 +222,7 @@ def member():
     result = cur.fetchall()
     date=datetime.today().year
     if request.method == 'POST':
-        return render_template("member.html", name=session['name'])
+        return render_template("member.html")
     else:
         return render_template("member.html",result=result, date=date, name=session['name'])
 

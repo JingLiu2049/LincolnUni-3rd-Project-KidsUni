@@ -43,10 +43,10 @@ Learning Destination update
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-block">
-                <button type="button" role="button" class="btn btn-outline-primary"
-                    onclick="window.location.href = '/destination';">Return</button>
-                <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>
-                {{ form.submit(class="btn btn-outline-primary")}} {{message}}
+                <button type="button" role="button" class="btn btn-outline-secondary"
+                    onclick="window.location.href = '/destination'">Return</button>
+                <button type="reset" role="button" class="btn btn-outline-secondary">Reset</button>
+                {{ form.submit(class="btn btn-outline-secondary")}} <label style="color: red;">{{message}}</label>
             </div>
         </form>
     </div>

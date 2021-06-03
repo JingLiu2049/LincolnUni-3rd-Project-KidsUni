@@ -1,6 +1,5 @@
 {%extends "layout.html"%}
 {% block title %}Students Page{% endblock %}
-
 {% block head %}
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
@@ -12,7 +11,6 @@
 <!-- Added for sum  -->
 <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
 {% endblock head %}
-
 {%block content%}
 
 <script>
@@ -74,19 +72,31 @@
   });
 
 </script>
-
+<style>
+  .table-responsive {
+    margin-top: 30px;
+  }
 </style>
+
 <main class="m-4">
-  </br>
   <h1>Student Information List</h1>
   <form action="/member_upload" method="POST" enctype="multipart/form-data">
-
-    <div class="input-group mb-3">
-      <label class="input-group-text" for="inputGroupFile01">Upload</label>
-      <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-      <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+    <div class="row">
+      <div class="col-md-8">
+        <div class="input-group mb-3">
+          <label class="input-group-text" for="inputGroupFile01">Upload</label>
+          <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+          <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+        </div>
+      </div>
+      <div class="col">
+        <a href="{{ url_for('add_member') }}" type="button" role="button" class="btn btn-outline-secondary float-end">
+          Add
+          New Student</a>
+      </div>
     </div>
   </form>
+
   </br>
 
   <div class="table-responsive">

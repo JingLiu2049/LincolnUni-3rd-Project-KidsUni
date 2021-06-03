@@ -6,6 +6,16 @@
 {% block content %}
 
 <script>
+
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+
     $(document).ready(function () {
         $(".clickable").click(function () {
             window.document.location = $(this).data("href");
@@ -15,13 +25,14 @@
 
 <main class="m-4">
     <h1>Learning Destinations</h1>
-    <form action="/member_upload" method="POST" enctype="multipart/form-data">
+    <form action="/destination_upload" method="POST" enctype="multipart/form-data">
         <div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" id="file" name="file" class="form-control" required>
             <button type="submit" id="btn" class="btn btn-outline-secondary">submit</button>
         </div>
     </form>
+    <input class="form-control" id="myInput" type="text" placeholder="Search..">
     </br>
 
     <div class="table-responsive">
@@ -55,7 +66,8 @@
                 <tr>
                     {%for result in cols %}
                     <td class="clickable" data-href="/edit_destination?id={{cols[0]}}" style="cursor: pointer;">
-                        {{result}}</td>
+                    {{result}}
+                    </td>
                     {%endfor%}
                 </tr>
                 {%endfor%}

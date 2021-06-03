@@ -65,18 +65,6 @@ def insert_coor(l=[]):
         password = EXCLUDED.password;"%(school_id,l[0],l[5],l[6],l[2],l[3])
     cur.execute(sql)
 
-    # cur.execute("SELECT coordinator_id FROM coordinator WHERE school_id =%s;",(school_id,))
-    # result = cur.fetchone()
-    
-    # if result:
-    #     coor_id = result[0]
-    #     sql = "UPDATE coordinator SET name = '%s',school_id =%s, email ='%s', phone_number \
-    #         = '%s',username = '%s',password='%s' WHERE coordinator_id = %s; " %(l[0],school_id,
-    #         l[5],l[6],l[2],l[3],int(coor_id))
-    # else:
-    #     sql = "INSERT INTO coordinator values (nextval('coorid_seq'),%s,'%s',null,'%s','%s','%s','%s')" %(
-    #         school_id,l[0],l[5],l[6],l[2],l[3])
-    # cur.execute(sql)
 
 
 

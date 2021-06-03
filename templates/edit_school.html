@@ -1,0 +1,51 @@
+{%extends "layout.html"%}
+{%block title%}
+Student info update
+{%endblock%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+{%endblock%}
+{%block content%}
+<main class="m-5">
+    <div class="container bg-light p-4 pb-5 rounded">
+        <div class="mb-3 row"><h1>Edit Schools Information</h1></div>
+            {% from "_form_helper.html" import render_field %}
+            <form method="POST" enctype="multipart/form-data" class="form_wrapper container">
+                {{ form.csrf_token }}
+                    <div class="row">
+                        <div class="col">
+                            {{ render_field(form.school_id) }}
+                            {{ render_field(form.school_name) }}
+                            {{ render_field(form.who) }}
+                            {{ render_field(form.council) }}
+                            {{ render_field(form.category) }}
+                          
+                        </div>
+                        <div class="col">
+                            {{ render_field(form.status) }}
+                            {{ render_field(form.training) }}
+                            {{ render_field(form.launch) }}
+                            {{ render_field(form.presentation) }}
+                            {{ render_field(form.portal) }}
+                          
+                        </div>
+                        <div class="col">
+                            {{ render_field(form.passports) }}
+                            {{ render_field(form.agreement) }}
+                            {{ render_field(form.consent) }}
+                            {{ render_field(form.notes) }}
+                            
+                        </div>
+                    </div>                                     
+                <div class="d-grid gap-2 d-md-block">
+                    <button type="button" role="button" class="btn btn-outline-primary" onclick="window.location.href = '/schools';">Return</button>
+                    <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>
+                    {{ form.submit(class="btn btn-outline-primary", onclick="alert('Update Successful')")}}
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+{%endblock%}

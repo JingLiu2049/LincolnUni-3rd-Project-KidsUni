@@ -149,33 +149,37 @@ def login():
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
-
         if account == None:
+            # If account doesn't exist, user receives this error message.
             flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
             return redirect(url_for('login'))
         else:
+            # If account exists
             if account:
                 cur.execute('SELECT * FROM admin WHERE user_id = %s',(int(account[0]),))
                 user = cur.fetchone()
                 print(user)
+                # If account exists and account is deactivated, user will receive error message
                 if user[5] == 'deactivated':
                     flash(f'Login unsuccessful. Please contact admin to check your account.', 'danger')
                     return redirect(url_for('login'))
+                # If account exists and account is active, system can log user in
                 if user[5] == 'active':
                     session['loggedin'] = True
                     session['user_id'] = account[0]
                     session['username'] = account[1]
-                    session['first_name'] = user[1]
-                    session['surname'] = user[2]
+                    session['name'] = user[1]
                     session['user_access'] = account[3]
                     session['remember_me'] = True if request.form.get('remember_me') else False
                     print(session['remember_me'])
                     print(session['user_access'])
+                    # If the user tried to access a certain page but wasn't logged in, the system will redirect the user to 
+                    # this page once they have logged in
                     if next_url:
                         return redirect(next_url)
                     # Redirect to home page
                     return redirect(url_for('index'))
-    return render_template('login.html', title='Login', user_access=session['user_access'])
+    return render_template('login.html', title='Login')
                 
 # This will be the logout page
 @app.route('/logout')
@@ -185,7 +189,10 @@ def logout():
     session.pop('loggedin', None)
     session.pop('user_id', None)
     session.pop('username', None)
-    session.pop('remember', None)
+    session.pop('name', None)
+    session.pop('user_access', None)
+    session.pop('remember_me', None)
+    
     # Redirect to login page
     return redirect(url_for('login'))
 
@@ -215,7 +222,7 @@ def member():
     result = cur.fetchall()
     date=datetime.today().year
     if request.method == 'POST':
-        return render_template("member.html", name=session['name'])
+        return render_template("member.html")
     else:
         return render_template("member.html",result=result, date=date, name=session['name'])
 
@@ -334,6 +341,68 @@ def school_upload():
             # return render_template('error.html')
             return print(e)
         return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
+
+
+def upsertSchool(form, school_id):
+    school_name= form.school_name.data
+    who= form.who.data
+    council= form.council.data
+    category= form.category.data
+    status= form.status.data
+    training= form.training.data
+    launch= form.launch.data
+    presentation= form.presentation.data
+    portal= form.portal.data
+    passports= form.passports.data
+    agreement= form.agreement.data
+    consent= form.consent.data
+    notes= form.notes.data
+    cur = getCursor()   
+    cur.execute("Update schools set school_name=%s, who=%s, \
+            council=%s, category=%s, status=%s, training=%s, launch=%s, presentation=%s, portal=%s,\
+            passports=%s, agreement=%s, consent=%s, notes=%s where school_id=%s;", (school_name, who, \
+            council, category, status, training, launch, presentation, portal,\
+            passports, agreement, consent, notes, school_id))
+
+@app.route("/edit_school", methods=['POST', 'GET'])
+@login_required
+def edit_member():
+    cur = getCursor()
+    school_id=request.args.get('id')
+    form = schools_info.SchoolInfoForm()
+    cur.execute(f"select * from schools_info where school_id={school_id};")
+    member = cur.fetchone()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            upsertMember(form, school_id)
+            return render_template('edit_member.html',name=session['name'], form=form)
+        else:
+            print(form.errors)
+            return render_template('edit_member.html',name=session['name'], form=form)
+    else:               
+        form.first_name.data= member.first_name
+        form.last_name.data= member.last_name
+        form.school_name.data= member.school_name
+        form.username.data=member.username
+        form.gender.data= member.gender
+        form.ethnicity.data= member.ethnicity
+        form.age.data= member.member_age
+        form.password.data= member.password
+        form.continuing_new.data= member.continuing_new
+        form.previous_hours.data= member.previous
+        form.passport_number.data= member.passport_number
+        form.passport_date.data= member.passport_date_issued
+        form.ethnicity_info.data= member.ethnicity_info
+        form.teaching_research.data= member.teaching_research
+        form.publication_promos.data= member.publication_promos
+        form.social_media.data= member.social_media
+        form.gown_size.data= member.gown_size
+        form.hat_size.data= member.hat_size
+        form.total_hours.data= member.total
+        form.status.data= member.status
+        return render_template("edit_member.html", date=date, name=session['name'], form=form)
+
+
 
 
 @app.route("/destination", methods=['POST', 'GET'])

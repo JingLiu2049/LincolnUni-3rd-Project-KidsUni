@@ -149,18 +149,21 @@ def login():
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
-
         if account == None:
+            # If account doesn't exist, user receives this error message.
             flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
             return redirect(url_for('login'))
         else:
+            # If account exists
             if account:
                 cur.execute('SELECT * FROM admin WHERE user_id = %s',(int(account[0]),))
                 user = cur.fetchone()
                 print(user)
+                # If account exists and account is deactivated, user will receive error message
                 if user[5] == 'deactivated':
                     flash(f'Login unsuccessful. Please contact admin to check your account.', 'danger')
                     return redirect(url_for('login'))
+                # If account exists and account is active, system can log user in
                 if user[5] == 'active':
                     session['loggedin'] = True
                     session['user_id'] = account[0]
@@ -171,6 +174,8 @@ def login():
                     session['remember_me'] = True if request.form.get('remember_me') else False
                     print(session['remember_me'])
                     print(session['user_access'])
+                    # If the user tried to access a certain page but wasn't logged in, the system will redirect the user to 
+                    # this page once they have logged in
                     if next_url:
                         return redirect(next_url)
                     # Redirect to home page

@@ -6,31 +6,32 @@
 {% endblock head %}
 
 {% block content %}
-<h1>volunteer upload page</h1>
-<div class="container">
-<form action="/volunteer_upload" method="POST">
-    <div class="wrapper">
-<table class="table">
-    <thead>
-        <tr>
-        {% for item in cols %}
-        <th><input type="text" value="{{item}}" name="col" class="columns" readonly></th>
-        {%endfor%}
-     </tr>
-    </thead>
-    {% for item in data %}
-    <tr>
-        {% for entrens in item %}
-        <td>
-            <input type="text" value="{{entrens}}" name="index{{item[-1]}}">
-        </td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
-</div>
-<button type="submit">Submit</button>
-<button type="reset">Reset</button>
-</form>
+<main class="m-4">
+    <h1>volunteer upload page</h1>
+    <div class="container">
+        <form action="/volunteer_upload" method="POST">
+            <div class="wrapper">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            {% for item in cols %}
+                            <th><input type="text" value="{{item}}" name="col" class="columns" readonly></th>
+                            {%endfor%}
+                        </tr>
+                    </thead>
+                    {% for item in data %}
+                    <tr>
+                        {% for entrens in item %}
+                        <td>
+                            <input type="text" value="{{entrens}}" name="index{{item[-1]}}">
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+        </form>
 </main>
 {% endblock content %}

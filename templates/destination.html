@@ -6,11 +6,11 @@
 {% block content %}
 
 <script>
-$(document).ready(function() {
-  $(".clickable").click(function() {
-    window.document.location = $(this).data("href");
-  });
-});
+    $(document).ready(function () {
+        $(".clickable").click(function () {
+            window.document.location = $(this).data("href");
+        });
+    });
 </script>
 
 <main class="m-4">
@@ -19,46 +19,47 @@ $(document).ready(function() {
         <div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" id="file" name="file" class="form-control" required>
-            <button type="submit" id="btn" class="btn btn-outline-secondary" >submit</button>
+            <button type="submit" id="btn" class="btn btn-outline-secondary">submit</button>
         </div>
     </form>
     </br>
-    
-<div class="table-responsive">
-    <table class="table table-striped table-hover table-sm" style="font-size: .875rem" id="table">
-        <thead>
-             <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Contact Person</th>
-                  <th scope="col">Position</th>
-                  <th scope="col">Address</th>
-                  <th scope="col">Region</th>
-                  <th scope="col">Postal Address</th>
-                  <th scope="col">Phone Number</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Web Address</th>
-                  <th scope="col">Member Cost</th>
-                  <th scope="col">Adult Cost</th>
-                  <th scope="col">Agreement Signed</th>
-                  <th scope="col">ROV Signed</th>
-                  <th scope="col">Poster Sent</th>
-                  <th scope="col">Logo Sent</th>
-                  <th scope="col">FB Promo</th>
-                  <th scope="col">Photo Provided</th>
-                  <th scope="col">Note</th>
-             </tr>
-        </thead>
-        <tbody id="mytable">
-            {%for cols in dests%}
-            <tr>
-                {%for result in cols %}
-                <td class="clickable" data-href="/edit_destination?id={{cols[0]}}" style="cursor: pointer;">{{result}}</td>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm" style="font-size: .875rem" id="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Contact Person</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Region</th>
+                    <th scope="col">Postal Address</th>
+                    <th scope="col">Phone Number</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Web Address</th>
+                    <th scope="col">Member Cost</th>
+                    <th scope="col">Adult Cost</th>
+                    <th scope="col">Agreement Signed</th>
+                    <th scope="col">ROV Signed</th>
+                    <th scope="col">Poster Sent</th>
+                    <th scope="col">Logo Sent</th>
+                    <th scope="col">FB Promo</th>
+                    <th scope="col">Photo Provided</th>
+                    <th scope="col">Note</th>
+                </tr>
+            </thead>
+            <tbody id="mytable">
+                {%for cols in dests%}
+                <tr>
+                    {%for result in cols %}
+                    <td class="clickable" data-href="/edit_destination?id={{cols[0]}}" style="cursor: pointer;">
+                        {{result}}</td>
+                    {%endfor%}
+                </tr>
                 {%endfor%}
-            </tr>
-            {%endfor%}
-        </tbody>
-</table>
+            </tbody>
+        </table>
 </main>
 {%endblock%}

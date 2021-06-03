@@ -51,14 +51,27 @@
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('event') }}">Events</a>
             </li>
+            {% if session['user_access'] == "admin" %}
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('users') }}">Users</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('download') }}">Download Excel</a>
+            {% endif %}
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Download Excel
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/download_mem_sheet">Members</a></li>
+                <li><a class="dropdown-item" href="/download_school_sheet?sheet=template">School Templates</a></li>
+                <li><a class="dropdown-item" href="/download_school_sheet?sheet=completed">Complated Schools</a></li>
+                <li><a class="dropdown-item" href="/download_dest_sheet">Leaning Destinations</a></li>
+                <li><a class="dropdown-item" href="/download_volun_sheet">Volunteers</a></li>
+              </ul>
             </li>
+
             <li class="nav-item">
-              <a class="nav-link" href="#">{% block current_user %} {% endblock current_user %}</a>
+              <a class="nav-link" href="#">{{ session['name'] }}</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>

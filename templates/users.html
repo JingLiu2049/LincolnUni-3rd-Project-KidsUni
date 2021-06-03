@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block title %} Users {% endblock %}
-{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
+
 {% block content %}
 
   <main class="m-5">
@@ -9,8 +9,9 @@
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-          {{ message }}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endfor %}
       {% endif %}
@@ -33,8 +34,9 @@
                 <th>First Name</th>
                 <th>Surname</th>
                 <th>Phone Number</th>
-                <th>Email</th>   
-                <th>Status</th>      
+                <th>Email</th> 
+                <th>User Access</th>  
+                <th>Status</th>     
                 <th></th>                 
               </tr>
             </thead>
@@ -42,7 +44,7 @@
             <tbody>
             {% for user in users %}
               <tr>
-                {% for row in user[0:6] %}
+                {% for row in user[0:7] %}
                 <td> {{ row }}</td>
                 {% endfor %}
                 <td> 

@@ -101,3 +101,4 @@ def total_schools_count():
     query = "SELECT COUNT(school_id) FROM schools;"
     result = db.getOne(query, [])
     return result[0]
+

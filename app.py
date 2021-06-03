@@ -17,7 +17,7 @@ import zipfile
 import spreadsheet
 import uuid
 import uploads
-import schools_info, member_info, destinations
+import schools_info, member_info, destinations, login_session
 from functools import wraps
 import classes
 import filter_info
@@ -73,6 +73,18 @@ def login_required(f):
             flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
+
+def admin_access(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session['user_access'] == "admin":
+            return f(*args, **kwargs)
+        else:
+            flash(f"You don't have access to this page.", 'danger')
+            return redirect(url_for('index'))
+    return decorated_function
+
+    
 # Disable browser downloads from cache
 def no_cache(fun):
     @wraps(fun)
@@ -165,41 +177,38 @@ def login():
         cur.execute('SELECT * FROM authorisation WHERE username = %s AND password = %s', (username, password,))
         # Fetch one record and return result
         account = cur.fetchone()
-        # print(account)
-        # print(account[0])
-        # print(type(account[0]))
-
-        cur.execute('SELECT status FROM admin WHERE user_id = %s',(int(account[0]),))
-        status = cur.fetchone()
-        print(status)
-        # If account exists in accounts table in our database
-        if account and status[0] == 'active':
-            sql = "SELECT first_name, surname FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
-                WHERE authorisation.user_id = %s;" % account[0]
-            cur.execute(sql)
-            name = cur.fetchone()
-            # Create session data, we can access this data in other routes
-            session['loggedin'] = True
-            session['user_id'] = account[0]
-            session['username'] = account[1]
-            session['name'] = name
-            session['remember_me'] = True if request.form.get(
-                'remember_me') else False
-            print(session['remember_me'])
-            if next_url:
-                return redirect(next_url)
-            # Redirect to home page
-            return redirect(url_for('index'))
-        if account and status[0] == 'deactivated':
-            flash(
-                f'Login unsuccessful. Please contact admin to check your account.', 'danger')
+        if account == None:
+            # If account doesn't exist, user receives this error message.
+            flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
             return redirect(url_for('login'))
         else:
-            # Account doesnt exist or username/password incorrect
-            flash(f'Login Unsuccessful. Please check your email and password!', 'danger')
+            # If account exists
+            if account:
+                cur.execute('SELECT * FROM admin WHERE user_id = %s',(int(account[0]),))
+                user = cur.fetchone()
+                print(user)
+                # If account exists and account is deactivated, user will receive error message
+                if user[5] == 'deactivated':
+                    flash(f'Login unsuccessful. Please contact admin to check your account.', 'danger')
+                    return redirect(url_for('login'))
+                # If account exists and account is active, system can log user in
+                if user[5] == 'active':
+                    session['loggedin'] = True
+                    session['user_id'] = account[0]
+                    session['username'] = account[1]
+                    session['name'] = user[1]
+                    session['user_access'] = account[3]
+                    session['remember_me'] = True if request.form.get('remember_me') else False
+                    print(session['remember_me'])
+                    print(session['user_access'])
+                    # If the user tried to access a certain page but wasn't logged in, the system will redirect the user to 
+                    # this page once they have logged in
+                    if next_url:
+                        return redirect(next_url)
+                    # Redirect to home page
+                    return redirect(url_for('index'))
     return render_template('login.html', title='Login')
-
-
+                
 # This will be the logout page
 @app.route('/logout')
 @login_required
@@ -208,7 +217,10 @@ def logout():
     session.pop('loggedin', None)
     session.pop('user_id', None)
     session.pop('username', None)
-    session.pop('remember', None)
+    session.pop('name', None)
+    session.pop('user_access', None)
+    session.pop('remember_me', None)
+    
     # Redirect to login page
     return redirect(url_for('login'))
 
@@ -238,7 +250,7 @@ def member():
     result = cur.fetchall()
     date=datetime.today().year
     if request.method == 'POST':
-        return render_template("member.html", name=session['name'])
+        return render_template("member.html")
     else:
         return render_template("member.html",result=result, date=date, name=session['name'])
 
@@ -331,66 +343,18 @@ def member_upload():
 @login_required
 def school():
     cur = db.getCursor()
-    cur.execute("select * from schools;")
-    result = cur.fetchall()
-    return render_template("school.html",schools = result, name=session['name'])
-    # result = cur.fetchall()
-    # cur.execute("select distinct school_name from schools;")
-    # school_name = cur.fetchall()
-    # school_filter = school_name
-    # cur.execute("select distinct who from schools;")
-    # who = cur.fetchall()
-    # cur.execute("select distinct council from schools;")
-    # council = cur.fetchall()
-    # cur.execute("select distinct category from schools;")
-    # category = cur.fetchall()
-    # cur.execute("select distinct status from schools;")
-    # status = cur.fetchall()
-    # cur.execute("select distinct returning_number from schools order by returning_number asc;;")
-    # returning_number = cur.fetchall()
-    # cur.execute("select distinct max_num_2021 from schools order by max_num_2021 asc;;")
-    # max_num_2021= cur.fetchall()
-    # cur.execute("select distinct confirmed_num from schools order by confirmed_num asc;;")
-    # confirmed_num = cur.fetchall()
-    # cur.execute("select distinct training from schools;")
-    # training = cur.fetchall()
-    # cur.execute("select distinct launch from schools;")
-    # launch = cur.fetchall()
-    # cur.execute("select distinct passport_presentation from schools;")
-    # passport_presentation = cur.fetchall()
-    # cur.execute("select distinct portal from schools;")
-    # portal = cur.fetchall()
-    # cur.execute("select distinct passports from schools;")
-    # passports = cur.fetchall()
-    # cur.execute("select distinct agreement from schools;")
-    # agreement = cur.fetchall()
-    # cur.execute("select distinct consent from schools;")
-    # consent = cur.fetchall()
-    # cur.execute("select distinct notes from schools;")
-    # notes = cur.fetchall()
-    # date = datetime.today().year
-
-    # if request.method == 'POST':
-
-    #     return render_template("school.html", name=session['name'])
-    # else:
-    #     return render_template("school.html", result=result, date=date, school_filter=school_filter,
-    #                            school_name=school_name, who=who, council=council, category=category, status=status, 
-    #                            returning_number=returning_number, max_num_2021=max_num_2021, confirmed_num=confirmed_num,
-    #                            training=training, launch=launch, passport_presentation=passport_presentation, portal=portal,
-    #                             passports=passports, agreement=agreement, consent=consent,notes=notes, name=session['name'])
-
-@app.route("/school_filter", methods=['POST'])
-@login_required
-def school_filter():
+    sch_criteria_dict = filter_info.sch_criteria_dict
+    filter_criteria = filter_info.get_criteria( sch_criteria_dict )
     if request.method == 'POST':
-        cur = db.getCursor()
-        school = request.form.get('schoolfilter')
-        cur.execute(f"select * from schools where school_name='{school}';")
-        filter_result = cur.fetchall()
-        return render_template("school.html", name=session['name'], filter=filter_result)
+        sql = filter_info.get_sql('school_details','school_id',sch_criteria_dict)
     else:
-        return redirect(url_for('school'))
+        print('lalemalalemalalemalalemalalemalalemalalemalalema')
+        sql ="SELECT * FROM school_details ORDER BY school_id;"
+    cur.execute(sql)
+    results = cur.fetchall()
+    school_list = filter_info.get_display_list(results,schools_info.school)
+    return render_template('school.html', name=session['name'], schoollist=school_list, schoolcriteria = filter_criteria)
+
 
 @app.route("/school_upload", methods=['POST'])
 @login_required
@@ -417,6 +381,69 @@ def school_upload():
             # return render_template('error.html')
             return print(e)
         return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
+
+
+def upsertSchool(form, school_id):
+    school_name= form.school_name.data
+    who= form.who.data
+    council= form.council.data
+    category= form.category.data
+    status= form.status.data
+    training= form.training.data
+    launch= form.launch.data
+    presentation= form.presentation.data
+    portal= form.portal.data
+    passports= form.passports.data
+    agreement= form.agreement.data
+    consent= form.consent.data
+    notes= form.notes.data
+    cur = getCursor()   
+    cur.execute("Update schools set school_name=%s, who=%s, \
+            council=%s, category=%s, status=%s, training=%s, launch=%s, presentation=%s, portal=%s,\
+            passports=%s, agreement=%s, consent=%s, notes=%s where school_id=%s;", (school_name, who, \
+            council, category, status, training, launch, presentation, portal,\
+            passports, agreement, consent, notes, school_id))
+
+@app.route("/edit_school", methods=['POST', 'GET'])
+@login_required
+def edit_school():
+    cur = getCursor()
+    school_id=request.args.get('id')
+    form = schools_info.SchoolInfoForm()
+    cur.execute(f"select * from schools_info where school_id={school_id};")
+    member = cur.fetchone()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            upsertMember(form, school_id)
+            return render_template('edit_member.html',name=session['name'], form=form)
+        else:
+            print(form.errors)
+            return render_template('edit_member.html',name=session['name'], form=form)
+    else:               
+        form.first_name.data= member.first_name
+        form.last_name.data= member.last_name
+        form.school_name.data= member.school_name
+        form.username.data=member.username
+        form.gender.data= member.gender
+        form.ethnicity.data= member.ethnicity
+        form.age.data= member.member_age
+        form.password.data= member.password
+        form.continuing_new.data= member.continuing_new
+        form.previous_hours.data= member.previous
+        form.passport_number.data= member.passport_number
+        form.passport_date.data= member.passport_date_issued
+        form.ethnicity_info.data= member.ethnicity_info
+        form.teaching_research.data= member.teaching_research
+        form.publication_promos.data= member.publication_promos
+        form.social_media.data= member.social_media
+        form.gown_size.data= member.gown_size
+        form.hat_size.data= member.hat_size
+        form.total_hours.data= member.total
+        form.status.data= member.status
+        return render_template("edit_member.html", date=date, name=session['name'], form=form)
+
+
+
 
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
@@ -601,9 +628,12 @@ def add_event():
 
 @app.route("/users", methods=['POST', 'GET'])
 @login_required
+@admin_access
 def users():
     cur = db.getCursor()
-    cur.execute("SELECT * FROM admin ORDER BY surname;")
+    cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+        authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+        ORDER BY surname;")
     select_result = cur.fetchall()
     column_names = [desc[0] for desc in cur.description]
     return render_template('users.html', users=select_result, dbcols=column_names, name=session['name'])
@@ -611,6 +641,7 @@ def users():
 
 @app.route("/edit_user", methods=['POST', 'GET'])
 @login_required
+@admin_access
 def edit_user():
     cur = db.getCursor()
     if request.method == 'POST':
@@ -636,13 +667,16 @@ def edit_user():
             return redirect(url_for('users'))
     else:
         user_id = request.args.get('user_id')
-        cur.execute("SELECT * FROM admin WHERE user_id = %s;", (user_id,))
+        cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+            authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+             WHERE admin.user_id = %s;", (user_id,))
         userinfo = cur.fetchone()
         return render_template("edit_user.html", userinfo=userinfo, name=session['name'])
 
 
 @app.route("/add_user", methods=['POST', 'GET'])
 @login_required
+@admin_access
 def add_user():
     if request.method == 'POST':
         user_id = genID()
@@ -650,27 +684,25 @@ def add_user():
         surname = request.form.get('surname')
         email = request.form.get('email')
         phone_number = request.form.get('phone_number')
+        user_access = request.form.get('user_access')
         status = "active"
         print(user_id)
         print(first_name)
         print(surname)
         print(email)
         print(phone_number)
+        print(user_access)
 
         cur = db.getCursor()
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute(
-            "INSERT INTO authorisation(user_id, username) VALUES (%s,%s);", (user_id, email,))
+            "INSERT INTO authorisation(user_id, username, user_access) VALUES (%s,%s,%s);", (user_id, email,user_access))
         flash(f'User successfully added!', 'success')
         return redirect(url_for('users'))
     return render_template('add_user.html', name=session['name'])
 
 
-@app.route("/download", methods=['POST', 'GET'])
-@login_required
-def download():
-    return render_template('download.html', name=session['name'])
 
 # generating excel file of member for downloading
 @app.route("/download_mem_sheet", methods=['POST', 'GET'])
@@ -685,7 +717,7 @@ def download_mem_sheet():
     if request.method == 'POST':
         request_file = request.form.get('type')
         school_list = request.form.getlist('schools')
-    # generating excel of black template and send to client-side
+    # generating excel of blanck template and send to client-side
         if request_file == 'template':
             zfile = zipfile.ZipFile(
                 f'{app.root_path}\downloads\Templates.zip', 'w')

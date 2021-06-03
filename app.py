@@ -389,6 +389,68 @@ def school_upload():
         return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
 
 
+def upsertSchool(form, school_id):
+    school_name= form.school_name.data
+    who= form.who.data
+    council= form.council.data
+    category= form.category.data
+    status= form.status.data
+    training= form.training.data
+    launch= form.launch.data
+    presentation= form.presentation.data
+    portal= form.portal.data
+    passports= form.passports.data
+    agreement= form.agreement.data
+    consent= form.consent.data
+    notes= form.notes.data
+    cur = getCursor()   
+    cur.execute("Update schools set school_name=%s, who=%s, \
+            council=%s, category=%s, status=%s, training=%s, launch=%s, presentation=%s, portal=%s,\
+            passports=%s, agreement=%s, consent=%s, notes=%s where school_id=%s;", (school_name, who, \
+            council, category, status, training, launch, presentation, portal,\
+            passports, agreement, consent, notes, school_id))
+
+@app.route("/edit_school", methods=['POST', 'GET'])
+@login_required
+def edit_member():
+    cur = getCursor()
+    school_id=request.args.get('id')
+    form = schools_info.SchoolInfoForm()
+    cur.execute(f"select * from schools_info where school_id={school_id};")
+    member = cur.fetchone()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            upsertMember(form, school_id)
+            return render_template('edit_member.html',name=session['name'], form=form)
+        else:
+            print(form.errors)
+            return render_template('edit_member.html',name=session['name'], form=form)
+    else:               
+        form.first_name.data= member.first_name
+        form.last_name.data= member.last_name
+        form.school_name.data= member.school_name
+        form.username.data=member.username
+        form.gender.data= member.gender
+        form.ethnicity.data= member.ethnicity
+        form.age.data= member.member_age
+        form.password.data= member.password
+        form.continuing_new.data= member.continuing_new
+        form.previous_hours.data= member.previous
+        form.passport_number.data= member.passport_number
+        form.passport_date.data= member.passport_date_issued
+        form.ethnicity_info.data= member.ethnicity_info
+        form.teaching_research.data= member.teaching_research
+        form.publication_promos.data= member.publication_promos
+        form.social_media.data= member.social_media
+        form.gown_size.data= member.gown_size
+        form.hat_size.data= member.hat_size
+        form.total_hours.data= member.total
+        form.status.data= member.status
+        return render_template("edit_member.html", date=date, name=session['name'], form=form)
+
+
+
+
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():

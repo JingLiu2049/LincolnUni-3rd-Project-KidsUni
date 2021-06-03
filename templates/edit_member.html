@@ -15,7 +15,7 @@ Student info update
                 {{ form.csrf_token }}
                     <div class="row">
                         <div class="col">
-                            {{ render_field(form.first_name) }}
+                            {{ render_field(form.school_name) }} 
                             {{ render_field(form.gender) }}
                             {{ render_field(form.username) }}
                             {{ render_field(form.previous_hours) }}
@@ -24,7 +24,7 @@ Student info update
                             {{ render_field(form.gown_size) }}
                         </div>
                         <div class="col">
-                            {{ render_field(form.last_name) }}
+                            {{ render_field(form.first_name) }}
                             {{ render_field(form.age) }}
                             {{ render_field(form.password) }}
                             {{ render_field(form.passport_number) }}
@@ -33,7 +33,7 @@ Student info update
                             {{ render_field(form.status) }}
                         </div>
                         <div class="col">
-                            {{ render_field(form.school_name, readonly) }}
+                            {{ render_field(form.last_name) }}
                             {{ render_field(form.ethnicity) }}
                             {{ render_field(form.continuing_new) }}
                             {{ render_field(form.passport_date) }}
@@ -44,7 +44,7 @@ Student info update
                 <div class="d-grid gap-2 d-md-block">
                     <button type="button" role="button" class="btn btn-outline-primary" onclick="window.location.href = '/member';">Return</button>
                     <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>
-                    {{ form.submit(class="btn btn-outline-primary", onclick="alert('Update Successful')")}}
+                    {{ form.submit(class="btn btn-outline-primary")}} {{ message }}
                 </div>
             </form>
         </div>

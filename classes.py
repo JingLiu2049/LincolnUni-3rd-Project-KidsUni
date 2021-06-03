@@ -144,7 +144,7 @@ class destination:
         self.status = l[1]
         self.name = l[2]
         self.contact = l[3]
-        self.position = l[4]
+        self.ld_position = l[4]
         self.address = l[5]
         self.region = l[6] 
         self.post = l[7]
@@ -165,10 +165,10 @@ class destination:
         self.paperwork = l[20:] if len(l)>20 else False
     def insert_db(self,paperwork):
         cur = db.getCursor()
-        cur.execute("UPDATE destinations SET status = %s, ld_name = %s, contact_person = %s, position = %s, \
+        cur.execute("UPDATE destinations SET status = %s, ld_name = %s, contact_person = %s, ld_position = %s, \
             address = %s, region = %s, postal_address = %s, phone_number = %s,email = %s, web_address = %s, \
             member_cost = %s, adult_cost = %s, agrt_signed = %s, rov_signed = %s, poster_sent = %s, logo_sent = %s, \
-            promo = %s, photo = %s, note = %s WHERE ld_id = %s;",(self.status, self.name, self.contact, self.position, self.address,
+            promo = %s, photo = %s, note = %s WHERE ld_id = %s;",(self.status, self.name, self.contact, self.ld_position, self.address,
             self.region, self.post, self.phone, self.email, self.web, self.cost, self.adult_cost, self.agreement, self.rov,
             self.poster, self.logo, self.promo, self.photo, self.note, self.id, ))
         if paperwork:

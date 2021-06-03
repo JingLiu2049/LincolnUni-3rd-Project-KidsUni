@@ -84,7 +84,8 @@ def no_cache(fun):
         return response
     return inner
 
-def upsertMember(form, member_id):
+# update members' info by form
+def upsertMember(form, member_id, school_id):
     first_name= form.first_name.data
     last_name= form.last_name.data
     username= form.username.data
@@ -104,14 +105,41 @@ def upsertMember(form, member_id):
     hat_size= form.hat_size.data
     total= form.total_hours.data
     status= form.status.data
-    cur = getCursor()   
-    cur.execute("Update members set first_name=%s, last_name=%s, \
+    cur = db.getCursor()   
+    cur.execute("Update members set school_id=%s, first_name=%s, last_name=%s, \
             username=%s, password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new=%s, passport_number=%s,\
             previous=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, publication_promos=%s, \
-            social_media=%s, total=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;", (first_name, last_name, \
+            social_media=%s, total=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;", (school_id, first_name, last_name, \
             username, password, gender, member_age, ethnicity, continuing_new, passport_number,\
             previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, \
             social_media, total, gown_size, hat_size, status, member_id))
+
+def upsertDestinations(form, ld_id):
+    status= form.status.data
+    ld_name= form.ld_name.data
+    contact_person= form.contact_person.data
+    position= form.ld_position.data
+    address= form.address.data
+    region= form.region.data
+    postal_address= form.postal_address.data
+    email= form.email.data
+    phone_number= form.phone_number.data
+    web_address= form.web_address.data
+    member_cost= form.member_cost.data
+    adult_cost= form.adult_cost.data
+    agrt_signed= form.agrt_signed.data
+    rov_signed= form.rov_signed.data
+    poster_sent= form.poster_sent.data
+    logo_sent=form.logo_sent.data
+    promo= form.promo.data
+    photo= form.photo.data
+    cur = db.getCursor()   
+    cur.execute(" Update destinations set status=%s, ld_name=%s, contact_person=%s, ld_position=%s, \
+        address=%s, region=%s,  postal_address=%s, phone_number=%s, email=%s, web_address=%s, member_cost=%s,\
+        adult_cost=%s, agrt_signed=%s, rov_signed=%s, poster_sent=%s, logo_sent=%s,  promo=%s, photo=%s where ld_id=%s;",(status, ld_name, \
+        contact_person, position, address, region, postal_address, phone_number, email, \
+        web_address, member_cost,adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, ld_id))
+
 
 # App Route
 ##################################################
@@ -205,7 +233,7 @@ def index():
 @app.route("/member", methods=['POST', 'GET'])
 @login_required
 def member():
-    cur = db.getCursor()
+    cur = getCursor()
     cur.execute("select * from member_info;")
     result = cur.fetchall()
     date=datetime.today().year
@@ -214,6 +242,7 @@ def member():
     else:
         return render_template("member.html",result=result, date=date, name=session['name'])
 
+# click member id's <tr> to edit member info 
 @app.route("/edit_member", methods=['POST', 'GET'])
 @login_required
 def edit_member():
@@ -222,10 +251,24 @@ def edit_member():
     form = member_info.MemberInfoForm()
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
+    school_name= request.form.get('school_name')
     if request.method == 'POST':
         if form.validate_on_submit():
-            upsertMember(form, member_id)
-            return render_template('edit_member.html',name=session['name'], form=form)
+            # create a currently school list from database
+            schoolArray = []
+            cur.execute(f"select school_name from schools;")
+            for row in cur.fetchall():
+                schoolArray.append(str(row.school_name))
+            if school_name in schoolArray: # the new school cannot be update if its not in the school list
+                cur.execute(f"select school_id from schools where school_name='{school_name}';")
+                result=cur.fetchall()
+                school_id=result[0]
+                upsertMember(form, member_id,school_id)
+                message = 'Update successful'
+                return render_template('edit_member.html',name=session['name'], form=form, message=message)
+            else:
+                print (form.errors) 
+                return render_template('edit_member.html',name=session['name'], form=form)
         else:
             print(form.errors)
             return render_template('edit_member.html',name=session['name'], form=form)
@@ -283,9 +326,6 @@ def member_upload():
             return print(e)
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                     coor_col=coor_col, coor_data=coor_data, name=session['name'])
-
-        
-
 
 @app.route("/school", methods=['POST', 'GET'])
 @login_required
@@ -378,7 +418,6 @@ def school_upload():
             return print(e)
         return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
 
-
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
@@ -386,6 +425,43 @@ def destination():
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
     return render_template('destination.html', dests=dests, name=session['name'])
+
+@app.route("/edit_destination", methods=['POST', 'GET'])
+@login_required
+def edit_destination():
+    cur = getCursor()
+    ld_id=request.args.get('id')
+    form = destinations.DestinationForm()
+    cur.execute(f"select * from destinations where ld_id={ld_id};")
+    ld = cur.fetchone()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            upsertDestinations(form, ld_id)
+            message = 'Update successful'
+            return render_template('edit_destination.html',name=session['name'], form=form, message=message)
+        else:
+            print(form.errors)
+            return render_template('edit_destination.html',name=session['name'], form=form)
+    else:               
+        form.status.data= ld.status
+        form.ld_name.data= ld.ld_name
+        form.contact_person.data=ld.contact_person
+        form.ld_position.data= ld.ld_position
+        form.address.data= ld.address
+        form.region.data= ld.region
+        form.postal_address.data= ld.postal_address
+        form.email.data= ld.email
+        form.phone_number.data=ld.phone_number
+        form.web_address.data= ld.web_address
+        form.member_cost.data= ld.member_cost
+        form.adult_cost.data= ld.adult_cost
+        form.agrt_signed.data= ld.agrt_signed
+        form.rov_signed.data= ld.rov_signed
+        form.poster_sent.data= ld.poster_sent
+        form.logo_sent.data= ld. logo_sent
+        form.promo.data= ld.promo
+        form.photo.data= ld.photo
+        return render_template('edit_destination.html', form=form, name=session['name'],ld=ld)
 
 
 @app.route("/destination_upload", methods=['POST'])

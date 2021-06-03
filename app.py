@@ -296,66 +296,18 @@ def member_upload():
 @login_required
 def school():
     cur = db.getCursor()
-    cur.execute("select * from schools;")
-    result = cur.fetchall()
-    return render_template("school.html",schools = result, name=session['name'])
-    # result = cur.fetchall()
-    # cur.execute("select distinct school_name from schools;")
-    # school_name = cur.fetchall()
-    # school_filter = school_name
-    # cur.execute("select distinct who from schools;")
-    # who = cur.fetchall()
-    # cur.execute("select distinct council from schools;")
-    # council = cur.fetchall()
-    # cur.execute("select distinct category from schools;")
-    # category = cur.fetchall()
-    # cur.execute("select distinct status from schools;")
-    # status = cur.fetchall()
-    # cur.execute("select distinct returning_number from schools order by returning_number asc;;")
-    # returning_number = cur.fetchall()
-    # cur.execute("select distinct max_num_2021 from schools order by max_num_2021 asc;;")
-    # max_num_2021= cur.fetchall()
-    # cur.execute("select distinct confirmed_num from schools order by confirmed_num asc;;")
-    # confirmed_num = cur.fetchall()
-    # cur.execute("select distinct training from schools;")
-    # training = cur.fetchall()
-    # cur.execute("select distinct launch from schools;")
-    # launch = cur.fetchall()
-    # cur.execute("select distinct passport_presentation from schools;")
-    # passport_presentation = cur.fetchall()
-    # cur.execute("select distinct portal from schools;")
-    # portal = cur.fetchall()
-    # cur.execute("select distinct passports from schools;")
-    # passports = cur.fetchall()
-    # cur.execute("select distinct agreement from schools;")
-    # agreement = cur.fetchall()
-    # cur.execute("select distinct consent from schools;")
-    # consent = cur.fetchall()
-    # cur.execute("select distinct notes from schools;")
-    # notes = cur.fetchall()
-    # date = datetime.today().year
-
-    # if request.method == 'POST':
-
-    #     return render_template("school.html", name=session['name'])
-    # else:
-    #     return render_template("school.html", result=result, date=date, school_filter=school_filter,
-    #                            school_name=school_name, who=who, council=council, category=category, status=status, 
-    #                            returning_number=returning_number, max_num_2021=max_num_2021, confirmed_num=confirmed_num,
-    #                            training=training, launch=launch, passport_presentation=passport_presentation, portal=portal,
-    #                             passports=passports, agreement=agreement, consent=consent,notes=notes, name=session['name'])
-
-@app.route("/school_filter", methods=['POST'])
-@login_required
-def school_filter():
+    sch_criteria_dict = filter_info.sch_criteria_dict
+    filter_criteria = filter_info.get_criteria( sch_criteria_dict )
     if request.method == 'POST':
-        cur = db.getCursor()
-        school = request.form.get('schoolfilter')
-        cur.execute(f"select * from schools where school_name='{school}';")
-        filter_result = cur.fetchall()
-        return render_template("school.html", name=session['name'], filter=filter_result)
+        sql = filter_info.get_sql('sch_detail','school_id',sch_criteria_dict)
     else:
-        return redirect(url_for('school'))
+        print('lalemalalemalalemalalemalalemalalemalalemalalema')
+        sql ="SELECT * FROM sch_detail ORDER BY school_id;"
+    cur.execute(sql)
+    results = cur.fetchall()
+    school_list = filter_info.get_display_list(results,schools_info.school)
+    return render_template('school.html', name=session['name'], schoollist=school_list, schoolcriteria = filter_criteria)
+
 
 @app.route("/school_upload", methods=['POST'])
 @login_required

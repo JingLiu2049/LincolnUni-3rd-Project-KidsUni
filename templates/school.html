@@ -70,6 +70,15 @@
                   <td>Notes</td>
               </tr>
           </thead>
+          <tbody id="table">
+               {%for cols in schoollist%}
+               <tr>
+                   {%for result in cols %}
+                   <td>{{result}}</td>
+                   {%endfor%}
+               </tr>
+               {%endfor%}
+           </tbody>
           
       </table>
   </main>

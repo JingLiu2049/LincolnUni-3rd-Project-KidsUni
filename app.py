@@ -306,10 +306,10 @@ def school():
     sch_criteria_dict = filter_info.sch_criteria_dict
     filter_criteria = filter_info.get_criteria( sch_criteria_dict )
     if request.method == 'POST':
-        sql = filter_info.get_sql('sch_detail','school_id',sch_criteria_dict)
+        sql = filter_info.get_sql('school_details','school_id',sch_criteria_dict)
     else:
         print('lalemalalemalalemalalemalalemalalemalalemalalema')
-        sql ="SELECT * FROM sch_detail ORDER BY school_id;"
+        sql ="SELECT * FROM school_details ORDER BY school_id;"
     cur.execute(sql)
     results = cur.fetchall()
     school_list = filter_info.get_display_list(results,schools_info.school)
@@ -366,7 +366,7 @@ def upsertSchool(form, school_id):
 
 @app.route("/edit_school", methods=['POST', 'GET'])
 @login_required
-def edit_member():
+def edit_school():
     cur = getCursor()
     school_id=request.args.get('id')
     form = schools_info.SchoolInfoForm()

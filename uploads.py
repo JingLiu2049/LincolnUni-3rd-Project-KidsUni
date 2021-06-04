@@ -35,22 +35,32 @@ def get_mem_df(excelpath):
     df_school.fillna('', inplace=True)
     name = df_school.loc[0,3]
     df_mem = pd.read_excel(excelpath,0,header=[5])
-    # df1.iloc[:,14].fillna('NA', inplace=True)
-    df_mem.update(df_mem.iloc[:,[14,15,16,17,18,19]].fillna(0)) 
+    df_mem.update(df_mem.iloc[:,0].fillna(1)) 
+    df_mem.iloc[:,0] = df_mem.iloc[:,0].astype(int)
+    df_mem.update(df_mem.iloc[:,14:20].fillna(0)) 
+    df_mem.iloc[:,14:20] = df_mem.iloc[:,14:20].astype(float)
     df_mem.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
     df_mem.fillna('', inplace=True)
     df_mem.rename(columns={'#':'Memberid'},inplace = True)
     df_up = pd.read_excel(excelpath,1,header=[5])
+    if len(df_mem) != len(df_up):
+        for i in range(0,len(df_mem)-len(df_up)):
+            df_up.loc[len(df_up)]=[None]*4
     df_mem.insert(14,'USERNAME',df_up['USERNAME'].values)
     df_mem.insert(15,'PASSWORD',df_up['PASSWORD'].values)
     df_mem.insert(16,'School name',name)
     df_mem.loc[:,'index'] = df_mem.index
     df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1)
     df_coor.dropna(axis='columns',how='all',inplace=True)
-    df_coor.loc[:,'School'] = df_school.loc[0,3]
-    df_coor.loc[:,'Email'] = df_school.loc[2,3]
-    df_coor.loc[:,'Phone'] = df_school.loc[3,3]
-    df_coor.loc[:,'year'] = df_school.loc[4,3]
+    df_coor[['School', 'Email','Phone','year']] = pd.DataFrame([[
+            df_school.loc[0,3], 
+            df_school.loc[2,3], 
+            df_school.loc[3,3],
+            df_school.loc[4,3]]], index=df_coor.index)
+    # df_coor.loc[:,'School'] = df_school.loc[0,3]
+    # df_coor.loc[:,'Email'] = df_school.loc[2,3]
+    # df_coor.loc[:,'Phone'] = df_school.loc[3,3]
+    # df_coor.loc[:,'year'] = df_school.loc[4,3]
     
     return [df_mem,df_coor]
 

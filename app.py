@@ -409,7 +409,6 @@ def school():
         sql = filter_info.get_sql(
             'school_details', 'school_id', sch_criteria_dict)
     else:
-        print('lalemalalemalalemalalemalalemalalemalalemalalema')
         sql = "SELECT * FROM school_details ORDER BY school_id;"
     cur.execute(sql)
     results = cur.fetchall()
@@ -432,12 +431,10 @@ def school_upload():
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
-        print('daolemadaolemadaolemadaolemadaolemadaolemadaolemadaolema')
         try:
             df_school = schools_info.get_df(excelpath)
             school_cols = df_school.columns
             school_data = df_school.values
-            print(df_school.iloc[:, [16, 17, 18, 19, 20, 21, 22]])
         except Exception as e:
             # return render_template('error.html')
             return print(e)
@@ -550,10 +547,8 @@ def destination_upload():
         excelpath = upload_path('file')
         try:
             df_dest = uploads.get_dest_df(excelpath)
-            # df_dest = pd.read_excel(excelpath,0,header=[1])
             dest_cols = df_dest.columns
             dest_data = df_dest.values
-            print(df_dest.iloc[:, 15:19])
 
         except Exception as e:
             # return render_template('error.html')
@@ -571,7 +566,6 @@ def volunteer():
         sql = filter_info.get_sql(
             'volun_detail', 'volun_id', volun_criteria_dict)
     else:
-        print('lalemalalemalalemalalemalalemalalemalalemalalema')
         sql = "SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)
     results = cur.fetchall()
@@ -764,15 +758,15 @@ def download_mem_sheet():
     # generating excel with completed data and send to client-side
         elif request_file == 'completed':
             zfile = zipfile.ZipFile(
-                f'{app.root_path}\downloads\Competed.zip', 'w')
+                f'{app.root_path}\downloads\Completed.zip', 'w')
             for schoolid in school_list:
 
                 filename = spreadsheet.gen_mem_comp(schoolid)
                 zfile.write(filename)
             zfile.close()
-            return send_file(f'{app.root_path}\downloads\Competed.zip',
+            return send_file(f'{app.root_path}\downloads\Completed.zip',
                              mimetype='zip',
-                             attachment_filename='Competed.zip',
+                             attachment_filename='Completed.zip',
                              as_attachment=True)
     return render_template('download_mem_sheet.html', schools=schools, name=session['name'])
 

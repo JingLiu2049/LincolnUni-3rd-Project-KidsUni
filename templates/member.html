@@ -91,71 +91,58 @@
       </div>
       <div class="col">
         <a href="{{ url_for('add_member') }}" type="button" role="button" class="btn btn-outline-secondary float-end">
-          Add
-          New Student</a>
+          Add New</a>
       </div>
     </div>
   </form>
 
-  </br>
-
   <div class="table-responsive">
-    <table class="table table-striped table-hover table-sm" style="font-size: .875rem" id="table">
-      <thead>
+    <table class="table table-striped table-hover" id="table">
+      <thead >
         <tr>
-          <th scope="col">Stuent ID</th>
           <th scope="col">School Name</th>
           <th scope="col">First Name</th>
           <th scope="col">Last Name</th>
           <th scope="col">Username</th>
-          <th scope="col">Password</th>
           <th scope="col">Gender</th>
           <th scope="col">Age</th>
           <th scope="col">Ethnicity</th>
           <th scope="col">Continuing/ New</th>
           <th scope="col">Passport Number</th>
-          <th scope="col">Previous Hours</th>
           <th scope="col">Passport Date Issued </th>
           <th scope="col">Ethnicity Info</th>
           <th scope="col">Teaching Research</th>
           <th scope="col">Pubilication Promos</th>
           <th scope="col">Social Media</th>
-          <th scope="col">{{date}} Total Hours </th>
           <th scope="col">Gown Size</th>
           <th scope="col">Hat Size</th>
-          <th scope="col">Status</th>
         </tr>
       </thead>
       <tfoot>
         <tr>
-          <th>Student ID</th>
           <th>School Name</th>
           <th>First Name</th>
           <th>Last Name</th>
           <th>Username</th>
-          <th>Password</th>
           <th>Gender</th>
           <th>Age</th>
           <th>Ethnicity</th>
           <th>Continuing/ New</th>
           <th>Passport Number</th>
-          <th>Previous Hours</th>
           <th>Passport Date Issued </th>
           <th>Ethnicity Info</th>
           <th>Teaching Research</th>
           <th>Pubilication Promos</th>
           <th>Social Media</th>
-          <th>{{date}} Total Hours </th>
           <th>Gown Size</th>
           <th>Hat Size</th>
-          <th>Status</th>
         </tr>
       </tfoot>
-      <tbody id="mytable">
+      <tbody id="mytable" >
         {% for col in result %}
-        <tr>
+        <tr class="clickable" {%for id in member %} data-href="/edit_member?id={{id[0]}}" {% endfor %} style="cursor: pointer;"> 
           {% for item in col %}
-          <td class="clickable" data-href="/edit_member?id={{col[0]}}" style="cursor: pointer;">{{item}}</td>
+          <td>{{item}}</td>
           {%endfor%}
         </tr>
         {%endfor%}

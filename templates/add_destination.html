@@ -1,6 +1,6 @@
 {%extends "layout.html"%}
 {%block title%}
-Learning Destination update
+Add New Learning Destination 
 {%endblock%}
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block head%}
@@ -11,7 +11,7 @@ Learning Destination update
 <main class="m-5">
     <div class="container bg-light p-4 pb-5 rounded">
         <div class="mb-3 row">
-            <h1>Edit Learning Destination</h1>
+            <h1>Add New Learning Destination</h1>
         </div>
         {% from "_form_helper.html" import render_field %}
         <form method="POST" enctype="multipart/form-data" class="form_wrapper container">

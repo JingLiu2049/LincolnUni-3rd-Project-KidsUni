@@ -90,6 +90,7 @@ class MemberInfoForm(FlaskForm):
 
     hat_size = SelectField(label='Hat Size ', choices=['','S', 'M', 'L'])  
 
-    status = StringField(label='Status ')   
-
+    status = SelectField(label='Status *', validators=[
+        validators.DataRequired(),
+    ], choices=['Active', 'Deactive'])
     submit = SubmitField(label=('Save'))

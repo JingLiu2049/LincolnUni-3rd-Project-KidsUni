@@ -6,6 +6,25 @@
 
 {%block content%}
 
+<script>
+$(document).ready(function() {
+  $(".card").click(function() {
+    window.document.location = $(this).data("href");
+  });
+});
+</script>
+
+<style>
+.card {
+    cursor: pointer;
+    }
+h5 {
+    font-weight: bold;
+}
+.card:hover{
+    background-color: lightgoldenrodyellow;}
+</style>
+
 <main class="m-4">
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -23,20 +42,20 @@
     <div class="container-fluid mt-30">
         <div class="row row row-cols-1 row-cols-md-2 row-cols-lg-4">
             <div class="col">
-                <div class="card">
-                    <div class="card-body">
+                <div class="card" data-href="/member">
+                    <div class="card-body" >
                         <span class="badge badge-success float-right">year</span>
-                        <h6 class="card-title">Members</h6>
-                        <p class="mb-0">Members active: {{ total_members }}</p>
-                        <p class="mb-0">Members hours(current total): {{ total_members_hours }} hours</p>
+                        <h5 class="card-title">Students</h5>
+                        <p class="mb-0">Students active: {{ total_members }}</p>
+                        <p class="mb-0">Students hours(current total): {{ total_members_hours }} hours</p>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="card">
+                <div class="card" data-href="/school">
                     <div class="card-body">
                         <span class="badge badge-success float-right">year</span>
-                        <h6 class="card-title">Schools</h6>
+                        <h5 class="card-title">Schools</h5>
                         <p class="mb-0">Schools and rūnanga active: {{ active_schools }}</p>
                         <p class="mb-0">Schools and rūnanga in progress: {{ in_progress_schools }}</p>
                         <p class="mb-0">Schools and rūnanga total: {{ total_schools }}</p>
@@ -45,10 +64,10 @@
             </div>
     
             <div class="col">
-                <div class="card">
+                <div class="card" data-href="/destination">
                     <div class="card-body">
                         <span class="badge badge-success float-right">year</span>
-                        <h6 class="card-title">Learning Destinations</h6>
+                        <h5 class="card-title">Learning Destinations</h5>
                         <p class="mb-0">Learning Destinations active: {{ active_destinations }}</p>
                         <p class="mb-0">Learning Destinations pending: {{ pending_destinations }}</p>
                         <p class="mb-0">Learning Destinations total: {{ total_destinations }}</p>
@@ -57,10 +76,10 @@
             </div>
     
             <div class="col">
-                <div class="card">
+                <div class="card" data-href="/volunteer">
                     <div class="card-body">
                         <span class="badge badge-success float-right">year</span>
-                        <h6 class="card-title ">Volunteers</h6>
+                        <h5 class="card-title ">Volunteers</h5>
                         <p class="mb-0">Volunteers active:</p>
                         <p class="mb-0">Volunteers hours:</p>
                     </div>

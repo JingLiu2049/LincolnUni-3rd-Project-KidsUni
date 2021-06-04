@@ -1,19 +1,16 @@
 {%extends "layout.html"%}
 {%block title%}School Page{%endblock%}
 
-{% block head %}
+{%block head%}
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
 <link rel="stylesheet" href="{{url_for('static', filename = 'table.css')}}">
-{% endblock head %}
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+<script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+
+{%endblock%}
 
 {%block content%}
-<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-
-    <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
-    <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-
 
 <script>
      $(document).ready(function () {
@@ -24,86 +21,6 @@
                });
           });
      });
-
-     $(document).ready(function () {
-     var $rows = $('tbody#mytable tr')
-   
-      var $filters = $('.table-filter').change(function(){
-       var filterArr = $filters.filter(function(){
-          return this.value
-       }).map(function(){
-          var $el = $(this);
-          var value = $el.is('select') ? $el.find(':selected').text() :$el.val()  
-          return {
-            col: $el.data('col'),
-            value: value.toLowerCase()
-          }
-       }).get();
-       if(!filterArr.length){
-         $rows.show()
-       }else{
-         $rows.hide().filter(function(){
-            var $row = $(this)
-            return filterArr.every(function(filterObj, i){
-               var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();             
-              return  cellText.includes(filterObj.value);
-            })
-         }).show()
-       }
-     })
-    });
-   
-    $(document).ready( function () {
-  
-  var table = $('#table').DataTable({
-            initComplete: function () {
-            count = 0;
-            this.api().columns().every( function () {
-                var title = this.header();
-                //replace spaces with dashes
-                title = $(title).html().replace(/[\W]/g, '-');
-                var column = this;
-                var select = $('<select id="' + title + '" class="select2" ></select>')
-                    .appendTo( $(column.footer()).empty() )
-                    .on( 'change', function () {
-                      //Get the "text" property from each selected data 
-                      //regex escape the value and store in array
-                      var data = $.map( $(this).select2('data'), function( value, key ) {
-                        return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
-                                 });
-                      
-                      //if no data selected use ""
-                      if (data.length === 0) {
-                        data = [""];
-                      }
-                      
-                      //join array into string with regex or (|)
-                      var val = data.join('|');
-                      
-                      //search for the option(s) selected
-                      column
-                            .search( val ? val : '', true, false )
-                            .draw();
-                    } );
- 
-                column.data().unique().sort().each( function ( d, j ) {
-                    select.append( '<option value="'+d+'">'+d+'</option>' );
-                } );
-              
-              //use column title as selector and placeholder
-              $('#' + title).select2({
-                multiple: true,
-                closeOnSelect: false,
-                placeholder: "Select a " + title
-              });
-              
-              //initially clear select otherwise first option is selected
-              $('.select2').val(null).trigger('change');
-            } );
-        }
-  });
-} );
-
 
 </script>
 
@@ -119,17 +36,53 @@
             <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
             
           </div>-->
-        </form>
-        </br>
-        <table class="table">
-             {% for i in schools%}
-             <tr>
-             {% for j in i%}
-             <td>{{j}}</td> 
-             {%endfor%}
-          </tr>
-             {% endfor %}
-        </table>
+     </form>
+     <form action="/school" method="POST" class="criteria clearfix">
+          {% for i in schoolcriteria.keys()%}
+          <div class="each">
+          <span>
+              {{i}}:
+          </span>
+              {%for j in schoolcriteria[i]%}
+              <label for="{{j[0]}}">{{j[0]}}</label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
+              {%endfor%}
+          </div>
+          {%endfor%}
+          <button type="submit">Submit</button>
+          <button><a href="/school">Reset</a></button>
+      </form>
+      <table class="table">
+          <thead>
+              <tr>
+                  <td>School ID</td>
+                  <td>School Name</td>
+                  <td>Who</td>
+                  <td>Council</td>
+                  <td>Category</td>
+                  <td>Status</td>
+                  <td>Training</td>
+                  <td>Launch</td>
+                  <td>Presentation</td>
+                  <td>Portal</td>
+                  <td>Passports</td>
+                  <td>Agreement</td>
+                  <td>Consent</td>
+                  <td>Notes</td>
+              </tr>
+          </thead>
+          <tbody id="table">
+               {%for cols in schoollist%}
+               <tr>
+                   {%for result in cols %}
+                   <td>{{result}}</td>
+                   {%endfor%}
+               </tr>
+               {%endfor%}
+           </tbody>
+          
+      </table>
+  </main>
+  
 
         <!-- <div name="input group">
           <form method="POST" action="/school_filter">

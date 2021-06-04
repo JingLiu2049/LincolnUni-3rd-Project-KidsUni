@@ -15,7 +15,7 @@
   <script type="text/javascript" src="/static/tools.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
   <style>
-    body{
+    body {
       padding-top: 50px;
     }
   </style>
@@ -23,68 +23,70 @@
   {%endblock%}
 </head>
 
-<body>
-    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
-      <div class="container-fluid">
-        <a class="navbar-brand w-auto" href="/index"><img id="logo_img" src="../static/image/CU logo.jpeg"></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-          aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Dashboard</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('member') }}">Members</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('school') }}">Schools</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('destination') }}">Learning Destinations</a>
-            </li>
-            <li class="nav-item">
-             <a class="nav-link" href="{{ url_for('volunteer') }}">Volunteers</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('event') }}">Events</a>
-            </li>
-            {% if session['user_access'] == "admin" %}
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('users') }}">Users</a>
-            </li>
-            {% endif %}
+<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand w-auto" href="/index"><img id="logo_img" src="../static/image/CU logo.jpeg"></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{ url_for('index') }}">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('member') }}">Students</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('school') }}">Schools</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('destination') }}">Learning Destinations</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('volunteer') }}">Volunteers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('event') }}">Events</a>
+        </li>
+        {% if session['user_access'] == "admin" %}
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('users') }}">Users</a>
+        </li>
+        {% endif %}
 
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Download Excel
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="/download_mem_sheet">Members</a></li>
-                <li><a class="dropdown-item" href="/download_school_sheet?sheet=template">School Templates</a></li>
-                <li><a class="dropdown-item" href="/download_school_sheet?sheet=completed">Complated Schools</a></li>
-                <li><a class="dropdown-item" href="/download_dest_sheet">Leaning Destinations</a></li>
-                <li><a class="dropdown-item" href="/download_volun_sheet">Volunteers</a></li>
-              </ul>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link" href="#">{{ session['name'] }}</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-            </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Download Excel
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="/download_mem_sheet">Students</a></li>
+            <li><a class="dropdown-item" href="/download_school_sheet?sheet=template">School Templates</a></li>
+            <li><a class="dropdown-item" href="/download_school_sheet?sheet=completed">Complated Schools</a></li>
+            <li><a class="dropdown-item" href="/download_dest_sheet">Leaning Destinations</a></li>
+            <li><a class="dropdown-item" href="/download_volun_sheet">Volunteers</a></li>
           </ul>
-        </div>
-      </div>
-    </nav>
-  {% block content %}
-  {% endblock %}
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-  {% block js %}
-  {% endblock %}
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">{{ session['name'] }}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+{% block content %}
+{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+{% block js %}
+{% endblock %}
 </body>
 
 </html>

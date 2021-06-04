@@ -818,12 +818,11 @@ def download_volun_sheet():
 @no_cache
 def download_school_sheet():
     sheet = request.args.get('sheet')
-    if sheet == 'template':
-        file = spreadsheet.gen_sch_temp()
+    file =  spreadsheet.gen_sch_sheet(sheet)
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
 
-    elif sheet == 'completed':
-        file = spreadsheet.gen_sch_comp()
-    return send_file(file, mimetype='xlsx', as_attachment=True)
+
+
 
 
 if __name__ == '__main__':

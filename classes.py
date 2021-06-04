@@ -24,46 +24,48 @@ class members:
         self.password = l[15]
         self.school = l[16]
 
-        self.previous = int(float(l[17]))
-        self.term1 = int(float(l[18]))
-        self.term2 = int(float(l[19]))
-        self.term3 = int(float(l[20]))
-        self.term4 = int(float(l[21]))
-        self.total = int(float(l[22]))
+        self.previous = float(l[17])
+        self.term1 = float(l[18])
+        self.term2 = float(l[19])
+        self.term3 = float(l[20])
+        self.term4 = float(l[21])
+        self.total = float(l[22])
         self.gown = l[23]
         self.hat = l[24]
-        self.year = l[25]
+        self.year = int(l[25][0:4])
 
         self.attend = l[26:-1] if len(l)>27 else False
 
-    def hours(self, term_text, term_hour):
-        # cur = db.getCursor()
-        sql = f"INSERT INTO membershours VALUES({self.id}, '{self.year}', '{term_text}', \
-            {term_hour}) ON CONFLICT (member_id, year, term) DO UPDATE SET member_id = EXCLUDED.member_id, \
-            year = EXCLUDED.year, term = EXCLUDED.term, hours = EXCLUDED.hours;"
-        cur.execute(sql)
 
     def insert_db(self,events=[]):
         # cur = db.getCursor()
         print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
             password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
-             passport_number=%s, previous = %s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \
+             passport_number=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \
              publication_promos=%s, social_media=%s, total = %s, gown_size=%s, hat_size=%s, status = %s WHERE \
              member_id = %s;",(self.school, self.first, self.last, self.username, self.password, self.gender, 
-            self.age,self.ethnicity,self.mtype, self.passport, self.previous, self.date, self.eth_info, self.research, self.promos, 
+            self.age,self.ethnicity,self.mtype, self.passport, self.date, self.eth_info, self.research, self.promos, 
             self.social, self.total, self.gown, self.hat, self.status,self.id,))
+        
+        sql = f"INSERT INTO membershours VALUES({self.id}, '{self.year}', {self.term1}, {self.term2}, \
+             {self.term3}, {self.term4}) ON CONFLICT (member_id, year, term) DO UPDATE SET member_id = EXCLUDED.member_id, \
+            year = EXCLUDED.year, term = EXCLUDED.term, hours = EXCLUDED.hours;"
+        cur.execute(sql)
+
+        cur.execute("UPDATE membershours SET total = (SELECT SUM(term4) FROM membershours WHERE member_id = %s) \
+            WHERE member_id = %s AND year = %s;",(self.id,self.id,self.year))
+
+        cur.execute("UPDATE members SET total = (SELECT SUM(term4) FROM membershours WHERE member_id = %s) \
+            WHERE member_id = %s AND year = %s;",(self.id,self.id,self.year))
+        
         if events:
             for i in range(0,len(events)):
                 sql = "INSERT INTO attendance VALUES(%s, %s,'%s') ON CONFLICT (member_id, event_id) \
                 DO UPDATE SET member_id = EXCLUDED.member_id, event_id = EXCLUDED.event_id,status = \
-                EXCLUDED.status" %(self.id,events[i],self.attend[i])
+                EXCLUDED.status" %(self.id,events[i],self.attend[i].lower())
                 cur.execute(sql)
 
-        self.hours('term1',self.term1)
-        self.hours('term2',self.term2)
-        self.hours('term3',self.term3)
-        self.hours('term4',self.term4)
 
 class volunteer:
     def __init__(self,l=[]):

@@ -15,7 +15,7 @@ def active_members_count():
 
 def total_members_hours():
     # Function returns the number of active schools in the system to display on dashboard
-    query = "SELECT SUM(total) FROM members;"
+    query = "SELECT SUM(total) FROM current_total;"
     result = db.getOne(query, [])
     return result[0]
     

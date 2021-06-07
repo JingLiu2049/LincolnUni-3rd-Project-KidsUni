@@ -2,12 +2,9 @@ import db
 import pandas as pd
 import getid
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, SelectField, TextAreaField,IntegerField
+from wtforms import StringField, SubmitField, SelectField, IntegerField
 from wtforms import validators
-from wtforms.fields.html5 import EmailField, DateField, TelField
-from flask_wtf.file import FileAllowed, FileField
-from wtforms.fields.html5 import TimeField
-from datetime import datetime, timedelta
+from wtforms.fields.html5 import DateField
 
 
 def active_members_count():
@@ -18,17 +15,15 @@ def active_members_count():
 
 def total_members_hours():
     # Function returns the number of active schools in the system to display on dashboard
-    query = "SELECT SUM(total) FROM members;"
+    query = "SELECT SUM(total) FROM current_total;"
     result = db.getOne(query, [])
     return result[0]
     
-def today_year():
-    year=datetime.today().year
-    return year
 
 class MemberInfoForm(FlaskForm):
     school_name = StringField(label='School Name *', validators=[
-        validators.DataRequired()])
+        validators.DataRequired(), validators.regexp('^[a-zA-Z ]*$', message='The school should in the list')])
+
     first_name = StringField(label='First Name *', validators=[
         validators.DataRequired(),
         validators.regexp('^\w+$', message='Letters only')
@@ -45,7 +40,7 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
         validators.regexp('^\w+$', message='Letters only')
     ])
-    gender = SelectField(label='Gender', validators=[
+    gender = SelectField(label='Gender * ', validators=[
         validators.DataRequired(),], choices=['Boy', 'Girl', 'Other'])
  
     age = IntegerField(label='Age *', validators=[
@@ -63,7 +58,7 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
     ])
 
-    previous_hours = StringField(label='Previous_hours *', validators=[
+    previous_hours = StringField(label='Previous Hours *', validators=[
         validators.DataRequired()]
     )
 
@@ -87,14 +82,15 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
     ], choices=['True', 'False'])
 
-    total_hours = StringField(label='Hours *',validators=[
+    total_hours = StringField(label='Total Hours *',validators=[
         validators.DataRequired(),
     ])
     
-    gown_size = SelectField(label='Gown Size *', choices=['S', 'M', 'L'])
+    gown_size = SelectField(label='Gown Size ', choices=['','S', 'M', 'L'])
 
-    hat_size = SelectField(label='Hat Size *', choices=['S', 'M', 'L'])  
+    hat_size = SelectField(label='Hat Size ', choices=['','S', 'M', 'L'])  
 
-    status = StringField(label='Status *')   
-
+    status = SelectField(label='Status *', validators=[
+        validators.DataRequired(),
+    ], choices=['Active', 'Deactive'])
     submit = SubmitField(label=('Save'))

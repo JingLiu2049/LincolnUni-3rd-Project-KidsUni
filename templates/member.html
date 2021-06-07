@@ -1,6 +1,5 @@
 {%extends "layout.html"%}
 {% block title %}Students Page{% endblock %}
-
 {% block head %}
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
@@ -8,167 +7,147 @@
 <!-- Select2 plugin -->
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
 <!-- Select2 plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>   
-<!-- Added for sum  -->    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+<!-- Added for sum  -->
 <link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
 {% endblock head %}
-  
 {%block content%}
 
 <script>
-$(document).ready( function () {
-  var table = $('#table').DataTable({
-            initComplete: function () {
-            count = 0;
-            this.api().columns().every( function () {
-                var title = this.header();
-                //replace spaces with dashes
-                title = $(title).html().replace(/[\W]/g, '-');
-                var column = this;
-                var select = $('<select id="' + title + '" class="select2" ></select>')
-                    .appendTo( $(column.footer()).empty() )
-                    .on( 'change', function () {
-                      //Get the "text" property from each selected data 
-                      //regex escape the value and store in array
-                      var data = $.map( $(this).select2('data'), function( value, key ) {
-                        return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
-                                 });
-                      
-                      //if no data selected use ""
-                      if (data.length === 0) {
-                        data = [""];
-                      }
-                      
-                      //join array into string with regex or (|)
-                      var val = data.join('|');
-                      
-                      //search for the option(s) selected
-                      column
-                            .search( val ? val : '', true, false )
-                            .draw();
-                    } );
- 
-                column.data().unique().sort().each( function ( d, j ) {
-                    select.append( '<option value="'+d+'">'+d+'</option>' );
-                } );
-              
-              //use column title as selector and placeholder
-              $('#' + title).select2({
-                multiple: true,
-                closeOnSelect: false,
-                placeholder: "Please Select"
+  $(document).ready(function () {
+    var table = $('#table').DataTable({
+      initComplete: function () {
+        count = 0;
+        this.api().columns().every(function () {
+          var title = this.header();
+          //replace spaces with dashes
+          title = $(title).html().replace(/[\W]/g, '-');
+          var column = this;
+          var select = $('<select id="' + title + '" class="select2" ></select>')
+            .appendTo($(column.footer()).empty())
+            .on('change', function () {
+              //Get the "text" property from each selected data 
+              //regex escape the value and store in array
+              var data = $.map($(this).select2('data'), function (value, key) {
+                return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
               });
-              
-              //initially clear select otherwise first option is selected
-              $('.select2').val(null).trigger('change');
-            } );
-        }
+
+              //if no data selected use ""
+              if (data.length === 0) {
+                data = [""];
+              }
+
+              //join array into string with regex or (|)
+              var val = data.join('|');
+
+              //search for the option(s) selected
+              column
+                .search(val ? val : '', true, false)
+                .draw();
+            });
+
+          column.data().unique().sort().each(function (d, j) {
+            select.append('<option value="' + d + '">' + d + '</option>');
+          });
+
+          //use column title as selector and placeholder
+          $('#' + title).select2({
+            multiple: true,
+            closeOnSelect: false,
+            placeholder: "Please Select"
+          });
+
+          //initially clear select otherwise first option is selected
+          $('.select2').val(null).trigger('change');
+        });
+      }
+    });
   });
-} );
 
 
-$(document).ready(function() {
-  $(".clickable").click(function() {
-    window.document.location = $(this).data("href");
+  $(document).ready(function () {
+    $(".clickable").click(function () {
+      window.document.location = $(this).data("href");
+    });
   });
-});
 
 </script>
+<style>
+  .table-responsive {
+    margin-top: 30px;
+  }
+</style>
 
-<div class="container-fluid">
-</br>
+<main class="m-4">
   <h1>Student Information List</h1>
-    <form action="/member_upload" method="POST" enctype="multipart/form-data">
-
-    <div class="input-group mb-3">
-        <label class="input-group-text" for="inputGroupFile01">Upload</label>
-        <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-        <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+  <form action="/member_upload" method="POST" enctype="multipart/form-data">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="input-group mb-3">
+          <label class="input-group-text" for="inputGroupFile01">Upload</label>
+          <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+          <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+        </div>
       </div>
-    </form>
-    </br>
-
-    <div class="table-responsive">
-    <table class="table table-striped table-hover table-sm" style="font-size: .875rem" id="table">
-        <thead>
-            <tr>
-                <th scope="col">Stuent ID</th>
-                <th scope="col">School Name</th>
-                <th scope="col">First Name</th>
-                <th scope="col">Last Name</th>
-                <th scope="col">Username</th>
-                <th scope="col">Password</th>
-                <th scope="col">Gender</th>
-                <th scope="col">Age</th>
-                <th scope="col">Ethnicity</th>
-                <th scope="col">Continuing/ New</th>
-                <th scope="col">Passport Number</th>
-                <th scope="col">Previous Hours</th>
-                <th scope="col">Passport Date Issued </th>
-                <th scope="col">Ethnicity Info</th>
-                <th scope="col">Teaching Research</th>
-                <th scope="col">Pubilication Promos</th>
-                <th scope="col">Social Media</th>
-                <th scope="col">{{date}} Total Hours </th>
-                <th scope="col">Gown Size</th>
-                <th scope="col">Hat Size</th>
-                <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tfoot>
-            <tr>
-                <th>Student ID</th>
-                <th>School Name</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Username</th>
-                <th>Password</th>
-                <th>Gender</th>
-                <th>Age</th>
-                <th>Ethnicity</th>
-                <th>Continuing/ New</th>
-                <th>Passport Number</th>
-                <th>Previous Hours</th>
-                <th>Passport Date Issued </th>
-                <th>Ethnicity Info</th>
-                <th>Teaching Research</th>
-                <th>Pubilication Promos</th>
-                <th>Social Media</th>
-                <th>{{date}} Total Hours </th>
-                <th>Gown Size</th>
-                <th>Hat Size</th>
-                <th>Status</th>
-            </tr>
-          </tfoot>
-        <tbody id="mytable">
-            {% for item in result %}
-            <tr> 
-                <td class="clickable" data-href="/edit_member?id={{item[0]}}" style="cursor: pointer;">{{item[0]}}</td>
-                <td>{{item[1]}}</td>
-                <td>{{item[2]}}</td>
-                <td>{{item[3]}}</td>
-                <td>{{item[4]}}</td>
-                <td>{{item[5]}}</td>
-                <td>{{item[6]}}</td>
-                <td>{{item[7]}}</td>
-                <td>{{item[8]}}</td>
-                <td>{{item[9]}}</td>
-                <td>{{item[10]}}</td>
-                <td>{{item[11]}}</td>
-                <td>{{item[12]}}</td>
-                <td>{{item[13]}}</td>
-                <td>{{item[14]}}</td>
-                <td>{{item[15]}}</td>
-                <td>{{item[16]}}</td>
-                <td>{{item[17]}}</td>
-                <td>{{item[18]}}</td>
-                <td>{{item[19]}}</td>
-                <td>{{item[20]}}</td>              
-            </tr>
-            {%endfor%}
-        </tbody>
-    </table>
+      <div class="col">
+        <a href="{{ url_for('add_member') }}" type="button" role="button" class="btn btn-outline-secondary float-end">
+          Add New</a>
+      </div>
     </div>
-</div>
+  </form>
 
+  <div class="table-responsive">
+    <table class="table table-striped table-hover" id="table">
+      <thead >
+        <tr>
+          <th scope="col">School Name</th>
+          <th scope="col">First Name</th>
+          <th scope="col">Last Name</th>
+          <th scope="col">Username</th>
+          <th scope="col">Gender</th>
+          <th scope="col">Age</th>
+          <th scope="col">Ethnicity</th>
+          <th scope="col">Continuing/ New</th>
+          <th scope="col">Passport Number</th>
+          <th scope="col">Passport Date Issued </th>
+          <th scope="col">Ethnicity Info</th>
+          <th scope="col">Teaching Research</th>
+          <th scope="col">Pubilication Promos</th>
+          <th scope="col">Social Media</th>
+          <th scope="col">Gown Size</th>
+          <th scope="col">Hat Size</th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <th>School Name</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Username</th>
+          <th>Gender</th>
+          <th>Age</th>
+          <th>Ethnicity</th>
+          <th>Continuing/ New</th>
+          <th>Passport Number</th>
+          <th>Passport Date Issued </th>
+          <th>Ethnicity Info</th>
+          <th>Teaching Research</th>
+          <th>Pubilication Promos</th>
+          <th>Social Media</th>
+          <th>Gown Size</th>
+          <th>Hat Size</th>
+        </tr>
+      </tfoot>
+      <tbody id="mytable" >
+        {% for col in result %}
+        <tr class="clickable" {%for id in member %} data-href="/edit_member?id={{id[0]}}" {% endfor %} style="cursor: pointer;"> 
+          {% for item in col %}
+          <td>{{item}}</td>
+          {%endfor%}
+        </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+  </div>
+</main>
 {%endblock%}

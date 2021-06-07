@@ -85,12 +85,12 @@ class DestinationForm(FlaskForm):
         validators.DataRequired(),
     ], choices=['','Yes', 'No'])
 
-    promo = SelectField(label='Promotion *', validators=[
+    promo = SelectField(label='Facebook Promotion *', validators=[
         validators.DataRequired(),
     ], choices=['','Yes', 'No'])
 
-    note = TextField (label='Note Facebook Promotion ')
+    note = TextField (label='Note ')
     
-    photo = SelectField(label='Promotion ', choices=['Yes', 'No'])
+    photo = SelectField(label='Photo Provide ', choices=['Yes', 'No'])
 
     submit = SubmitField(label=('Save'))

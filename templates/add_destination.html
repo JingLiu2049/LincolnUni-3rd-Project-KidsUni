@@ -1,6 +1,6 @@
 {%extends "layout.html"%}
 {%block title%}
-Learning Destination update
+Add New Learning Destination 
 {%endblock%}
 {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}
 {%block head%}
@@ -10,7 +10,9 @@ Learning Destination update
 
 <main class="m-5">
     <div class="container bg-light p-4 pb-5 rounded">
-        <h1>Edit Learning Destination</h1>
+        <div class="mb-3 row">
+            <h1>Add New Learning Destination</h1>
+        </div>
         {% from "_form_helper.html" import render_field %}
         <form method="POST" enctype="multipart/form-data" class="form_wrapper container">
             {{ form.csrf_token }}
@@ -39,17 +41,16 @@ Learning Destination update
                     {{ render_field(form.adult_cost) }}
                     {{ render_field(form.poster_sent) }}
                     {{ render_field(form.photo) }}
-                </br>
-                    <div class="d-grid gap-2 d-md-block">
-                        <button type="button" role="button" class="btn btn-outline-secondary float-end"
-                            onclick="window.location.href = '/destination'">Return</button>
-                        <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
-                        {{ form.submit(class="btn btn-outline-secondary float-end")}}
-                        <label style="color: red;">{{message}}</label>
-                    </div>
                 </div>
             </div>
+            <div class="d-grid gap-2 d-md-block">
+                <button type="button" role="button" class="btn btn-outline-secondary float-end"
+                    onclick="window.location.href = '/destination'">Return</button>
+                <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
+                {{ form.submit(class="btn btn-outline-secondary float-end")}} <label style="color: red;">{{message}}</label>
+            </div>
         </form>
+    </div>
     </div>
 </main>
 

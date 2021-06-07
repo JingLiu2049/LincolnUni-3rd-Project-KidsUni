@@ -3,7 +3,7 @@
 
 {%block head%}
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
-<link rel="stylesheet" href="{{url_for('static', filename = 'table.css')}}">
+<link rel="stylesheet" href="<td>{{url_for('static', filename = 'table.css')}}">
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
 <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
@@ -25,66 +25,91 @@
 </script>
 
 <main class="m-4">
-<div class="container-fluid">
-     <h1>School Information List</h1>
-     <form action="/school_upload" method="POST" enctype="multipart/form-data">
+     <div class="container-fluid">
+          <h1>School Information List</h1>
+          <form action="/school_upload" method="POST" enctype="multipart/form-data">
                <input type="file" id="file" name="file">
                <button type="submit" id="btn">submit</button>
-          <!--<div class="input-group mb-3">
+               <!--<div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" class="form-control" id="inputGroupFile01" required>
             <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
             
           </div>-->
-     </form>
-     <form action="/school" method="POST" class="criteria clearfix">
-          {% for i in schoolcriteria.keys()%}
-          <div class="each">
-          <span>
-              {{i}}:
-          </span>
-              {%for j in schoolcriteria[i]%}
-              <label for="{{j[0]}}">{{j[0]}}</label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
-              {%endfor%}
-          </div>
-          {%endfor%}
-          <button type="submit">Submit</button>
-          <button><a href="/school">Reset</a></button>
-      </form>
-      <table class="table">
-          <thead>
-              <tr>
-                  <td>School ID</td>
-                  <td>School Name</td>
-                  <td>Who</td>
-                  <td>Council</td>
-                  <td>Category</td>
-                  <td>Status</td>
-                  <td>Training</td>
-                  <td>Launch</td>
-                  <td>Presentation</td>
-                  <td>Portal</td>
-                  <td>Passports</td>
-                  <td>Agreement</td>
-                  <td>Consent</td>
-                  <td>Notes</td>
-              </tr>
-          </thead>
-          <tbody id="table">
-               {%for cols in schoollist%}
+          </form>
+          <form action="/school" method="POST" class="criteria clearfix">
+               {% for i in schoolcriteria.keys()%}
+               <div class="each">
+                    <span>
+                         <td>{{i}}:
+                    </span>
+                    {%for j in schoolcriteria[i]%}
+                    <label for="{{j[0]}}">
+                         <td>{{j[0]}}
+                    </label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
+                    {%endfor%}
+               </div>
+               {%endfor%}
+               <button type="submit">Submit</button>
+               <button><a href="/school">Reset</a></button>
+          </form>
+          <table class="table">
+               <thead>
+                    <tr>
+                         <td>School ID</td>
+                         <td>School Name</td>
+                         <td>Who</td>
+                         <td>Council</td>
+                         <td>Category</td>
+                         <td>Status</td>
+                         <td>Coordinator Name</td>
+                         <td>Coordinator Email</td>
+                         <td>Training</td>
+                         <td>Launch</td>
+                         <td>Presentation</td>
+                         <td>Portal</td>
+                         <td>Passports</td>
+                         <td>Agreement</td>
+                         <td>Consent</td>
+                         <td>Notes</td>
+                         <td>Year</td>
+                         <td>Returning Number</td>
+                         <td>Maximum Number</td>
+                         <td>Requested Number</td>
+                         <td>Confirmed Number</td>
+                    </tr>
+               </thead>
+               {%for i in schoollist%}
                <tr>
-                   {%for result in cols %}
-                   <td>{{result}}</td>
-                   {%endfor%}
+                    <td>{{i.id}}</td>
+                    <td>{{i.name }}</td>
+                    <td>{{i.who }}</td>
+                    <td>{{i.council }}</td>
+                    <td>{{i.category }}</td>
+                    <td>{{i.status }}</td>
+                    <td>{{i.coor_name }}</td>
+                    <td>{{i.coor_email }}</td>
+                    <td>{{i.training }}</td>
+                    <td>{{i.launch }}</td>
+                    <td>{{i.presentation }}</td>
+                    <td>{{i.portal }}</td>
+                    <td>{{i.passports }}</td>
+                    <td>{{i.agreement }}</td>
+                    <td>{{i.consent }}</td>
+                    <td>{{i.notes }}</td>
+                    <td>{{i.year}}</td>
+                    <td>{{i.returning }}</td>
+                    <td>{{i.max}}</td>
+                    <td>{{i.request}}</td>
+                    <td>{{i.confirm }}</td>
+
                </tr>
                {%endfor%}
-           </tbody>
-          
-      </table>
-  </main>
-  
+          </table>
+</main>
 
-        <!-- <div name="input group">
+
+<!-- <div name="input group">
           <form method="POST" action="/school_filter">
             <div class="input-group mb-3">
               <label class="input-group-text" for="inputGroupFile01">Search</label>
@@ -99,7 +124,7 @@
                     <option value="">Select one</option>
                     {% for col in school_filter %}
                     {% for result in col%}
-                    <option value="{{result}}">{{result}}</option>
+                    <option value="<td>{{result}}"><td>{{result}}</option>
                     {% endfor %}
                     {% endfor %}
                </select>
@@ -186,7 +211,7 @@
                {% for item in result %}
                <tr>
                     {% for col in item %}
-                    <td>{{col}}</td>
+                    <td><td>{{col}}</td>
                     {% endfor %}
                </tr>
                {%endfor%}

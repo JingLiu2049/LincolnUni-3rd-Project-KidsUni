@@ -313,7 +313,7 @@ def school():
     cur.execute(sql)
     results = cur.fetchall()
     school_list = filter_info.get_display_list(results,schools_info.school)
-    return render_template('school.html', name=session['name'], schoollist=school_list, schoolcriteria = filter_criteria)
+    return render_template('school.html', name=session['name'], results=results, schoollist=school_list, schoolcriteria = filter_criteria)
 
 
 @app.route("/school_upload", methods=['POST'])

@@ -1,0 +1,9 @@
+.container#hour_table {
+    border: 2.5px solid #A01D2F;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+div#edit_member {
+    background-color: #F8F9FA;
+}

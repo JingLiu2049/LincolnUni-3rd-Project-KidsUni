@@ -172,7 +172,6 @@ def upsertDestinations(form, ld_id):
             %s,%s,%s,%s,%s,%s,%s);", (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email,
                                       web_address, member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note))
 
-
 # App Route
 ##################################################
 
@@ -268,20 +267,15 @@ def index():
                            total_destinations=total_destinations)
 
 
-@app.route("/member", methods=['POST', 'GET'])
+@app.route("/member", methods=['GET'])
 @login_required
 def member():
     cur = getCursor()
-    cur.execute("select school_name, first_name, last_name, username, gender, member_age, ethnicity, continuing_new, passport_number,\
+    cur.execute("select member_id, school_name, concat(first_name,' ' ,last_name) as name, username, gender, member_age, ethnicity, continuing_new, passport_number,\
                    passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,\
                    hat_size from member_info where status !='Deactive' ;")  # display the member database table in students' page
     result = cur.fetchall()
-    cur.execute("select * from member_info;")
-    member = cur.fetchall()
-    if request.method == 'POST':
-        return render_template("member.html")
-    else:
-        return render_template("member.html", result=result, name=session['name'], member=member)
+    return render_template("member.html", result=result, name=session['name'])
 
 
 # click member id's <tr> to edit member info
@@ -295,6 +289,8 @@ def edit_member():
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
     school_name = request.form.get('school_name')
+    cur.execute(f"select year, term1, term2, term3, term4, total from mem_hour_detail where member_id={member_id};")
+    hour_result=cur.fetchall()
     if request.method == 'POST':
         if form.validate_on_submit():
             # create a currently school list from database with school table
@@ -309,14 +305,14 @@ def edit_member():
                 school_id = result[0]
                 upsertMember(form, member_id, school_id)
                 message = 'Update successful'
-                return render_template('edit_member.html', name=session['name'], form=form, message=message, member=member)
+                return render_template('edit_member.html', name=session['name'], form=form, message=message, member=member,hour_result=hour_result)
             else:
                 # if the school is not in the list, print error
                 print(form.errors)
-                return render_template('edit_member.html', name=session['name'], form=form, member=member)
+                return render_template('edit_member.html', name=session['name'], form=form, member=member,hour_result=hour_result)
         else:
             print(form.errors)
-            return render_template('edit_member.html', name=session['name'], form=form, member=member)
+            return render_template('edit_member.html', name=session['name'], form=form, member=member,hour_result=hour_result)
     else:
         form.first_name.data = member.first_name
         form.last_name.data = member.last_name
@@ -338,7 +334,7 @@ def edit_member():
         form.hat_size.data = member.hat_size
         form.total_hours.data = member.total
         form.status.data = member.status
-        return render_template("edit_member.html", date=date, name=session['name'], form=form)
+        return render_template("edit_member.html", date=date, name=session['name'], form=form, hour_result=hour_result)
 
 
 @app.route("/add_member", methods=['POST', 'GET'])
@@ -489,7 +485,7 @@ def edit_school():
         return render_template("edit_member.html", date=date, name=session['name'], form=form)
 
 
-@app.route("/destination", methods=['GET'])
+@app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
     cur = db.getCursor()

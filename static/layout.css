@@ -17,6 +17,7 @@ nav {
     clear: both;
 }
 
+
 main{
     padding-top:60px;
 }
@@ -27,6 +28,7 @@ h1 {
     font-weight: bold;
     font-size: 3rem;
     text-align: center;
+    letter-spacing: 4.5px;
 }
 
 button {
@@ -42,7 +44,5 @@ table{
 }
 
 thead {
-    background-color:rgb(181, 206, 214);
     color: white;
-
 }

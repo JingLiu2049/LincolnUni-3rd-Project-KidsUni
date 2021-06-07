@@ -6,18 +6,18 @@
 
 <script>
     $(document).ready(function () {
-        $("#myInput").on("keyup", function () {
-            var value = $(this).val().toLowerCase();
-            $("#tbody tr").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
+    $("#myInput").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("#tbody tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
+});
 
-    $(document).ready(function () {
-        $(".clickable").click(function () {
-            window.document.location = $(this).data("href");
-        });
+  $(document).ready(function () {
+    $('mytable').on('click','.clickable',function () {
+      window.document.location = $(this).data("href");
+      });
     });
 </script>
 
@@ -31,6 +31,7 @@
         </div>
     </form>
     </br>
+
     <div class="row">
         <div class="col-md-5">
             <input class="form-control" id="myInput" type="text" placeholder="Search..">
@@ -42,8 +43,8 @@
 
 
     <div class="table-responsive">
-        <table class="table table-striped table-hover" id="table">
-            <thead>
+        <table class="table table-striped table-hover" id="dests">
+            <thead style="background-color:#1871AB;">
                 <tr>
                     <th scope="col">Status</th>
                     <th scope="col">Name</th>
@@ -51,7 +52,6 @@
                     <th scope="col">Position</th>
                     <th scope="col">Address</th>
                     <th scope="col">Region</th>
-                    <th scope="col">Postal Address</th>
                     <th scope="col">Phone Number</th>
                     <th scope="col">Email</th>
                     <th scope="col">Member Cost</th>
@@ -67,7 +67,6 @@
                     <td>{{result[4]}}</td>
                     <td>{{result[5]}}</td>
                     <td>{{result[6]}}</td>
-                    <td>{{result[7]}}</td>
                     <td>{{result[8]}}</td>
                     <td>{{result[9]}}</td>
                     <td>{{result[11]}}</td>

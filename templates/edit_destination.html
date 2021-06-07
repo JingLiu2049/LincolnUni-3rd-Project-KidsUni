@@ -10,9 +10,7 @@ Learning Destination update
 
 <main class="m-5">
     <div class="container bg-light p-4 pb-5 rounded">
-        <div class="mb-3 row">
-            <h1>Edit Learning Destination</h1>
-        </div>
+        <h1>Edit Learning Destination</h1>
         {% from "_form_helper.html" import render_field %}
         <form method="POST" enctype="multipart/form-data" class="form_wrapper container">
             {{ form.csrf_token }}
@@ -41,16 +39,17 @@ Learning Destination update
                     {{ render_field(form.adult_cost) }}
                     {{ render_field(form.poster_sent) }}
                     {{ render_field(form.photo) }}
+                </br>
+                    <div class="d-grid gap-2 d-md-block">
+                        <button type="button" role="button" class="btn btn-outline-secondary float-end"
+                            onclick="window.location.href = '/destination'">Return</button>
+                        <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
+                        {{ form.submit(class="btn btn-outline-secondary float-end")}}
+                        <label style="color: red;">{{message}}</label>
+                    </div>
                 </div>
             </div>
-            <div class="d-grid gap-2 d-md-block">
-                <button type="button" role="button" class="btn btn-outline-secondary float-end"
-                    onclick="window.location.href = '/destination'">Return</button>
-                <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
-                {{ form.submit(class="btn btn-outline-secondary float-end")}} <label style="color: red;">{{message}}</label>
-            </div>
         </form>
-    </div>
     </div>
 </main>
 

@@ -16,14 +16,8 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads
-import schools_info
-import member_info
-import destinations
-import login_session
+import uploads, schools_info, member_info, destinations, login_session, classes, filter_info
 from functools import wraps
-import classes
-import filter_info
 
 
 # Global Functions

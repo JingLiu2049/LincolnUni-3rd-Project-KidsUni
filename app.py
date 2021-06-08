@@ -16,13 +16,7 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-
-import uploads
-import schools_info
-import member_info
-import destinations
-import login_session
-
+import uploads, schools_info, member_info, destinations, login_session, classes, filter_info
 from functools import wraps
 
 
@@ -33,9 +27,7 @@ app.config['SECRET_KEY'] = 'project2_kids_uni'
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
 
 
-
-#app.secret_key = 'project2_kids_uni'
-
+# app.secret_key = 'project2_kids_uni'
 dbconn = None
 
 
@@ -105,31 +97,8 @@ def no_cache(fun):
     return inner
 
 
-
-def upsertSchool(form, school_id):
-    school_name = form.school_name.data
-    who = form.who.data
-    council = form.council.data
-    category = form.category.data
-    status = form.status.data
-    training = form.training.data
-    launch = form.launch.data
-    presentation = form.presentation.data
-    portal = form.portal.data
-    passports = form.passports.data
-    agreement = form.agreement.data
-    consent = form.consent.data
-    notes = form.notes.data
-    cur = getCursor()
-    cur.execute("Update schools set school_name=%s, who=%s, \
-            council=%s, category=%s, status=%s, training=%s, launch=%s, presentation=%s, portal=%s,\
-            passports=%s, agreement=%s, consent=%s, notes=%s where school_id=%s;", (school_name, who,
-                                                                                    council, category, status, training, launch, presentation, portal,
-                                                                                    passports, agreement, consent, notes, school_id))
-
-
-def upsertMember(form, member_id):
-
+# if school_id == school_id, update member info database, otherwise add a new member
+def upsertMember(form, member_id, school_id):
     first_name = form.first_name.data
     last_name = form.last_name.data
     username = form.username.data
@@ -149,14 +118,53 @@ def upsertMember(form, member_id):
     hat_size = form.hat_size.data
     total = form.total_hours.data
     status = form.status.data
-    cur = getCursor()
-    cur.execute("Update members set first_name=%s, last_name=%s, \
-            username=%s, password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new=%s, passport_number=%s,\
-            previous=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, publication_promos=%s, \
-            social_media=%s, total=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;", (first_name, last_name,
-                                                                                                   username, password, gender, member_age, ethnicity, continuing_new, passport_number,
-                                                                                                   previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos,
-                                                                                                   social_media, total, gown_size, hat_size, status, member_id))
+    cur = db.getCursor()
+    if member_id != "new":
+        cur.execute("Update members set school_id=%s, first_name=%s, last_name=%s, \
+                username=%s, password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new=%s, passport_number=%s,\
+                previous=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, publication_promos=%s, \
+                social_media=%s, total=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;",
+                    (school_id, first_name, last_name, username, password, gender, member_age, ethnicity, continuing_new, passport_number,
+                     previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, total, gown_size,
+                     hat_size, status, member_id))
+    else:
+        cur.execute("INSERT INTO members VALUES(nextval('membered_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
+                    %s,%s,%s,%s,%s,%s,%s,%s);", (school_id, first_name, last_name, username, password, gender, member_age, ethnicity, continuing_new, passport_number,
+                    previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, total, gown_size,
+                    hat_size, status))
+
+
+def upsertDestinations(form, ld_id):
+    status = form.status.data
+    ld_name = form.ld_name.data
+    contact_person = form.contact_person.data
+    position = form.ld_position.data
+    address = form.address.data
+    region = form.region.data
+    postal_address = form.postal_address.data
+    email = form.email.data
+    phone_number = form.phone_number.data
+    web_address = form.web_address.data
+    member_cost = form.member_cost.data
+    adult_cost = form.adult_cost.data
+    agrt_signed = form.agrt_signed.data
+    rov_signed = form.rov_signed.data
+    poster_sent = form.poster_sent.data
+    logo_sent = form.logo_sent.data
+    promo = form.promo.data
+    photo = form.photo.data
+    note = form.note.data
+    cur = db.getCursor()
+    if ld_id != "new":
+        cur.execute(" Update destinations set status=%s, ld_name=%s, contact_person=%s, ld_position=%s, \
+            address=%s, region=%s,  postal_address=%s, phone_number=%s, email=%s, web_address=%s, member_cost=%s,\
+            adult_cost=%s, agrt_signed=%s, rov_signed=%s, poster_sent=%s, logo_sent=%s,  promo=%s, photo=%s , note=%s where ld_id=%s;",
+                    (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email, web_address,
+                     member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note, ld_id))
+    else:
+        cur.execute("INSERT INTO destinations VALUES(nextval('destinationid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
+            %s,%s,%s,%s,%s,%s,%s);", (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email,
+                                      web_address, member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note))
 
 # App Route
 ##################################################
@@ -261,11 +269,7 @@ def member():
                    passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,\
                    hat_size from member_info where status !='Deactive' ;")  # display the member database table in students' page
     result = cur.fetchall()
-    date = datetime.today().year
-    if request.method == 'POST':
-        return render_template("member.html")
-    else:
-        return render_template("member.html", result=result, date=date, name=session['name'])
+    return render_template("member.html", result=result, name=session['name'])
 
 
 # click member id's <tr> to edit member info
@@ -275,7 +279,7 @@ def member():
 def edit_member():
     cur = getCursor()
     member_id = request.args.get('id')
-    form = member_info.MemberInfoForm()
+    form = member_info.MemberInfoForm()  # import flask form member_info.py
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
     school_name = request.form.get('school_name')
@@ -283,12 +287,26 @@ def edit_member():
     hour_result=cur.fetchall()
     if request.method == 'POST':
         if form.validate_on_submit():
-            upsertMember(form, member_id)
-            return render_template('edit_member.html', name=session['name'], form=form)
+            # create a currently school list from database with school table
+            schoolArray = []
+            cur.execute(f"select school_name from schools;")
+            for row in cur.fetchall():
+                schoolArray.append(str(row.school_name))
+            if school_name in schoolArray:  # the new school cannot be update if its not in the school list
+                cur.execute(
+                    f"select school_id from schools where school_name='{school_name}';")
+                result = cur.fetchall()
+                school_id = result[0]
+                upsertMember(form, member_id, school_id)
+                message = 'Update successful'
+                return render_template('edit_member.html', name=session['name'], form=form, message=message, member=member,hour_result=hour_result)
+            else:
+                # if the school is not in the list, print error
+                print(form.errors)
+                return render_template('edit_member.html', name=session['name'], form=form, member=member,hour_result=hour_result)
         else:
             print(form.errors)
-            return render_template('edit_member.html', name=session['name'], form=form)
-
+            return render_template('edit_member.html', name=session['name'], form=form, member=member,hour_result=hour_result)
     else:
         form.first_name.data = member.first_name
         form.last_name.data = member.last_name
@@ -310,8 +328,38 @@ def edit_member():
         form.hat_size.data = member.hat_size
         form.total_hours.data = member.total
         form.status.data = member.status
-        return render_template("edit_member.html", date=date, name=session['name'], form=form)
+        return render_template("edit_member.html", date=date, name=session['name'], form=form, hour_result=hour_result)
 
+
+@app.route("/add_member", methods=['POST', 'GET'])
+@login_required
+def add_member():
+    form = member_info.MemberInfoForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            schoolArray = []
+            cur = getCursor()
+            cur.execute(f"select school_name from schools;")
+            for row in cur.fetchall():
+                schoolArray.append(str(row.school_name))
+                school_name = form.school_name.data
+            if form.school_name.data in schoolArray:  # the new school cannot be added if its not in the school list
+                cur.execute(
+                    f"select school_id from schools where school_name='{school_name}';")
+                result = cur.fetchall()
+                school_id = result[0]
+                print(school_id)
+                upsertMember(form, 'new', school_id)
+                message = 'You have successfully added a new student.'
+                return render_template('add_member.html', name=session['name'], form=form, message=message)
+            else:
+                print(form.errors)
+                return render_template('add_member.html', name=session['name'], form=form)
+        else:
+            print(form.errors)
+            return render_template('add_member.html', name=session['name'], form=form)
+    else:
+        return render_template("add_member.html", name=session['name'], form=form)
 
 
 @app.route("/member_upload", methods=['POST'])
@@ -341,8 +389,7 @@ def member_upload():
             coor_col = df_coor.columns
             coor_data = df_coor.values
         except Exception as e:
-            # return render_template('error.html', name=session['name'])
-            return print(e)
+            return render_template('error.html', name=session['name'])
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                                coor_col=coor_col, coor_data=coor_data, name=session['name'])
 
@@ -351,59 +398,8 @@ def member_upload():
 @login_required
 def school():
     cur = db.getCursor()
-    cur.execute("select * from schools;")
-    result = cur.fetchall()
-    return render_template("school.html", schools=result, name=session['name'])
-    # result = cur.fetchall()
-    # cur.execute("select distinct school_name from schools;")
-    # school_name = cur.fetchall()
-    # school_filter = school_name
-    # cur.execute("select distinct who from schools;")
-    # who = cur.fetchall()
-    # cur.execute("select distinct council from schools;")
-    # council = cur.fetchall()
-    # cur.execute("select distinct category from schools;")
-    # category = cur.fetchall()
-    # cur.execute("select distinct status from schools;")
-    # status = cur.fetchall()
-    # cur.execute("select distinct returning_number from schools order by returning_number asc;;")
-    # returning_number = cur.fetchall()
-    # cur.execute("select distinct max_num_2021 from schools order by max_num_2021 asc;;")
-    # max_num_2021= cur.fetchall()
-    # cur.execute("select distinct confirmed_num from schools order by confirmed_num asc;;")
-    # confirmed_num = cur.fetchall()
-    # cur.execute("select distinct training from schools;")
-    # training = cur.fetchall()
-    # cur.execute("select distinct launch from schools;")
-    # launch = cur.fetchall()
-    # cur.execute("select distinct passport_presentation from schools;")
-    # passport_presentation = cur.fetchall()
-    # cur.execute("select distinct portal from schools;")
-    # portal = cur.fetchall()
-    # cur.execute("select distinct passports from schools;")
-    # passports = cur.fetchall()
-    # cur.execute("select distinct agreement from schools;")
-    # agreement = cur.fetchall()
-    # cur.execute("select distinct consent from schools;")
-    # consent = cur.fetchall()
-    # cur.execute("select distinct notes from schools;")
-    # notes = cur.fetchall()
-    # date = datetime.today().year
-
-    # if request.method == 'POST':
-
-    #     return render_template("school.html", name=session['name'])
-    # else:
-    #     return render_template("school.html", result=result, date=date, school_filter=school_filter,
-    #                            school_name=school_name, who=who, council=council, category=category, status=status,
-    #                            returning_number=returning_number, max_num_2021=max_num_2021, confirmed_num=confirmed_num,
-    #                            training=training, launch=launch, passport_presentation=passport_presentation, portal=portal,
-    #                             passports=passports, agreement=agreement, consent=consent,notes=notes, name=session['name'])
-
-
-@app.route("/school_filter", methods=['POST'])
-@login_required
-def school_filter():
+    sch_criteria_dict = filter_info.sch_criteria_dict
+    filter_criteria = filter_info.get_criteria(sch_criteria_dict)
     if request.method == 'POST':
         sql = filter_info.get_sql(
             'school_details', 'school_id', sch_criteria_dict)
@@ -415,7 +411,6 @@ def school_filter():
     return render_template('school.html', name=session['name'], schoollist=school_list, schoolcriteria=filter_criteria)
 
 
-
 @app.route("/school_upload", methods=['POST'])
 @login_required
 def school_upload():
@@ -424,10 +419,7 @@ def school_upload():
     if form:
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
-            school_info.pop(17)
-            test(school_info)
-            test(len(school_info))
-            
+            test(school_info[17])
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
         return redirect(url_for('school'))
@@ -438,10 +430,8 @@ def school_upload():
             df_school = schools_info.get_df(excelpath)
             school_cols = df_school.columns
             school_data = df_school.values
-            print(df_school.iloc[:, [16, 17, 18, 19, 20, 21, 22]])
         except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+            return render_template('error.html')
         return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
 
 
@@ -451,32 +441,37 @@ def edit_school():
     cur = getCursor()
     school_id = request.args.get('id')
     form = schools_info.SchoolInfoForm()
-    cur.execute(f"select * from schools where school_id={school_id};")
-    school = cur.fetchone()
+    cur.execute(f"select * from schools_info where school_id={school_id};")
+    member = cur.fetchone()
     if request.method == 'POST':
         if form.validate_on_submit():
-            upsertSchool(form, school_id)
-            return render_template('edit_school.html', name=session['name'], form=form)
+            upsertMember(form, school_id)
+            return render_template('edit_member.html', name=session['name'], form=form)
         else:
             print(form.errors)
-            return render_template('edit_school.html', name=session['name'], form=form)
+            return render_template('edit_member.html', name=session['name'], form=form)
     else:
-
-        form.school_name.data = school.school_name
-        form.who.data = school.who
-        form.council.data = school.council
-        form.category.data = school.category
-        form.status.data = school.status
-        form.training.data = school.training
-        form.launch.data = school.launch
-        form.presentation.data = school.presentation
-        form.portal.data = school.portal
-        form.passports = school.passports
-        form.agreement = school.agreement
-        form.consent.data = school.consent
-        form.notes = school.notes
-        return render_template("edit_school.html", date=date, name=session['name'], form=form)
-
+        form.first_name.data = member.first_name
+        form.last_name.data = member.last_name
+        form.school_name.data = member.school_name
+        form.username.data = member.username
+        form.gender.data = member.gender
+        form.ethnicity.data = member.ethnicity
+        form.age.data = member.member_age
+        form.password.data = member.password
+        form.continuing_new.data = member.continuing_new
+        form.previous_hours.data = member.previous
+        form.passport_number.data = member.passport_number
+        form.passport_date.data = member.passport_date_issued
+        form.ethnicity_info.data = member.ethnicity_info
+        form.teaching_research.data = member.teaching_research
+        form.publication_promos.data = member.publication_promos
+        form.social_media.data = member.social_media
+        form.gown_size.data = member.gown_size
+        form.hat_size.data = member.hat_size
+        form.total_hours.data = member.total
+        form.status.data = member.status
+        return render_template("edit_member.html", date=date, name=session['name'], form=form)
 
 
 @app.route("/destination", methods=['POST', 'GET'])
@@ -572,12 +567,9 @@ def destination_upload():
             df_dest = uploads.get_dest_df(excelpath)
             dest_cols = df_dest.columns
             dest_data = df_dest.values
-            print(df_dest.iloc[:, 15:19])
-
 
         except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+            return render_template('error.html')
         return render_template('destination_upload.html', cols=dest_cols, data=dest_data, name=session['name'])
 
 
@@ -587,12 +579,11 @@ def volunteer():
     cur = db.getCursor()
     volun_criteria_dict = filter_info.volun_criteria_dict
     filter_criteria = filter_info.get_criteria(volun_criteria_dict)
+    print(filter_criteria)
     if request.method == 'POST':
         sql = filter_info.get_sql(
             'volun_detail', 'volun_id', volun_criteria_dict)
     else:
-
-        print('lalemalalemalalemalalemalalemalalemalalemalalema')
         sql = "SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)
     results = cur.fetchall()
@@ -620,8 +611,7 @@ def volunteer_upload():
             volun_data = df_volun.values
 
         except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+            return render_template('error.html')
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data, name=session['name'])
 
 
@@ -819,12 +809,10 @@ def download_volun_sheet():
 @no_cache
 def download_school_sheet():
     sheet = request.args.get('sheet')
+    file =  spreadsheet.gen_sch_sheet(sheet)
+    return send_file(file, mimetype = 'xlsx', as_attachment=True)
 
-    if sheet == 'template':
-        file = spreadsheet.gen_sch_temp()
-    elif sheet == 'completed':
-        file = spreadsheet.gen_sch_comp()
-    return send_file(file, mimetype='xlsx', as_attachment=True)
+
 
 
 

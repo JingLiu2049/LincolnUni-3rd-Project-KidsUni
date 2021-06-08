@@ -38,13 +38,13 @@
                     <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
                </div>
           </form>
-          </br>
 
           <div class="input-group mb-3">
               <label class="input-group-text" for="inputGroupFile01">Search</label>
               <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
           </div>
-       
+          </br>
+
           <form action="/school" method="POST" class="criteria clearfix">
                {% for i in schoolcriteria.keys()%}
                <div class="each">
@@ -61,6 +61,12 @@
                <button type="submit">Submit</button>
                <button><a href="/school">Reset</a></button>
           </form>
+          <div class="col">
+               <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_school">Add
+                   New School</a>
+           </div>
+          </br>
+
           <table class="table">
                <thead style="background-color:#269548">
                     <tr>
@@ -89,7 +95,7 @@
                </thead>
                <tbody id="mytable">
                {%for i in schoollist%}
-                    <tr>
+                    <tr class="clickable" data-href="/edit_school?id={{i.id}}" style="cursor: pointer;">
                          <td>{{i.id}}</td>
                          <td>{{i.name }}</td>
                          <td>{{i.who }}</td>
@@ -117,5 +123,5 @@
                </tbody>
           </table>
 </main>
-
+{%endblock%}
 

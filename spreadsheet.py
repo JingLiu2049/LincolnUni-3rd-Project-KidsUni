@@ -4,6 +4,7 @@ import openpyxl as op
 import os
 from openpyxl import load_workbook
 import datetime as dt
+
 basepath  = os.path.dirname(__file__)
 
 def new_sheet(path, sql, name):
@@ -50,9 +51,9 @@ def gen_mem_tmp(schoolid):
     sheet1.cell(column = 4, row =1, value = sch_name.capitalize())
     sheet2.cell(column = 1, row =1, value = sch_name.capitalize())
     sql = "SELECT member_id, first_name, last_name, gender, member_age, ethnicity, \
-        continuing_new, status, passport_number, passport_date_issued, \
-        ethnicity_info, teaching_research, publication_promos, social_media,gown_size, hat_size,username,password FROM \
-        members WHERE school_id = %s ORDER BY member_id" % schoolid 
+        continuing_new, status, passport_number, passport_date_issued, ethnicity_info, \
+        teaching_research, publication_promos, social_media,gown_size, hat_size,username,\
+        password FROM members WHERE school_id = %s ORDER BY member_id" % schoolid 
     cur.execute(sql)
     mem_infos = cur.fetchall()
     if mem_infos:
@@ -76,16 +77,25 @@ def gen_mem_tmp(schoolid):
             for j in range(0,3):
                 sheet1.cell(column = 23+i, row = 4+j, value = events[i][j])
     # insert data cut-off date
-    year = dt.datetime.now().year
-    sheet1.cell(column = 4,row = 5,value = f'{year}-12-31')
+    cur.execute("SELECT MAX(year) FROM membershours")
+    year_result = cur.fetchone()
+    current_year = int(year_result[0]) +1 \
+            if year_result and int(year_result[0]) < int(dt.datetime.now().year) \
+            else int(dt.datetime.now().year)
+
+    sheet1.cell(column = 4,row = 5,value = f'{current_year}-12-31')
     # change column continuing/new to continuing for members 
     for i in range(0,len(mem_infos)):
         sheet1.cell(column = 7, row=7+i, value='Continuing')
     # get previous hours info of each member from databse and insert into spreadsheet
-    cur.execute("SELECT previous FROM previous WHERE school_id = %s ORDER BY member_id;",(int(schoolid),))
-    previous = cur.fetchall()
+
+    cur.execute("SELECT total FROM mem_hour_detail  WHERE school_id = %s AND year = %s \
+        ORDER BY member_id;",(int(schoolid),current_year-1))
+    previous_result = cur.fetchall()
+    previous = list(previous_result) + [[0]]*(len(mem_infos)-len(previous_result))
     for i in range(0,len(previous)):
         sheet1.cell(column=15, row=7+i, value=previous[i][0])
+
     bg.save(newPath)
     #  insert new sheet
     pd_sql_event = "SELECT * FROM events WHERE EXTRACT(YEAR FROM event_date) = EXTRACT(year from now()) \
@@ -105,18 +115,14 @@ def gen_mem_comp(schoolid):
         sch_name = cur.fetchone()[0]
         newPath = gen_newPath(f'{sch_name}_Completed')
 
-        # get events and cut-off date info from databse and insert into spreadsheet
-        # insert cut-off date
-        cur.execute("SELECT max(year) FROM membershours;")
-        cut_date = cur.fetchone()
-        sheet1.cell(column = 4,row = 5,value = cut_date[0])
+        
 
         # get member information from databse and insert into spreadsheet
         sheet1.cell(column = 4, row =1, value = sch_name.capitalize())
         sheet2.cell(column = 1, row =1, value = sch_name.capitalize())
         sql = "SELECT member_id, first_name, last_name, gender, member_age, ethnicity, \
             continuing_new, status, passport_number, passport_date_issued, \
-            ethnicity_info, teaching_research, publication_promos, social_media, previous,\
+            ethnicity_info, teaching_research, publication_promos, social_media, \
             gown_size, hat_size, username,password FROM members WHERE school_id = %s ORDER \
             BY member_id" % schoolid 
         cur.execute(sql)
@@ -132,19 +138,29 @@ def gen_mem_comp(schoolid):
                 gown_hat = mem_infos[i][-4:-2]
                 for l in range(0,2):
                     sheet1.cell(column = 21+l, row = 7+i, value = gown_hat[l])
+        
+        
+        # insert cut-off date
+        cur.execute("SELECT MAX(year) FROM membershours")
+        year_result = cur.fetchone()
+        current_year = int(year_result[0]) if year_result else int(dt.datetime.now().year)
+        sheet1.cell(column = 4,row = 5,value = f'{current_year}-12-31')
+
 
         # get total hours info of each member from databse and insert into spreadsheet
-        cur.execute("SELECT previous FROM previous WHERE school_id = %s ORDER BY member_id;",(int(schoolid),))
-        previous = cur.fetchall()
-        for i in range(0,len(previous)):
-            sheet1.cell(column=20, row=7+i, value=previous[i][0])
-        
-        # get the newest detail hours info and insert into ss
-        for m in range(0,4):
-            cur.execute(f"SELECT hours FROM detail_hours WHERE term = 'term{m+1}' and school_id = {schoolid} and extract(year from year) = {cut_date[0].year};")
-            term_hour = cur.fetchall()
-            for n in range(0,len(term_hour)):
-                sheet1.cell(column=16+m,row=7+n,value= term_hour[n][0])
+        cur.execute("SELECT term1, term2, term3, term4,total FROM mem_hour_detail  WHERE school_id = %s AND year = %s \
+        ORDER BY member_id;",(int(schoolid),current_year))
+        hour_results = cur.fetchall()
+        hours = list(hour_results) + [[0]*5]*(len(mem_infos)-len(hour_results))
+
+        cur.execute("SELECT total FROM mem_hour_detail  WHERE school_id = %s AND year = %s \
+        ORDER BY member_id;",(int(schoolid),current_year-1,))
+        previous_results = cur.fetchall()
+        previous = list(previous_results) + [[0]]*(len(mem_infos)-len(previous_results))
+        for i in range(0,len(mem_infos)):
+            joined_hour = list(previous[i]) + list(hours[i])
+            for j in range(0, len(joined_hour)):
+                sheet1.cell(column=15+j, row=7+i, value=joined_hour[j])
 
         # get coordinator information from databse and insert into spreadsheet  
         cur.execute("SELECT name, email, phone_number,username, password FROM coordinator \
@@ -177,8 +193,8 @@ def gen_mem_comp(schoolid):
             for j in range(0,len(attends)):
                 sheet1.cell(column = 23+i, row = 7+j, value = attends[j][0])
         pd_sql_event = "SELECT * FROM events ORDER BY event_id;"
-        pd_sql_hours = "SELECT member_id, first_name, last_name, year, term, hours \
-        FROM detail_hours WHERE school_id = %s" % int(schoolid)
+        pd_sql_hours = "SELECT member_id, first_name, last_name, year, term1,term2,term3,term4,total \
+        FROM mem_hour_detail WHERE school_id = %s" % int(schoolid)
         #  save new excel file
         bg.save(newPath)
         #  insert new sheet
@@ -261,64 +277,47 @@ def gen_volun_sheet():
     return newPath
 
 
-def gen_sch_temp():
+def gen_sch_sheet(sheet):
     bg = excel_obj('School template.xlsx')
     sheet1 = bg['School list']
 
     # generating new path 
-    newPath = gen_newPath('Schools_Template')
-
-    cur = db.getCursor()
-    cur.execute("SELECT * FROM sch_detail ORDER BY school_id;")
-    schools = cur.fetchall()
-    current_year = f'{dt.datetime.now().year}'
-    cur.execute("SELECT MAX(year) FROM school_members;")
-    result = cur.fetchone()
-    last_year = int(result[0]) if result and int(result[0]) < int(current_year) else int(dt.datetime.now().year)-1
-
-    cur.execute("SELECT confirm_no FROM school_members WHERE year = %s ORDER BY school_id",(last_year,))
-    result = cur.fetchall()
-    totals = result if result else [0]*len(schools)
-    
-    for i in range(0,len(schools)):
-        sch_value = list(schools[i]) + [current_year] + [totals[i]]
-        for j in range(0,len(sch_value)):
-            sheet1.cell(column = j+1,row = 2+i,value = sch_value[j] )
-    bg.save(newPath)
-    return newPath
-
-def gen_sch_comp():
-    bg = excel_obj('School template.xlsx')
-    sheet1 = bg['School list']
-
-    # generating new path 
-    newPath = gen_newPath('Schools_Completed')
+    newPath = gen_newPath(f'Schools_{sheet}')
 
     cur = db.getCursor()
     cur.execute("SELECT * FROM sch_detail ORDER BY school_id;")
     schools = cur.fetchall()
     cur.execute("SELECT MAX(year) FROM school_members;")
-    result = cur.fetchone()
-    current_year = int(result[0]) if result else int(dt.datetime.now().year)
-    
-    for i in range(0,len(schools)):
-        sch_value = list(schools[i]) + [current_year]
-        for j in range(0,len(sch_value)):
-            sheet1.cell(column = j+1,row = 2+i,value = sch_value[j] )
+    year_result = cur.fetchone()
+    if sheet == 'template':
+        current_year = int(year_result[0]) +1 \
+            if year_result and int(year_result[0]) < int(dt.datetime.now().year) \
+            else int(dt.datetime.now().year)
+    else:
+        current_year = int(year_result[0]) if year_result else int(dt.datetime.now().year)
 
-    cur.execute("SELECT return_no, max_no, request_no, confirm_no FROM school_members WHERE year = %s ORDER BY school_id;",(current_year,))
-    member_nos = cur.fetchall()
     cur.execute("SELECT confirm_no FROM school_members WHERE year = %s ORDER BY school_id",(current_year-1,))
     result = cur.fetchall()
-    totals = result if result else [0]*len(member_nos)
+    previous_totals = result if result else [0]*len(schools)
+    
+    for i in range(0,len(schools)):
+        sch_value = list(schools[i]) + [current_year] + [previous_totals[i]]
+        for j in range(0,len(sch_value)):
+            sheet1.cell(column = j+1,row = 2+i,value = sch_value[j] )
 
-    for i in range(0,len(member_nos)):
-        mem_no_detail = [totals[i]] + list(member_nos[i])
-        for j in range(0,len(mem_no_detail)):
-            sheet1.cell(column = j+18,row = 2+i,value = mem_no_detail[j] )
+    if sheet =='completed':
+        cur.execute("SELECT return_no, max_no, request_no, confirm_no FROM school_members WHERE year = %s ORDER BY school_id;",(current_year,))
+        member_nos = cur.fetchall()
 
-    bg.save(newPath)
-    pd_sql = "SELECT schools.school_name, school_members.*  FROM school_members INNER JOIN schools ON \
-        school_members.school_id = schools.school_id ORDER BY school_id, year DESC;"
-    new_sheet(newPath,pd_sql,'Previous Member Details')
+        for i in range(0,len(member_nos)):
+            for j in range(0,len(member_nos[i])):
+                sheet1.cell(column = j+19,row = 2+i,value = member_nos[i][j] )
+        bg.save(newPath)
+        pd_sql = "SELECT schools.school_name, school_members.*  FROM school_members INNER JOIN schools ON \
+            school_members.school_id = schools.school_id ORDER BY school_id, year DESC;"
+        new_sheet(newPath,pd_sql,'Member Details')
+    else:
+        bg.save(newPath)
+
     return newPath
+

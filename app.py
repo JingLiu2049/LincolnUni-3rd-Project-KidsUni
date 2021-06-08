@@ -16,14 +16,14 @@ import db
 import zipfile
 import spreadsheet
 import uuid
+
 import uploads
 import schools_info
 import member_info
 import destinations
 import login_session
+
 from functools import wraps
-import classes
-import filter_info
 
 
 # Global Functions
@@ -33,7 +33,9 @@ app.config['SECRET_KEY'] = 'project2_kids_uni'
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
 
 
+
 #app.secret_key = 'project2_kids_uni'
+
 dbconn = None
 
 
@@ -103,6 +105,7 @@ def no_cache(fun):
     return inner
 
 
+
 def upsertSchool(form, school_id):
     school_name = form.school_name.data
     who = form.who.data
@@ -126,6 +129,7 @@ def upsertSchool(form, school_id):
 
 
 def upsertMember(form, member_id):
+
     first_name = form.first_name.data
     last_name = form.last_name.data
     username = form.username.data
@@ -249,11 +253,13 @@ def index():
                            total_destinations=total_destinations)
 
 
-@app.route("/member", methods=['POST', 'GET'])
+@app.route("/member", methods=['GET'])
 @login_required
 def member():
-    cur = db.getCursor()
-    cur.execute("select * from member_info;")
+    cur = getCursor()
+    cur.execute("select member_id, school_name, concat(first_name,' ' ,last_name) as name, username, gender, member_age, ethnicity, continuing_new, passport_number,\
+                   passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,\
+                   hat_size from member_info where status !='Deactive' ;")  # display the member database table in students' page
     result = cur.fetchall()
     date = datetime.today().year
     if request.method == 'POST':
@@ -262,6 +268,8 @@ def member():
         return render_template("member.html", result=result, date=date, name=session['name'])
 
 
+# click member id's <tr> to edit member info
+# return to member page, reset form, submit
 @app.route("/edit_member", methods=['POST', 'GET'])
 @login_required
 def edit_member():
@@ -270,6 +278,9 @@ def edit_member():
     form = member_info.MemberInfoForm()
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
+    school_name = request.form.get('school_name')
+    cur.execute(f"select year, term1, term2, term3, term4, total from mem_hour_detail where member_id={member_id};")
+    hour_result=cur.fetchall()
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertMember(form, member_id)
@@ -277,6 +288,7 @@ def edit_member():
         else:
             print(form.errors)
             return render_template('edit_member.html', name=session['name'], form=form)
+
     else:
         form.first_name.data = member.first_name
         form.last_name.data = member.last_name
@@ -299,6 +311,7 @@ def edit_member():
         form.total_hours.data = member.total
         form.status.data = member.status
         return render_template("edit_member.html", date=date, name=session['name'], form=form)
+
 
 
 @app.route("/member_upload", methods=['POST'])
@@ -392,13 +405,15 @@ def school():
 @login_required
 def school_filter():
     if request.method == 'POST':
-        cur = db.getCursor()
-        school = request.form.get('schoolfilter')
-        cur.execute(f"select * from schools where school_name='{school}';")
-        filter_result = cur.fetchall()
-        return render_template("school.html", name=session['name'], filter=filter_result)
+        sql = filter_info.get_sql(
+            'school_details', 'school_id', sch_criteria_dict)
     else:
-        return redirect(url_for('school'))
+        sql = "SELECT * FROM school_details ORDER BY school_id;"
+    cur.execute(sql)
+    results = cur.fetchall()
+    school_list = filter_info.get_display_list(results, schools_info.school)
+    return render_template('school.html', name=session['name'], schoollist=school_list, schoolcriteria=filter_criteria)
+
 
 
 @app.route("/school_upload", methods=['POST'])
@@ -409,14 +424,16 @@ def school_upload():
     if form:
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
-            test(school_info[17])
+            school_info.pop(17)
+            test(school_info)
+            test(len(school_info))
+            
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
         return redirect(url_for('school'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
-        print('daolemadaolemadaolemadaolemadaolemadaolemadaolemadaolema')
         try:
             df_school = schools_info.get_df(excelpath)
             school_cols = df_school.columns
@@ -461,6 +478,7 @@ def edit_school():
         return render_template("edit_school.html", date=date, name=session['name'], form=form)
 
 
+
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
@@ -468,6 +486,58 @@ def destination():
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
     return render_template('destination.html', dests=dests, name=session['name'])
+
+
+@app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')
+@app.route("/add_destination", methods=['POST', 'GET'], endpoint='2')
+@login_required
+def edit_destination():
+    version = request.endpoint
+    cur = getCursor()
+    form = destinations.DestinationForm()
+    ld_id = request.args.get('id')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if version == '1':
+                upsertDestinations(form, ld_id)
+                message = 'Update successful'
+                return render_template('edit_destination.html', name=session['name'], form=form, message=message)
+            else:
+                upsertDestinations(form, 'new')
+                message = 'You have successfully added a new learning destination.'
+                return render_template('add_destination.html', name=session['name'], form=form, message=message)
+        else:
+            print(form.errors)
+            if version == '1':
+                return render_template('edit_destination.html', name=session['name'], form=form)
+            else:
+                return render_template('add_destination.html', name=session['name'], form=form)
+    else:
+        if version == '1':
+            cur.execute(f"select * from destinations where ld_id={ld_id};")
+            ld = cur.fetchone()
+            form.status.data = ld.status
+            form.ld_name.data = ld.ld_name
+            form.contact_person.data = ld.contact_person
+            form.ld_position.data = ld.ld_position
+            form.address.data = ld.address
+            form.region.data = ld.region
+            form.postal_address.data = ld.postal_address
+            form.email.data = ld.email
+            form.phone_number.data = ld.phone_number
+            form.web_address.data = ld.web_address
+            form.member_cost.data = ld.member_cost
+            form.adult_cost.data = ld.adult_cost
+            form.agrt_signed.data = ld.agrt_signed
+            form.rov_signed.data = ld.rov_signed
+            form.poster_sent.data = ld.poster_sent
+            form.logo_sent.data = ld. logo_sent
+            form.promo.data = ld.promo
+            form.photo.data = ld.photo
+            form.note.date = ld.note
+            return render_template('edit_destination.html', form=form, name=session['name'])
+        else:
+            return render_template('add_destination.html', name=session['name'], form=form)
 
 
 @app.route("/destination_upload", methods=['POST'])
@@ -490,10 +560,10 @@ def destination_upload():
         excelpath = upload_path('file')
         try:
             df_dest = uploads.get_dest_df(excelpath)
-            # df_dest = pd.read_excel(excelpath,0,header=[1])
             dest_cols = df_dest.columns
             dest_data = df_dest.values
             print(df_dest.iloc[:, 15:19])
+
 
         except Exception as e:
             # return render_template('error.html')
@@ -511,6 +581,7 @@ def volunteer():
         sql = filter_info.get_sql(
             'volun_detail', 'volun_id', volun_criteria_dict)
     else:
+
         print('lalemalalemalalemalalemalalemalalemalalemalalema')
         sql = "SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)
@@ -666,13 +737,6 @@ def add_user():
         phone_number = request.form.get('phone_number')
         user_access = request.form.get('user_access')
         status = "active"
-        print(user_id)
-        print(first_name)
-        print(surname)
-        print(email)
-        print(phone_number)
-        print(user_access)
-
         cur = db.getCursor()
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
@@ -711,15 +775,15 @@ def download_mem_sheet():
     # generating excel with completed data and send to client-side
         elif request_file == 'completed':
             zfile = zipfile.ZipFile(
-                f'{app.root_path}\downloads\Competed.zip', 'w')
+                f'{app.root_path}\downloads\Completed.zip', 'w')
             for schoolid in school_list:
 
                 filename = spreadsheet.gen_mem_comp(schoolid)
                 zfile.write(filename)
             zfile.close()
-            return send_file(f'{app.root_path}\downloads\Competed.zip',
+            return send_file(f'{app.root_path}\downloads\Completed.zip',
                              mimetype='zip',
-                             attachment_filename='Competed.zip',
+                             attachment_filename='Completed.zip',
                              as_attachment=True)
     return render_template('download_mem_sheet.html', schools=schools, name=session['name'])
 
@@ -745,11 +809,13 @@ def download_volun_sheet():
 @no_cache
 def download_school_sheet():
     sheet = request.args.get('sheet')
+
     if sheet == 'template':
         file = spreadsheet.gen_sch_temp()
     elif sheet == 'completed':
         file = spreadsheet.gen_sch_comp()
     return send_file(file, mimetype='xlsx', as_attachment=True)
+
 
 
 if __name__ == '__main__':

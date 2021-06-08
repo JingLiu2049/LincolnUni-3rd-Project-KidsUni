@@ -1,19 +1,16 @@
 {%extends "layout.html"%}
 {%block title%}School Page{%endblock%}
 
-{% block head %}
+{%block head%}
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
-<link rel="stylesheet" href="{{url_for('static', filename = 'table.css')}}">
-{% endblock head %}
+<link rel="stylesheet" href="<td>{{url_for('static', filename = 'table.css')}}">
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+<script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+
+{%endblock%}
 
 {%block content%}
-<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-
-    <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
-    <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
-
 
 <script>
      $(document).ready(function () {
@@ -25,120 +22,194 @@
           });
      });
 
+
      $(document).ready(function () {
-     var $rows = $('tbody#mytable tr')
-   
-      var $filters = $('.table-filter').change(function(){
-       var filterArr = $filters.filter(function(){
-          return this.value
-       }).map(function(){
-          var $el = $(this);
-          var value = $el.is('select') ? $el.find(':selected').text() :$el.val()  
-          return {
-            col: $el.data('col'),
-            value: value.toLowerCase()
-          }
-       }).get();
-       if(!filterArr.length){
-         $rows.show()
-       }else{
-         $rows.hide().filter(function(){
-            var $row = $(this)
-            return filterArr.every(function(filterObj, i){
-               var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();             
-              return  cellText.includes(filterObj.value);
-            })
-         }).show()
-       }
-     })
-    });
-   
-    $(document).ready( function () {
-  
-  var table = $('#table').DataTable({
-            initComplete: function () {
-            count = 0;
-            this.api().columns().every( function () {
-                var title = this.header();
-                //replace spaces with dashes
-                title = $(title).html().replace(/[\W]/g, '-');
-                var column = this;
-                var select = $('<select id="' + title + '" class="select2" ></select>')
-                    .appendTo( $(column.footer()).empty() )
-                    .on( 'change', function () {
-                      //Get the "text" property from each selected data 
-                      //regex escape the value and store in array
-                      var data = $.map( $(this).select2('data'), function( value, key ) {
-                        return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
-                                 });
-                      
-                      //if no data selected use ""
-                      if (data.length === 0) {
-                        data = [""];
-                      }
-                      
-                      //join array into string with regex or (|)
-                      var val = data.join('|');
-                      
-                      //search for the option(s) selected
-                      column
-                            .search( val ? val : '', true, false )
-                            .draw();
-                    } );
- 
-                column.data().unique().sort().each( function ( d, j ) {
-                    select.append( '<option value="'+d+'">'+d+'</option>' );
-                } );
-              
-              //use column title as selector and placeholder
-              $('#' + title).select2({
-                multiple: true,
-                closeOnSelect: false,
-                placeholder: "Select a " + title
-              });
-              
-              //initially clear select otherwise first option is selected
-              $('.select2').val(null).trigger('change');
-            } );
-        }
-  });
-} );
+          var $rows = $('tbody#mytable tr')
 
-$(document).ready(function() {
-  $(".clickable").click(function() {
-    window.document.location = $(this).data("href");
-  });
-});
+          var $filters = $('.table-filter').change(function () {
+               var filterArr = $filters.filter(function () {
+                    return this.value
+               }).map(function () {
+                    var $el = $(this);
+                    var value = $el.is('select') ? $el.find(':selected').text() : $el.val()
+                    return {
+                         col: $el.data('col'),
+                         value: value.toLowerCase()
+                    }
+               }).get();
+               if (!filterArr.length) {
+                    $rows.show()
+               } else {
+                    $rows.hide().filter(function () {
+                         var $row = $(this)
+                         return filterArr.every(function (filterObj, i) {
+                              var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();
+                              return cellText.includes(filterObj.value);
+                         })
+                    }).show()
+               }
+          })
+     });
 
+     $(document).ready(function () {
 
+          var table = $('#table').DataTable({
+               initComplete: function () {
+                    count = 0;
+                    this.api().columns().every(function () {
+                         var title = this.header();
+                         //replace spaces with dashes
+                         title = $(title).html().replace(/[\W]/g, '-');
+                         var column = this;
+                         var select = $('<select id="' + title + '" class="select2" ></select>')
+                              .appendTo($(column.footer()).empty())
+                              .on('change', function () {
+                                   //Get the "text" property from each selected data 
+                                   //regex escape the value and store in array
+                                   var data = $.map($(this).select2('data'), function (value, key) {
+                                        return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
+                                   });
+
+                                   //if no data selected use ""
+                                   if (data.length === 0) {
+                                        data = [""];
+                                   }
+
+                                   //join array into string with regex or (|)
+                                   var val = data.join('|');
+
+                                   //search for the option(s) selected
+                                   column
+                                        .search(val ? val : '', true, false)
+                                        .draw();
+                              });
+
+                         column.data().unique().sort().each(function (d, j) {
+                              select.append('<option value="' + d + '">' + d + '</option>');
+                         });
+
+                         //use column title as selector and placeholder
+                         $('#' + title).select2({
+                              multiple: true,
+                              closeOnSelect: false,
+                              placeholder: "Select a " + title
+                         });
+
+                         //initially clear select otherwise first option is selected
+                         $('.select2').val(null).trigger('change');
+                    });
+               }
+          });
+     });
+
+     $(document).ready(function () {
+          $(".clickable").click(function () {
+               window.document.location = $(this).data("href");
+          });
+     });
 
 </script>
 
 <main class="m-4">
-<div class="container-fluid">
-     <h1>School Information List</h1>
-     <form action="/school_upload" method="POST" enctype="multipart/form-data">
+     <div class="container-fluid">
+          <h1>School Information List</h1>
+          <form action="/school_upload" method="POST" enctype="multipart/form-data">
                <input type="file" id="file" name="file">
                <button type="submit" id="btn">submit</button>
-          <!--<div class="input-group mb-3">
+               <!--<div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" class="form-control" id="inputGroupFile01" required>
             <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
             
           </div>-->
-        </form>
-        </br>
-        <table class="table">
-             {% for i in schools%}
-             <tr>
-             {% for j in i%}
-             <td class="clickable" data-href="/edit_school?id={{i[0]}}" style="cursor: pointer;">{{j}}</td> 
-             {%endfor%}
-          </tr>
-             {% endfor %}
-        </table>
 
-        <!-- <div name="input group">
+          </form>
+          </br>
+          <table class="table">
+               {% for i in schools%}
+               <tr>
+                    {% for j in i%}
+                    <td class="clickable" data-href="/edit_school?id={{i[0]}}" style="cursor: pointer;">{{j}}</td>
+                    {%endfor%}
+               </tr>
+               {% endfor %}
+          </table>
+
+          </form>
+          <form action="/school" method="POST" class="criteria clearfix">
+               {% for i in schoolcriteria.keys()%}
+               <div class="each">
+                    <span>
+                         <td>{{i}}:
+                    </span>
+                    {%for j in schoolcriteria[i]%}
+                    <label for="{{j[0]}}">
+                         <td>{{j[0]}}
+                    </label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
+                    {%endfor%}
+               </div>
+               {%endfor%}
+               <button type="submit">Submit</button>
+               <button><a href="/school">Reset</a></button>
+          </form>
+          <table class="table">
+               <thead>
+                    <tr>
+                         <td>School ID</td>
+                         <td>School Name</td>
+                         <td>Who</td>
+                         <td>Council</td>
+                         <td>Category</td>
+                         <td>Status</td>
+                         <td>Coordinator Name</td>
+                         <td>Coordinator Email</td>
+                         <td>Training</td>
+                         <td>Launch</td>
+                         <td>Presentation</td>
+                         <td>Portal</td>
+                         <td>Passports</td>
+                         <td>Agreement</td>
+                         <td>Consent</td>
+                         <td>Notes</td>
+                         <td>Year</td>
+                         <td>Returning Number</td>
+                         <td>Maximum Number</td>
+                         <td>Requested Number</td>
+                         <td>Confirmed Number</td>
+                    </tr>
+               </thead>
+               {%for i in schoollist%}
+               <tr>
+                    <td>{{i.id}}</td>
+                    <td>{{i.name }}</td>
+                    <td>{{i.who }}</td>
+                    <td>{{i.council }}</td>
+                    <td>{{i.category }}</td>
+                    <td>{{i.status }}</td>
+                    <td>{{i.coor_name }}</td>
+                    <td>{{i.coor_email }}</td>
+                    <td>{{i.training }}</td>
+                    <td>{{i.launch }}</td>
+                    <td>{{i.presentation }}</td>
+                    <td>{{i.portal }}</td>
+                    <td>{{i.passports }}</td>
+                    <td>{{i.agreement }}</td>
+                    <td>{{i.consent }}</td>
+                    <td>{{i.notes }}</td>
+                    <td>{{i.year}}</td>
+                    <td>{{i.returning }}</td>
+                    <td>{{i.max}}</td>
+                    <td>{{i.request}}</td>
+                    <td>{{i.confirm }}</td>
+
+               </tr>
+               {%endfor%}
+          </table>
+</main>
+
+
+
+<!-- <div name="input group">
           <form method="POST" action="/school_filter">
             <div class="input-group mb-3">
               <label class="input-group-text" for="inputGroupFile01">Search</label>
@@ -153,7 +224,7 @@ $(document).ready(function() {
                     <option value="">Select one</option>
                     {% for col in school_filter %}
                     {% for result in col%}
-                    <option value="{{result}}">{{result}}</option>
+                    <option value="<td>{{result}}"><td>{{result}}</option>
                     {% endfor %}
                     {% endfor %}
                </select>
@@ -240,7 +311,7 @@ $(document).ready(function() {
                {% for item in result %}
                <tr>
                     {% for col in item %}
-                    <td>{{col}}</td>
+                    <td><td>{{col}}</td>
                     {% endfor %}
                </tr>
                {%endfor%}

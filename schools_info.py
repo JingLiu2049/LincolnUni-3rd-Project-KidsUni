@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 
 class school:
     def __init__(self, l=[]):
+
         self.id = int(l[0])
         self.name = l[1]
         self.who = l[2]

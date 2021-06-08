@@ -15,7 +15,12 @@ volun_criteria_dict= {
         'Current Year':['current_year','volun_detail'],
         'Completion Date':['completion_date','volun_detail']
         }
-
+sch_criteria_dict= {
+        'Who':['who', 'sch_detail'],
+        'Council':['council','sch_detail'],
+        'Category':['category','sch_detail'],
+        'Status':['status','sch_detail']
+        }
 def get_criteria(d={}):
     cur = db.getCursor()
     criteria = {}
@@ -27,7 +32,7 @@ def get_criteria(d={}):
             for j in results:
                 value_list.append(j) if j != None else False
         else:
-            value_list =[results[0][0]] if results != None else []
+            value_list =[results[0][0]] if results  else []
         criteria.setdefault(i,value_list)
     return criteria
 

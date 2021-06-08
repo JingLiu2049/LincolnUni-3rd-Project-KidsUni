@@ -10,7 +10,7 @@
 <main class="m-4">
     <form action="/member_upload" method="POST">
         <div class="wrapper member">
-            <h2>Member Information</h2>
+            <h2>Student Information Uploadt</h2>
             <table class="table">
                 <thead>
                     <tr>
@@ -43,22 +43,24 @@
                         {%endfor%}
                     </tr>
                 </thead>
-                {% for item in coor_data%}
-                <tr>
-                    {% for entrens in item%}
-                    <td>
-                        <input type="text" value="{{entrens}}" name="coor">
-                    </td>
+                <tbody>
+                    {% for item in coor_data%}
+                    <tr>
+                        {% for entrens in item%}
+                        <td>
+                            <input type="text" value="{{entrens}}" name="coor">
+                        </td>
+                        {%endfor%}
+                    </tr>
                     {%endfor%}
-                </tr>
-
-                {%endfor%}
-
+                </tbody>
             </table>
 
         </div>
-        <button type="submit">submit</button>
-        <button type="reset">reset</button>
+        <button type="button" role="button" class="btn btn-outline-secondary"
+            onclick="window.location.href = '/member'">Return</button>
+        <button type="reset" class="btn btn-outline-secondary">Reset</button>
+        <button type="submit" class="btn btn-outline-secondary">Submit</button>
     </form>
 </main>
 <script type="text/javascript">

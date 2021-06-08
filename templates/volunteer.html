@@ -3,22 +3,27 @@
 {%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'volunteer.css')}}">
-
 {%endblock%}
 
 {%block content%}
+
+
 <main class="m-4">
     <h1>volunteer page</h1>
     <form action="/volunteer_upload" method="POST" enctype="multipart/form-data">
-        <input type="file" id="file" name="file">
-        <button type="submit" id="btn">submit</button>
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="inputGroupFile01">Upload</label>
+            <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+            <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+          </div>
     </form>
+    <input class="form-control" id="myInput" type="text" placeholder="Search..">
     <form action="/volunteer" method="POST" class="criteria clearfix">
         {% for i in criteria.keys()%}
         <div class="each">
-        <span>
-            {{i}}:
-        </span>
+            <span>
+                {{i}}:
+            </span>
             {%for j in criteria[i]%}
             <label for="{{j[0]}}">{{j[0]}}</label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
             {%endfor%}
@@ -28,40 +33,42 @@
         <button><a href="/volunteer">Reset</a></button>
     </form>
     <table class="table">
-        <thead>
+        <thead style="background-color: #F3D712;">
             <tr>
-                <td>ID</td>
-                <td>Status</td>
-                <td>Induction</td>
-                <td>Interview</td>
-                <td>Name</td>
-                <td>Gender</td>
-                <td>Volunteer Experience</td>
-                <td>Future Leader</td>
-                <td>Police Check</td>
-                <td>University</td>
-                <td>Course</td>
-                <td>Current Year</td>
-                <td>Completion Date</td>
+                <th>ID</th>
+                <th>Status</th>
+                <th>Induction</th>
+                <th>Interview</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Volunteer Experience</th>
+                <th>Future Leader</th>
+                <th>Police Check</th>
+                <th>University</th>
+                <th>Course</th>
+                <th>Current Year</th>
+                <th>Completion Date</th>
             </tr>
         </thead>
-        {%for i in voluns%}
-        <tr>
-            <td><a href="javascript:;" class="volunid">{{i.id}}</a></td>
-            <td>{{i.status}}</td>
-            <td>{{i.induction}}</td>
-            <td>{{i.interview}}</td>
-            <td>{{i.firstname}} {{i.surname}}</td>
-            <td>{{i.gender}}</td>
-            <td>{{i.experience}}</td>
-            <td>{{i.leader}}</td>
-            <td>{{i.police}}</td>
-            <td>{{i.uni}}</td>
-            <td>{{i.course}}</td>
-            <td>{{i.current_year}}</td>
-            <td>{{i.comp_date}}</td>
-        </tr>
-        {%endfor%}
+        <tbody id="tbody">
+            {%for i in voluns%}
+            <tr>
+                <td><a href="javascript:;" class="volunid">{{i.id}}</a></td>
+                <td>{{i.status}}</td>
+                <td>{{i.induction}}</td>
+                <td>{{i.interview}}</td>
+                <td>{{i.firstname}} {{i.surname}}</td>
+                <td>{{i.gender}}</td>
+                <td>{{i.experience}}</td>
+                <td>{{i.leader}}</td>
+                <td>{{i.police}}</td>
+                <td>{{i.uni}}</td>
+                <td>{{i.course}}</td>
+                <td>{{i.current_year}}</td>
+                <td>{{i.comp_date}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>     
     </table>
     <div class="form_wrap hidden" id="showDetail">
         {% for i in voluns%}
@@ -78,7 +85,7 @@
     </div>
 </main>
 
-<script type="text/javascript">
+<script>
     var closeBtn = document.getElementById("close");
     var showDetail = document.getElementById("showDetail");
     var id_list = document.getElementsByClassName("volunid")
@@ -107,6 +114,15 @@
     }
 
     closeBtn.addEventListener("click", closeForm, false)
+
+    $(document).ready(function () {
+        $("#myInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
 
 </script>
 {%endblock%}

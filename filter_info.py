@@ -11,7 +11,6 @@ volun_criteria_dict= {
         'Future Leader':['future_leader','volun_detail'],
         'Police Check':['police_check','volun_detail'],
         'University':['studying_uni','volun_detail'],
-        'Course':['course','volun_detail'],
         'Current Year':['current_year','volun_detail'],
         'Completion Date':['completion_date','volun_detail']
         }

@@ -43,21 +43,19 @@ class members:
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
             password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
              passport_number=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \
-             publication_promos=%s, social_media=%s, total = %s, gown_size=%s, hat_size=%s, status = %s WHERE \
+             publication_promos=%s, social_media=%s, gown_size=%s, hat_size=%s, status = %s WHERE \
              member_id = %s;",(self.school, self.first, self.last, self.username, self.password, self.gender, 
             self.age,self.ethnicity,self.mtype, self.passport, self.date, self.eth_info, self.research, self.promos, 
-            self.social, self.total, self.gown, self.hat, self.status,self.id,))
+            self.social,  self.gown, self.hat, self.status,self.id,))
         
         sql = f"INSERT INTO membershours VALUES({self.id}, '{self.year}', {self.term1}, {self.term2}, \
-             {self.term3}, {self.term4}) ON CONFLICT (member_id, year, term) DO UPDATE SET member_id = EXCLUDED.member_id, \
-            year = EXCLUDED.year, term = EXCLUDED.term, hours = EXCLUDED.hours;"
+             {self.term3}, {self.term4}) ON CONFLICT (member_id, year) DO UPDATE SET member_id = EXCLUDED.member_id, \
+            year = EXCLUDED.year, term1 = EXCLUDED.term1, term2 = EXCLUDED.term2, term3 = EXCLUDED. term3, term4 = EXCLUDED.term4;"
         cur.execute(sql)
 
         cur.execute("UPDATE membershours SET total = (SELECT SUM(term4) FROM membershours WHERE member_id = %s) \
             WHERE member_id = %s AND year = %s;",(self.id,self.id,self.year))
 
-        cur.execute("UPDATE members SET total = (SELECT SUM(term4) FROM membershours WHERE member_id = %s) \
-            WHERE member_id = %s AND year = %s;",(self.id,self.id,self.year))
         
         if events:
             for i in range(0,len(events)):
@@ -78,7 +76,7 @@ class volunteer:
         self.firstname = l[6]
         self.surname = l[7]
         self.prefer = l[8]
-        self.gender = l[9]
+        self.gender = str(l[9]).lower()
         self.birthday = l[10] if l[10] != '' else None
         self.email = l[11]
         self.phone = l[12]
@@ -95,7 +93,7 @@ class volunteer:
         self.uni = l[21]
         self.graduate = l[22]
         self.course = l[23]
-        self.current_year = l[24]
+        self.current_year = str(l[24]).lower()
         self.comp_date = l[25]
         self.refer1_name = l[26]
         self.refer1_phone = l[27]

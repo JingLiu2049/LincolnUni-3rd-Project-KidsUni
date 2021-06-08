@@ -389,8 +389,7 @@ def member_upload():
             coor_col = df_coor.columns
             coor_data = df_coor.values
         except Exception as e:
-            # return render_template('error.html', name=session['name'])
-            return print(e)
+            return render_template('error.html', name=session['name'])
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                                coor_col=coor_col, coor_data=coor_data, name=session['name'])
 
@@ -435,8 +434,7 @@ def school_upload():
             school_cols = df_school.columns
             school_data = df_school.values
         except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+            return render_template('error.html')
         return render_template('school_upload.html', cols=school_cols, data=school_data, name=session['name'])
 
 
@@ -564,8 +562,7 @@ def destination_upload():
             dest_data = df_dest.values
 
         except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+            return render_template('error.html')
         return render_template('destination_upload.html', cols=dest_cols, data=dest_data, name=session['name'])
 
 
@@ -575,6 +572,7 @@ def volunteer():
     cur = db.getCursor()
     volun_criteria_dict = filter_info.volun_criteria_dict
     filter_criteria = filter_info.get_criteria(volun_criteria_dict)
+    print(filter_criteria)
     if request.method == 'POST':
         sql = filter_info.get_sql(
             'volun_detail', 'volun_id', volun_criteria_dict)
@@ -606,8 +604,7 @@ def volunteer_upload():
             volun_data = df_volun.values
 
         except Exception as e:
-            # return render_template('error.html')
-            return print(e)
+            return render_template('error.html')
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data, name=session['name'])
 
 

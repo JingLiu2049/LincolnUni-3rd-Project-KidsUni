@@ -44,9 +44,9 @@
             {% for i in criteria.keys()%}
             <div class="col-sm-3">
                 <label for="{{i}}">{{i}}</label>
-                <select class="selectpicker" multiple data-live-search="true" id="{{i}}">
+                <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
                     {%for j in criteria[i]%}
-                    <option>"{{j[0]}}"</option>
+                    <option>{{j[0]}}</option>
                     {%endfor%}
                 </select>
             </div>
@@ -58,8 +58,8 @@
                 <input class="form-control" id="myInput" type="text" placeholder="Search..">
             </div>
             <div class="col">
-                <button class="btn btn-outline-secondary float-end" type="reset" role="button">Reset</button>
                 <button class="btn btn-outline-secondary float-end" type="submit" role="button">Submit</button>
+                <button class="btn btn-outline-secondary float-end" type="reset" role="button">Reset</button>
             </div>
         </div>
     </form>

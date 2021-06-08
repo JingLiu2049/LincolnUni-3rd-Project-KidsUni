@@ -16,7 +16,13 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, login_session, classes, filter_info
+import uploads
+import schools_info
+import member_info
+import destinations
+import login_session
+import classes
+import filter_info
 from functools import wraps
 
 
@@ -133,31 +139,33 @@ def upsertMember(form, member_id, school_id):
                     previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, total, gown_size,
                     hat_size, status))
 
+
 def upsertSchool(form, school_id):
     school_name = form.school_name.data
     who = form.who.data
     council = form.council.data
-    category = form.category.data    
-    status = form.status.data    
-    training = form.training.data    
-    launch = form.launch.data    
-    presentation = form.presentation.data    
-    portal = form.portal.data    
-    passports = form.passports.data    
-    agreement = form.agreement.data    
-    consent = form.consent.data    
+    category = form.category.data
+    status = form.status.data
+    training = form.training.data
+    launch = form.launch.data
+    presentation = form.presentation.data
+    portal = form.portal.data
+    passports = form.passports.data
+    agreement = form.agreement.data
+    consent = form.consent.data
     notes = form.notes.data
     cur = db.getCursor()
     if school_id != "new":
         cur.execute("Update schools set school_name=%s, who=%s, council=%s, category=%s,\
         status=%s, training=%s, launch=%s, presentation=%s, portal=%s, passports=%s, \
-        agreement=%s, consent=%s, notes=%s where school_id=%s;", 
-            (school_name, who, council, category, status, training, launch, presentation, 
-            portal, passports, agreement, consent, notes, school_id))
+        agreement=%s, consent=%s, notes=%s where school_id=%s;",
+                    (school_name, who, council, category, status, training, launch, presentation,
+                     portal, passports, agreement, consent, notes, school_id))
     else:
         cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
-        (school_name, who, council, category, status, training, launch, presentation, 
-        portal, passports, agreement, consent, notes))
+                    (school_name, who, council, category, status, training, launch, presentation,
+                     portal, passports, agreement, consent, notes))
+
 
 def upsertDestinations(form, ld_id):
     status = form.status.data
@@ -308,8 +316,9 @@ def edit_member():
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
     school_name = request.form.get('school_name')
-    cur.execute(f"select year, term1, term2, term3, term4, total from mem_hour_detail where member_id={member_id};")
-    hour_result=cur.fetchall()
+    cur.execute(
+        f"select year, term1, term2, term3, term4, total from mem_hour_detail where member_id={member_id};")
+    hour_result = cur.fetchall()
     if request.method == 'POST':
         if form.validate_on_submit():
             # create a currently school list from database with school table
@@ -324,14 +333,14 @@ def edit_member():
                 school_id = result[0]
                 upsertMember(form, member_id, school_id)
                 message = 'Update successful'
-                return render_template('edit_member.html', name=session['name'], form=form, message=message, member=member,hour_result=hour_result)
+                return render_template('edit_member.html', name=session['name'], form=form, message=message, member=member, hour_result=hour_result)
             else:
                 # if the school is not in the list, print error
                 print(form.errors)
-                return render_template('edit_member.html', name=session['name'], form=form, member=member,hour_result=hour_result)
+                return render_template('edit_member.html', name=session['name'], form=form, member=member, hour_result=hour_result)
         else:
             print(form.errors)
-            return render_template('edit_member.html', name=session['name'], form=form, member=member,hour_result=hour_result)
+            return render_template('edit_member.html', name=session['name'], form=form, member=member, hour_result=hour_result)
     else:
         form.first_name.data = member.first_name
         form.last_name.data = member.last_name
@@ -464,39 +473,39 @@ def school_upload():
 @login_required
 def edit_school():
     cur = getCursor()
-    form = schools_info.SchoolForm()
+    form = schools_info.SchoolInfoForm()
     school_id = request.args.get('id')
     cur.execute(f"select * from schools where school_id={school_id};")
     sch = cur.fetchone()
     if request.method == 'POST':
         if form.validate_on_submit():
-                upsertSchool(form, school_id)
-                message = 'Update successful'
-                return render_template('edit_school.html', name=session['name'], form=form, message=message)        
+            upsertSchool(form, school_id)
+            message = 'Update successful'
+            return render_template('edit_school.html', name=session['name'], form=form, message=message)
         else:
             print(form.errors)
-            return render_template('edit_school.html', name=session['name'], form=form)    
+            return render_template('edit_school.html', name=session['name'], form=form)
     else:
-        form.school_name.data = sch.school_name        
-        form.who.data = sch.who        
-        form.council.data = sch.council        
-        form.category.data = sch.category        
-        form.status.data = sch.status        
-        form.training.data = sch.training        
-        form.launch.data = sch.launch        
-        form.presentation.data = sch.presentation        
-        form.portal.data = sch.portal        
-        form.passports.data = sch.passports        
-        form.agreement.data = sch.agreement        
-        form.consent.data = sch.consent        
+        form.school_name.data = sch.school_name
+        form.who.data = sch.who
+        form.council.data = sch.council
+        form.category.data = sch.category
+        form.status.data = sch.status
+        form.training.data = sch.training
+        form.launch.data = sch.launch
+        form.presentation.data = sch.presentation
+        form.portal.data = sch.portal
+        form.passports.data = sch.passports
+        form.agreement.data = sch.agreement
+        form.consent.data = sch.consent
         form.notes.data = sch.notes
         return render_template('edit_school.html', date=date, form=form, name=session['name'])
-        
+
 
 @app.route("/add_school", methods=['POST', 'GET'])
 @login_required
 def add_school():
-    form = schools_info.SchoolForm()
+    form = schools_info.SchoolInfoForm()
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, 'new')
@@ -508,6 +517,7 @@ def add_school():
     else:
         return render_template("add_school.html", name=session['name'], form=form)
 
+
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required
 def destination():
@@ -517,14 +527,15 @@ def destination():
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
     if request.method == 'POST':
-        sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
+        sql = filter_info.get_sql(
+            'destinations', 'ld_id', destination_criteria_dict)
 
     else:
         sql = "SELECT * FROM destinations ORDER BY ld_id;"
     cur.execute(sql)
     results = cur.fetchall()
     dest_list = filter_info.get_display_list(results, classes.destination)
-    return render_template('destination.html', dests=dests, name=session['name'],dest_list=dest_list, criteria=filter_criteria)
+    return render_template('destination.html', dests=dests, name=session['name'], dest_list=dest_list, criteria=filter_criteria)
 
 
 @app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')
@@ -843,11 +854,8 @@ def download_volun_sheet():
 @no_cache
 def download_school_sheet():
     sheet = request.args.get('sheet')
-    file =  spreadsheet.gen_sch_sheet(sheet)
-    return send_file(file, mimetype = 'xlsx', as_attachment=True)
-
-
-
+    file = spreadsheet.gen_sch_sheet(sheet)
+    return send_file(file, mimetype='xlsx', as_attachment=True)
 
 
 if __name__ == '__main__':

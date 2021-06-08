@@ -8,7 +8,6 @@ from wtforms import validators
 from wtforms.fields.html5 import DateField, EmailField, TelField, URLField
 import email_validator
 
-
 def active_destinations_count():
     # Function returns the number of active learning destinations in the system to display on dashboard
     query = "SELECT COUNT(status) FROM destinations WHERE status='active' OR status='Active';"
@@ -26,7 +25,6 @@ def total_destinations_count():
     query = "SELECT COUNT(ld_id) FROM destinations;"
     result = db.getOne(query, [])
     return result[0]
-
 
 class DestinationForm(FlaskForm):
 
@@ -53,7 +51,7 @@ class DestinationForm(FlaskForm):
     region = StringField(label='Region *', validators=[
         validators.DataRequired(), 
         validators.regexp('^[a-zA-Z ]*$', message='Letters only')])
- 
+
     postal_address = StringField(label='Postal Address *', validators=[
         validators.DataRequired()])
 
@@ -92,11 +90,7 @@ class DestinationForm(FlaskForm):
     ], choices=['','Yes', 'No'])
 
     note = TextField (label='Note ')
-    
+
     photo = SelectField(label='Photo Provide ', choices=['Yes', 'No'])
 
     submit = SubmitField(label=('Save'))
-
-
-
-    

@@ -15,11 +15,20 @@ volun_criteria_dict= {
         'Completion Date':['completion_date','volun_detail']
         }
 sch_criteria_dict= {
-        'Who':['who', 'sch_detail'],
+        'School Name':['school_name', 'sch_detail'],
+        'who':['who', 'sch_detail'],
         'Council':['council','sch_detail'],
         'Category':['category','sch_detail'],
         'Status':['status','sch_detail']
         }
+
+destination_criteria_dict= {
+ 'Status':['status','destinations'],
+ 'Region':['region','destinations'],
+ 'Member Cost':['member_cost','destinations'],
+ 'Adult Cost':['adult_cost','destinations']
+}
+
 def get_criteria(d={}):
     cur = db.getCursor()
     criteria = {}
@@ -31,7 +40,7 @@ def get_criteria(d={}):
             for j in results:
                 value_list.append(j) if j != None else False
         else:
-            value_list =[results[0][0]] if results  else []
+            value_list =[results[0][0]] if results else []
         criteria.setdefault(i,value_list)
     return criteria
 

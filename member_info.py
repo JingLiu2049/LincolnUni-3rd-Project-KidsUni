@@ -1,3 +1,5 @@
+from schools_info import school
+from flask.app import Flask
 import db
 import pandas as pd
 import getid
@@ -69,6 +71,7 @@ class members:
                 DO UPDATE SET member_id = EXCLUDED.member_id, event_id = EXCLUDED.event_id,status = \
                 EXCLUDED.status" %(self.id,events[i],self.attend[i].lower())
                 cur.execute(sql)
+
 
 def active_members_count():
     # Function returns the number of active schools in the system to display on dashboard
@@ -157,3 +160,7 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
     ], choices=['Active', 'Deactive'])
     submit = SubmitField(label=('Save'))
+
+
+
+

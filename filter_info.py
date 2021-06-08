@@ -22,6 +22,14 @@ sch_criteria_dict= {
         'Category':['category','sch_detail'],
         'Status':['status','sch_detail']
         }
+
+destination_criteria_dict= {
+ 'Status':['status','destinations'],
+ 'Region':['region','destinations'],
+ 'Member Cost':['member_cost','destinations'],
+ 'Adult Cost':['adult_cost','destinations']
+}
+
 def get_criteria(d={}):
     cur = db.getCursor()
     criteria = {}

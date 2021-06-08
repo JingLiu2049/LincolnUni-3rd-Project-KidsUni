@@ -1,3 +1,5 @@
+from schools_info import school
+from flask.app import Flask
 import db
 import pandas as pd
 import getid
@@ -5,6 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, IntegerField
 from wtforms import validators
 from wtforms.fields.html5 import DateField
+
 
 
 def active_members_count():
@@ -94,3 +97,7 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
     ], choices=['Active', 'Deactive'])
     submit = SubmitField(label=('Save'))
+
+
+
+

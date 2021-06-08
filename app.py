@@ -482,7 +482,17 @@ def destination():
     cur = db.getCursor()
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
     dests = cur.fetchall()
-    return render_template('destination.html', dests=dests, name=session['name'])
+    destination_criteria_dict = filter_info.destination_criteria_dict
+    filter_criteria = filter_info.get_criteria(destination_criteria_dict)
+    if request.method == 'POST':
+        sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
+
+    else:
+        sql = "SELECT * FROM destinations ORDER BY ld_id;"
+    cur.execute(sql)
+    results = cur.fetchall()
+    dest_list = filter_info.get_display_list(results, classes.destination)
+    return render_template('destination.html', dests=dests, name=session['name'],dest_list=dest_list, criteria=filter_criteria)
 
 
 @app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')

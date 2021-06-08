@@ -8,6 +8,48 @@ from wtforms import validators
 from wtforms.fields.html5 import DateField, EmailField, TelField, URLField
 import email_validator
 
+class destination:
+    def __init__(self,l=[]):
+        self.id = int(l[0])
+        self.status = l[1]
+        self.name = l[2]
+        self.contact = l[3]
+        self.ld_position = l[4]
+        self.address = l[5]
+        self.region = l[6] 
+        self.post = l[7]
+        self.phone = l[8]
+        self.email = l[9]
+        self.web = l[10]
+        self.cost = l[11]
+        self.adult_cost = l[12]
+        self.agreement = l[13] if l[13] != '' else None
+        self.rov = l[14] if l[14] != '' else None
+        self.poster = l[15]
+        self.logo = l[16]
+        self.promo = l[17]
+        self.photo = l[18]
+        self.note = l[19]
+
+        
+        self.paperwork = l[20:] if len(l)>20 else False
+    def insert_db(self,paperwork):
+        cur = db.getCursor()
+        cur.execute("UPDATE destinations SET status = %s, ld_name = %s, contact_person = %s, ld_position = %s, \
+            address = %s, region = %s, postal_address = %s, phone_number = %s,email = %s, web_address = %s, \
+            member_cost = %s, adult_cost = %s, agrt_signed = %s, rov_signed = %s, poster_sent = %s, logo_sent = %s, \
+            promo = %s, photo = %s, note = %s WHERE ld_id = %s;",(self.status, self.name, self.contact, self.ld_position, self.address,
+            self.region, self.post, self.phone, self.email, self.web, self.cost, self.adult_cost, self.agreement, self.rov,
+            self.poster, self.logo, self.promo, self.photo, self.note, self.id, ))
+        if paperwork:
+            for i in range(0,len(paperwork)):
+                sql = "INSERT INTO paperwork VALUES(%s, '%s','%s') ON CONFLICT (ld_id, year) \
+                DO UPDATE SET ld_id = EXCLUDED.ld_id, year = EXCLUDED.year, status = \
+                EXCLUDED.status" %(self.id,f'{paperwork[i]}-12-31',self.paperwork[i])
+                cur.execute(sql)
+
+    # def __del__(self):
+    #     print('dest obj has been delated',self)
 
 def active_destinations_count():
     # Function returns the number of active learning destinations in the system to display on dashboard

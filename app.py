@@ -7,16 +7,13 @@ import connect
 import re
 from datetime import datetime, time, timedelta, date
 from dateutil.relativedelta import *
-from flask_mail import Mail, Message
-import smtplib
 import os
 from werkzeug.utils import secure_filename
-import pandas as pd
 import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, login_session, classes, filter_info
+import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info
 from functools import wraps
 
 
@@ -580,7 +577,7 @@ def volunteer():
         sql = "SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)
     results = cur.fetchall()
-    volun_list = filter_info.get_display_list(results, classes.volunteer)
+    volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria=filter_criteria)
 
 

@@ -40,6 +40,7 @@ def get_mem_df(excelpath):
     df_mem.update(df_mem.iloc[:,14:20].fillna(0)) 
     df_mem.iloc[:,14:20] = df_mem.iloc[:,14:20].astype(float)
     df_mem.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
+    df_mem.dropna(axis='columns',how='all',inplace=True)
     df_mem.fillna('', inplace=True)
     df_mem.rename(columns={'#':'Memberid'},inplace = True)
     df_up = pd.read_excel(excelpath,1,header=[5])
@@ -57,10 +58,6 @@ def get_mem_df(excelpath):
             df_school.loc[2,3], 
             df_school.loc[3,3],
             df_school.loc[4,3]]], index=df_coor.index)
-    # df_coor.loc[:,'School'] = df_school.loc[0,3]
-    # df_coor.loc[:,'Email'] = df_school.loc[2,3]
-    # df_coor.loc[:,'Phone'] = df_school.loc[3,3]
-    # df_coor.loc[:,'year'] = df_school.loc[4,3]
     
     return [df_mem,df_coor]
 
@@ -115,7 +112,7 @@ def get_volun_df(excelpath):
     df_hours = pd.read_excel(excelpath,1,header=[4])
     df_joined = pd.concat([df_volun,df_hours.iloc[:,5:]],axis=1)
     df_joined.dropna(axis = 0, how='all', inplace=True)
-    df_joined.update(df_joined.iloc[:,[4,14,15]].fillna('No'))
+    df_joined.update(df_joined.iloc[:,[4,14,15,17]].fillna('No'))
     df_joined.update(df_joined.iloc[:,38:].fillna('0')) 
     return df_joined
     

@@ -27,7 +27,6 @@ def total_destinations_count():
     return result[0]
 
 class DestinationForm(FlaskForm):
-
     status = StringField(label='Status *', validators=[
         validators.DataRequired(), validators.regexp('^\w+$', message='Letters only')])
 
@@ -70,11 +69,11 @@ class DestinationForm(FlaskForm):
 
     adult_cost = StringField(label='Adult Cost ')
 
-    agrt_signed = StringField(label='Agreement Signed *', validators=[
+    agrt_signed = DateField(label='Agreement Signed *', validators=[
         validators.DataRequired(),
     ])
 
-    rov_signed = StringField(label='ROV Signed *', validators=[
+    rov_signed = DateField(label='ROV Signed *', validators=[
         validators.DataRequired()])
 
     poster_sent = SelectField(label='Poster Sent *', validators=[
@@ -90,7 +89,6 @@ class DestinationForm(FlaskForm):
     ], choices=['','Yes', 'No'])
 
     note = TextField (label='Note ')
-
     photo = SelectField(label='Photo Provide ', choices=['Yes', 'No'])
 
     submit = SubmitField(label=('Save'))

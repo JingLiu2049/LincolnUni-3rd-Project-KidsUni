@@ -1,6 +1,6 @@
 {%extends "layout.html"%}
 {%block title%}
-Student info update
+Schools info update
 {%endblock%}
 
 {%block head%}
@@ -42,6 +42,7 @@ Student info update
                     <button type="button" role="button" class="btn btn-outline-secondary" onclick="window.location.href = '/school';">Return</button>
                     <button type="reset" role="button" class="btn btn-outline-secondary">Reset</button>
                     {{ form.submit(class="btn btn-outline-primary", onclick="alert('Update Successful')")}}
+                    <label style="color: green;">{{message}}</label>
                 </div>
             </form>
         </div>

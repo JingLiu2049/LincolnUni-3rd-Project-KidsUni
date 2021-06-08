@@ -104,6 +104,13 @@
   });
 } );
 
+$(document).ready(function() {
+  $(".clickable").click(function() {
+    window.document.location = $(this).data("href");
+  });
+});
+
+
 
 </script>
 
@@ -125,7 +132,7 @@
              {% for i in schools%}
              <tr>
              {% for j in i%}
-             <td>{{j}}</td> 
+             <td class="clickable" data-href="/edit_school?id={{i[0]}}" style="cursor: pointer;">{{j}}</td> 
              {%endfor%}
           </tr>
              {% endfor %}

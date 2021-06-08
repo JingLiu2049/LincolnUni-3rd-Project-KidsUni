@@ -133,6 +133,31 @@ def upsertMember(form, member_id, school_id):
                     previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, total, gown_size,
                     hat_size, status))
 
+def upsertSchool(form, school_id):
+    school_name = form.school_name.data
+    who = form.who.data
+    council = form.council.data
+    category = form.category.data    
+    status = form.status.data    
+    training = form.training.data    
+    launch = form.launch.data    
+    presentation = form.presentation.data    
+    portal = form.portal.data    
+    passports = form.passports.data    
+    agreement = form.agreement.data    
+    consent = form.consent.data    
+    notes = form.notes.data
+    cur = db.getCursor()
+    if school_id != "new":
+        cur.execute("Update schools set school_name=%s, who=%s, council=%s, category=%s,\
+        status=%s, training=%s, launch=%s, presentation=%s, portal=%s, passports=%s, \
+        agreement=%s, consent=%s, notes=%s where school_id=%s;", 
+            (school_name, who, council, category, status, training, launch, presentation, 
+            portal, passports, agreement, consent, notes, school_id))
+    else:
+        cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
+        (school_name, who, council, category, status, training, launch, presentation, 
+        portal, passports, agreement, consent, notes))
 
 def upsertDestinations(form, ld_id):
     status = form.status.data
@@ -396,7 +421,7 @@ def member_upload():
 
 @app.route("/school", methods=['POST', 'GET'])
 @login_required
-def school():
+def sch():
     cur = db.getCursor()
     sch_criteria_dict = filter_info.sch_criteria_dict
     filter_criteria = filter_info.get_criteria(sch_criteria_dict)
@@ -439,40 +464,49 @@ def school_upload():
 @login_required
 def edit_school():
     cur = getCursor()
+    form = schools_info.SchoolForm()
     school_id = request.args.get('id')
-    form = schools_info.SchoolInfoForm()
-    cur.execute(f"select * from schools_info where school_id={school_id};")
-    member = cur.fetchone()
+    cur.execute(f"select * from schools where school_id={school_id};")
+    sch = cur.fetchone()
     if request.method == 'POST':
         if form.validate_on_submit():
-            upsertMember(form, school_id)
-            return render_template('edit_member.html', name=session['name'], form=form)
+                upsertSchool(form, school_id)
+                message = 'Update successful'
+                return render_template('edit_school.html', name=session['name'], form=form, message=message)        
         else:
             print(form.errors)
-            return render_template('edit_member.html', name=session['name'], form=form)
+            return render_template('edit_school.html', name=session['name'], form=form)    
     else:
-        form.first_name.data = member.first_name
-        form.last_name.data = member.last_name
-        form.school_name.data = member.school_name
-        form.username.data = member.username
-        form.gender.data = member.gender
-        form.ethnicity.data = member.ethnicity
-        form.age.data = member.member_age
-        form.password.data = member.password
-        form.continuing_new.data = member.continuing_new
-        form.previous_hours.data = member.previous
-        form.passport_number.data = member.passport_number
-        form.passport_date.data = member.passport_date_issued
-        form.ethnicity_info.data = member.ethnicity_info
-        form.teaching_research.data = member.teaching_research
-        form.publication_promos.data = member.publication_promos
-        form.social_media.data = member.social_media
-        form.gown_size.data = member.gown_size
-        form.hat_size.data = member.hat_size
-        form.total_hours.data = member.total
-        form.status.data = member.status
-        return render_template("edit_member.html", date=date, name=session['name'], form=form)
+        form.school_name.data = sch.school_name        
+        form.who.data = sch.who        
+        form.council.data = sch.council        
+        form.category.data = sch.category        
+        form.status.data = sch.status        
+        form.training.data = sch.training        
+        form.launch.data = sch.launch        
+        form.presentation.data = sch.presentation        
+        form.portal.data = sch.portal        
+        form.passports.data = sch.passports        
+        form.agreement.data = sch.agreement        
+        form.consent.data = sch.consent        
+        form.notes.data = sch.notes
+        return render_template('edit_school.html', date=date, form=form, name=session['name'])
+        
 
+@app.route("/add_school", methods=['POST', 'GET'])
+@login_required
+def add_school():
+    form = schools_info.SchoolForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            upsertSchool(form, 'new')
+            message = 'You have successfully added a new school.'
+            return render_template('add_school.html', name=session['name'], form=form, message=message)
+        else:
+            print(form.errors)
+            return render_template('add_school.html', name=session['name'], form=form)
+    else:
+        return render_template("add_school.html", name=session['name'], form=form)
 
 @app.route("/destination", methods=['POST', 'GET'])
 @login_required

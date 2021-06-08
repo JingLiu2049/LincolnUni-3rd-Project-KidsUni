@@ -515,7 +515,7 @@ def add_school():
             print(form.errors)
             return render_template('add_school.html', name=session['name'], form=form)
     else:
-        return render_template("add_school.html", name=session['name'], form=form)
+        return render_template('add_school.html', name=session['name'], form=form)
 
 
 @app.route("/destination", methods=['POST', 'GET'])

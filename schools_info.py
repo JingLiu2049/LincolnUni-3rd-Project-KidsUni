@@ -1,6 +1,7 @@
 import db
 import pandas as pd
 import getid
+from flask_wtf import FlaskForm
 
 class school:
     def __init__(self,l=[]):
@@ -104,3 +105,8 @@ def total_schools_count():
     result = db.getOne(query, [])
     return result[0]
 
+# class SchoolForm(FlaskForm):    
+#       school_name = StringField(label='School Name ')
+#       who = StringField(label='Who ', validators=[        validators.DataRequired(),            ])
+#       council = StringField(label='Council', validators=[        validators.DataRequired(),            ])
+#       category = StringField(label='Category', validators=[        validators.DataRequired(),    ])

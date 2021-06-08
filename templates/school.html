@@ -3,7 +3,6 @@
 
 {%block head%}
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
-<link rel="stylesheet" href="<td>{{url_for('static', filename = 'table.css')}}">
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
 <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
@@ -14,29 +13,38 @@
 
 <script>
      $(document).ready(function () {
-          $("#input").on("keyup", function () {
-               var value = $(this).val().toLowerCase();
-               $("#mytable tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-               });
-          });
+     $("#myInput").on("keyup", function () {
+         var value = $(this).val().toLowerCase();
+         $("#mytable tr").filter(function () {
+             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+         });
      });
-
-</script>
+ });
+ 
+   $(document).ready(function () {
+     $('.table').on('click','.clickable',function () {
+       window.document.location = $(this).data("href");
+       });
+     });
+ </script>
 
 <main class="m-4">
      <div class="container-fluid">
           <h1>School Information List</h1>
           <form action="/school_upload" method="POST" enctype="multipart/form-data">
-               <input type="file" id="file" name="file">
-               <button type="submit" id="btn">submit</button>
-               <!--<div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile01">Upload</label>
-            <input type="file" class="form-control" id="inputGroupFile01" required>
-            <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
-            
-          </div>-->
+               <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                    <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+                    <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+               </div>
           </form>
+          </br>
+
+          <div class="input-group mb-3">
+              <label class="input-group-text" for="inputGroupFile01">Search</label>
+              <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
+          </div>
+       
           <form action="/school" method="POST" class="criteria clearfix">
                {% for i in schoolcriteria.keys()%}
                <div class="each">
@@ -54,7 +62,7 @@
                <button><a href="/school">Reset</a></button>
           </form>
           <table class="table">
-               <thead>
+               <thead style="background-color:#269548">
                     <tr>
                          <td>School ID</td>
                          <td>School Name</td>
@@ -79,43 +87,39 @@
                          <td>Confirmed Number</td>
                     </tr>
                </thead>
+               <tbody id="mytable">
                {%for i in schoollist%}
-               <tr>
-                    <td>{{i.id}}</td>
-                    <td>{{i.name }}</td>
-                    <td>{{i.who }}</td>
-                    <td>{{i.council }}</td>
-                    <td>{{i.category }}</td>
-                    <td>{{i.status }}</td>
-                    <td>{{i.coor_name }}</td>
-                    <td>{{i.coor_email }}</td>
-                    <td>{{i.training }}</td>
-                    <td>{{i.launch }}</td>
-                    <td>{{i.presentation }}</td>
-                    <td>{{i.portal }}</td>
-                    <td>{{i.passports }}</td>
-                    <td>{{i.agreement }}</td>
-                    <td>{{i.consent }}</td>
-                    <td>{{i.notes }}</td>
-                    <td>{{i.year}}</td>
-                    <td>{{i.returning }}</td>
-                    <td>{{i.max}}</td>
-                    <td>{{i.request}}</td>
-                    <td>{{i.confirm }}</td>
+                    <tr>
+                         <td>{{i.id}}</td>
+                         <td>{{i.name }}</td>
+                         <td>{{i.who }}</td>
+                         <td>{{i.council }}</td>
+                         <td>{{i.category }}</td>
+                         <td>{{i.status }}</td>
+                         <td>{{i.coor_name }}</td>
+                         <td>{{i.coor_email }}</td>
+                         <td>{{i.training }}</td>
+                         <td>{{i.launch }}</td>
+                         <td>{{i.presentation }}</td>
+                         <td>{{i.portal }}</td>
+                         <td>{{i.passports }}</td>
+                         <td>{{i.agreement }}</td>
+                         <td>{{i.consent }}</td>
+                         <td>{{i.notes }}</td>
+                         <td>{{i.year}}</td>
+                         <td>{{i.returning }}</td>
+                         <td>{{i.max}}</td>
+                         <td>{{i.request}}</td>
+                         <td>{{i.confirm }}</td>
 
-               </tr>
-               {%endfor%}
+                    </tr>
+                    {%endfor%}
+               </tbody>
           </table>
 </main>
 
 
-<!-- <div name="input group">
-          <form method="POST" action="/school_filter">
-            <div class="input-group mb-3">
-              <label class="input-group-text" for="inputGroupFile01">Search</label>
-              <input type="text" class="form-control" id="input" onkeyup="myFunction()">
-            </div>
-        </div>
+<!-- 
         
      <div class="row">
           <div class="col-md-2">

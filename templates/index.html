@@ -35,7 +35,6 @@ $(document).ready(function() {
             <div class="col">
                 <div class="card" data-href="/member" style="background-color: #A01D2F;">
                     <div class="card-body" >
-                        <span class="badge badge-success float-right">year</span>
                         <h3 class="card-title">Students</h3>
                         <p class="mb-0">Students active: {{ total_members }}</p>
                         <p class="mb-0">Students hours(current total): {{ total_members_hours }} hours</p>
@@ -45,7 +44,6 @@ $(document).ready(function() {
             <div class="col">
                 <div class="card" data-href="/school" style="background-color: #269548;">
                     <div class="card-body">
-                        <span class="badge badge-success float-right">year</span>
                         <h3 class="card-title">Schools</h3>
                         <p class="mb-0">Schools and rūnanga active: {{ active_schools }}</p> 
                         <p class="mb-0">Schools and rūnanga in progress: {{ in_progress_schools }}</p>
@@ -58,7 +56,6 @@ $(document).ready(function() {
             <div class="col">
                 <div class="card" data-href="/destination" style="background-color:#1871AB;">
                     <div class="card-body">
-                        <span class="badge badge-success float-right">year</span>
                         <h3 class="card-title">Learning Destinations</h3>
                         <p class="mb-0">Learning Destinations active: {{ active_destinations }}</p>
                         <p class="mb-0">Learning Destinations pending: {{ pending_destinations }}</p>
@@ -70,14 +67,12 @@ $(document).ready(function() {
             <div class="col">
                 <div class="card" data-href="/volunteer" style="background-color: #F3D712;">
                     <div class="card-body">
-                        <span class="badge badge-success float-right">year</span>
                         <h3 class="card-title ">Volunteers</h3>
                         <p class="mb-0">Volunteers active:</p>
                         <p class="mb-0">Volunteers hours:</p>
                     </div>
                 </div>
             </div>
-    
         </div>
     </main>
 {%endblock%}

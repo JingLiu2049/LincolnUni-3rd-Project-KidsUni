@@ -8,6 +8,7 @@ from wtforms.fields.html5 import EmailField, DateField, TelField
 from flask_wtf.file import FileAllowed, FileField
 from wtforms.fields.html5 import TimeField
 from datetime import datetime, timedelta
+from wtforms.fields.simple import TextAreaField, TextField
 
 
 class school:
@@ -109,7 +110,10 @@ def total_schools_count():
 
 
 class SchoolInfoForm(FlaskForm):
-    school_name = StringField(label='School Name ')
+    school_name = StringField(label='School Name ', validators=[
+        validators.DataRequired(),
+        
+    ])
 
     who = StringField(label='Who ', validators=[
         validators.DataRequired(),
@@ -125,7 +129,7 @@ class SchoolInfoForm(FlaskForm):
         validators.DataRequired(),
     ])
 
-    status = IntegerField(label='Stutus', validators=[
+    status = StringField(label='Stutus', validators=[
         validators.DataRequired()]
     )
 
@@ -133,29 +137,31 @@ class SchoolInfoForm(FlaskForm):
         validators.DataRequired(),
     ])
 
-    launch = SelectField(label='Launch', validators=[
+    launch = DateField(label='Launch', validators=[
         validators.DataRequired(),
     ])
 
-    presentation = StringField(label='Presentation', validators=[
+    presentation = DateField(label='Presentation', validators=[
         validators.DataRequired(),
     ])
 
-    portal = StringField(label='Portal', validators=[
+    portal = SelectField(label='portal', validators=[
         validators.DataRequired(), 
-    ])
+    ], choices=['Y', 'N'])
 
     passports = SelectField(label='Passports', validators=[
-        validators.DataRequired(),] , choices=['True', 'False'])
+        validators.DataRequired(),] , choices=['Y', 'N'])
 
-    agreement = StringField(label='Agreement', validators=[
-        validators.DataRequired()]
-    )
-
-    consent = DateField(label='Consent', validators=[
+    agreement = SelectField(label='Agreement', validators=[
         validators.DataRequired(),
-    ])
+     ], choices=['Y', 'N'])
+        
 
-    notes = SelectField(label='Notes', validators=[
-        validators.DataRequired(),
-    ], choices=['True', 'False'])
+    consent = SelectField(label='Consent', validators=[
+        validators.DataRequired(), 
+    ], choices=['Y', 'N'])
+
+
+    notes = TextField (label='Note ')
+
+    submit = SubmitField(label=('Save'))

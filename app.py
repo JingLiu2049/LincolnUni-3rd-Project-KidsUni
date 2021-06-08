@@ -496,7 +496,7 @@ def edit_school():
 @app.route("/add_school", methods=['POST', 'GET'])
 @login_required
 def add_school():
-    form = schools_info.SchoolForm()
+    form = schools_info.SchoolInfoForm()
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, 'new')

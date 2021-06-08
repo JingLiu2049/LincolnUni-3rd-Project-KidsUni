@@ -121,7 +121,7 @@ class volunteer:
 
         sql = f"INSERT INTO volunteerform VALUES({self.id},'{self.experience}',\
             '{self.leader}','{self.medical}','{self.police}','{self.emer_name}','{self.emer_relation}','{self.emer_phone}','{self.uni}',\
-            '{self.graduate}','{self.course}','{self.current_year}','{self.comp_date}','{self.refer1_name}','{self.refer1_phone}',\
+            '{self.graduate}',$${self.course}$$,'{self.current_year}','{self.comp_date}','{self.refer1_name}','{self.refer1_phone}',\
             '{self.refer1_emal}','{self.refer1_relation}','{self.refer2_name}','{self.refer2_phone}','{self.refer2_emal}',\
             '{self.refer2_relation}',$${self.overview}$$,$${self.session}$$,$${self.role}$$,$${self.consent}$$) ON CONFLICT (volun_id) DO UPDATE SET \
             volun_id = EXCLUDED.volun_id,  experience = \

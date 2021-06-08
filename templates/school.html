@@ -22,6 +22,92 @@
           });
      });
 
+
+     $(document).ready(function () {
+          var $rows = $('tbody#mytable tr')
+
+          var $filters = $('.table-filter').change(function () {
+               var filterArr = $filters.filter(function () {
+                    return this.value
+               }).map(function () {
+                    var $el = $(this);
+                    var value = $el.is('select') ? $el.find(':selected').text() : $el.val()
+                    return {
+                         col: $el.data('col'),
+                         value: value.toLowerCase()
+                    }
+               }).get();
+               if (!filterArr.length) {
+                    $rows.show()
+               } else {
+                    $rows.hide().filter(function () {
+                         var $row = $(this)
+                         return filterArr.every(function (filterObj, i) {
+                              var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();
+                              return cellText.includes(filterObj.value);
+                         })
+                    }).show()
+               }
+          })
+     });
+
+     $(document).ready(function () {
+
+          var table = $('#table').DataTable({
+               initComplete: function () {
+                    count = 0;
+                    this.api().columns().every(function () {
+                         var title = this.header();
+                         //replace spaces with dashes
+                         title = $(title).html().replace(/[\W]/g, '-');
+                         var column = this;
+                         var select = $('<select id="' + title + '" class="select2" ></select>')
+                              .appendTo($(column.footer()).empty())
+                              .on('change', function () {
+                                   //Get the "text" property from each selected data 
+                                   //regex escape the value and store in array
+                                   var data = $.map($(this).select2('data'), function (value, key) {
+                                        return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
+                                   });
+
+                                   //if no data selected use ""
+                                   if (data.length === 0) {
+                                        data = [""];
+                                   }
+
+                                   //join array into string with regex or (|)
+                                   var val = data.join('|');
+
+                                   //search for the option(s) selected
+                                   column
+                                        .search(val ? val : '', true, false)
+                                        .draw();
+                              });
+
+                         column.data().unique().sort().each(function (d, j) {
+                              select.append('<option value="' + d + '">' + d + '</option>');
+                         });
+
+                         //use column title as selector and placeholder
+                         $('#' + title).select2({
+                              multiple: true,
+                              closeOnSelect: false,
+                              placeholder: "Select a " + title
+                         });
+
+                         //initially clear select otherwise first option is selected
+                         $('.select2').val(null).trigger('change');
+                    });
+               }
+          });
+     });
+
+     $(document).ready(function () {
+          $(".clickable").click(function () {
+               window.document.location = $(this).data("href");
+          });
+     });
+
 </script>
 
 <main class="m-4">
@@ -36,6 +122,19 @@
             <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
             
           </div>-->
+
+          </form>
+          </br>
+          <table class="table">
+               {% for i in schools%}
+               <tr>
+                    {% for j in i%}
+                    <td class="clickable" data-href="/edit_school?id={{i[0]}}" style="cursor: pointer;">{{j}}</td>
+                    {%endfor%}
+               </tr>
+               {% endfor %}
+          </table>
+
           </form>
           <form action="/school" method="POST" class="criteria clearfix">
                {% for i in schoolcriteria.keys()%}
@@ -107,6 +206,7 @@
                {%endfor%}
           </table>
 </main>
+
 
 
 <!-- <div name="input group">

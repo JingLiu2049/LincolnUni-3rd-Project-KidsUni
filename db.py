@@ -48,3 +48,11 @@ def getOne(query, parameters):
     cur = getCursor()
     cur.execute(query, parameters)
     return cur.fetchone()
+
+
+def getCursor_NT():
+    global dbconn
+    conn = psycopg2.connect(connect.conn_string)
+    conn.autocommit = True
+    dbconn = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
+    return dbconn

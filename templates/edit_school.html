@@ -15,7 +15,7 @@ Student info update
                 {{ form.csrf_token }}
                     <div class="row">
                         <div class="col">
-                            {{ render_field(form.school_id) }}
+                
                             {{ render_field(form.school_name) }}
                             {{ render_field(form.who) }}
                             {{ render_field(form.council) }}
@@ -39,7 +39,7 @@ Student info update
                         </div>
                     </div>                                     
                 <div class="d-grid gap-2 d-md-block">
-                    <button type="button" role="button" class="btn btn-outline-primary" onclick="window.location.href = '/schools';">Return</button>
+                    <button type="button" role="button" class="btn btn-outline-primary" onclick="window.location.href = '/school';">Return</button>
                     <button type="reset" role="button" class="btn btn-outline-primary">Reset</button>
                     {{ form.submit(class="btn btn-outline-primary", onclick="alert('Update Successful')")}}
                 </div>

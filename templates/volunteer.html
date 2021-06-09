@@ -52,8 +52,8 @@
         </thead>
         <tbody id="tbody">
             {%for i in voluns%}
-            <tr>
-                <td><a href="javascript:;" class="volunid">{{i.id}}</a></td>
+            <tr class="clickable" data-href="/edit_volunteer?id={{i.id}}" style="cursor: pointer;">
+                <td>{{i.id}}</td>
                 <td>{{i.status}}</td>
                 <td>{{i.induction}}</td>
                 <td>{{i.interview}}</td>
@@ -70,50 +70,11 @@
             {%endfor%}
         </tbody>
     </table>
-    <div class="form_wrap hidden" id="showDetail">
-        {% for i in voluns%}
-        <div id="{{i.id}}" class="details hidden">
-            <form action="javascrip:;">
-                <label for="id{{i.id}}">ID</label> <input type="text" value="{{i.id}}" readonly id="id{{i.id}}">
-                <label for="status{{i.id}}">Status</label> <input type="text" value="{{i.status}}" id="status{{i.id}}">
-                <button type="submit" class="btn btn-outline-secondary">Submit</button>
-                <button type="reset" class="btn btn-outline-secondary">Reset</button>
-            </form>
-        </div>
-        {% endfor %}
-        <button type="button" class="btn btn-outline-secondary" id="close">Close</button>
-    </div>
+    
 </main>
 
 <script>
-    var closeBtn = document.getElementById("close");
-    var showDetail = document.getElementById("showDetail");
-    var id_list = document.getElementsByClassName("volunid")
-    var details = document.getElementsByClassName("details")
-    function closeForm() {
-        for (var i = 0; i < details.length; i++) {
-            if (!hasClass(i, 'hidden')) {
-                addClass(i, 'hidden');
-            }
-        }
-        addClass(showDetail, 'hidden');
-    }
-    document.body.addEventListener("click", function (e) {
-        test(id_list)
-        if (!hasClass(showDetail, 'hidden')) {
-            test(e.target)
-        }
-    }, false)
-    for (var i = 0; i < id_list.length; i++) {
-        id_list[i].addEventListener("click", function () {
-
-            let select = document.getElementById(this.innerHTML)
-            removeClass(showDetail, 'hidden')
-            removeClass(select, 'hidden')
-        }, false)
-    }
-
-    closeBtn.addEventListener("click", closeForm, false)
+    
 
     $(document).ready(function () {
         $("#myInput").on("keyup", function () {
@@ -121,6 +82,12 @@
             $("#tbody tr").filter(function () {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
             });
+        });
+    });
+
+    $(document).ready(function () {
+        $(this).on('click', '.clickable', function () {
+            window.document.location = $(this).data("href");
         });
     });
 

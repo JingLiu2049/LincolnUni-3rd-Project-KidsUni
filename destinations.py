@@ -10,7 +10,7 @@ import email_validator
 
 class destination:
     def __init__(self,l=[]):
-        self.id = int(l[0])
+        self.id = int(l[0]) if l[0] != '' else 1
         self.status = l[1]
         self.name = l[2]
         self.contact = l[3]

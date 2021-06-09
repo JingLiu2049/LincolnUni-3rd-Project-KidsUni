@@ -1,4 +1,13 @@
+from wtforms.fields.simple import TextAreaField, TextField
 import db
+import pandas as pd
+import getid
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, SelectField ,TextAreaField
+from wtforms import validators
+from wtforms.fields.html5 import DateField, EmailField, TelField, URLField
+import email_validator
+
 class volunteer:
     def __init__(self,l=[]):
         self.id = int(l[0])
@@ -6,7 +15,7 @@ class volunteer:
         self.induction = l[2]
         self.interview = l[3]
         self.photo = l[4]
-        self.studentid = int(l[5])
+        self.studentid = int(l[5]) if l[5]!='' else 1
         self.firstname = l[6]
         self.surname = l[7]
         self.prefer = l[8]
@@ -71,3 +80,87 @@ class volunteer:
                 DO UPDATE SET volun_id = EXCLUDED.volun_id, event_id = EXCLUDED.event_id, hours = \
                 EXCLUDED.hours" %(self.id,int(events[i]),float(self.hours[i]))
                 cur.execute(sql)
+        
+
+class volunForm(FlaskForm):
+    status = SelectField(label='Status *', 
+    validators=[validators.DataRequired()],
+    choices=['Active', 'Deactive', 'Pending','NA'])
+
+    
+    induction= StringField(label='Induction invite', validators=[
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+    ])
+
+    interview = StringField(label='Interview status', validators=[
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+
+    ])
+
+    photo = SelectField(label='Photo provided ', validators=[
+    ], choices=['Yes', 'No'])
+
+
+    studentid = StringField(label='Student ID *', validators=[
+        validators.DataRequired(),
+        validators.regexp('^[a-zA-Z0-9 ]*$', message='Numbers and Letters only')
+        ])
+    firstname = StringField(label='First name *', validators=[
+        validators.DataRequired(),
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+    ])
+
+    surname = StringField(label='Surname *', validators=[
+        validators.DataRequired(),
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+    ])
+    prefername = StringField(label='Preferred name', validators=[
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+    ])
+
+    gender = SelectField(label='Gender', 
+        choices=['Male', 'Female', 'Other'])
+
+    dob = DateField(label='Date of birth')
+    
+    email = EmailField(label='Email *', 
+        validators=[
+        validators.DataRequired(), validators.Email()])
+
+    phone_number = TelField(label='Phone Number *', validators=[
+        validators.DataRequired(),        
+    ])
+    address = StringField(label='Current Address *', validators=[
+        validators.DataRequired()])
+    
+
+
+    submit = SubmitField(label=('Save'))
+
+
+
+def upsertVoluns(form, volun_id):
+
+    status = form.status.data 
+    induction = form.induction.data 
+    interview = form.interview.data 
+    photo = form.photo.data 
+    studentid = form.studentid.data 
+    firstname = form.firstname.data 
+    surname = form.surname.data  
+    prefer = form.prefername.data  
+    gender = form.gender.data 
+    dob = form.dob.data  
+    email = form.email.data 
+    phone = form.phone_number.data  
+    address = form.address.data 
+    cur = db.getCursor()
+    if volun_id != "new":
+        cur.execute("UPDATE volunteers SET  first_name = %s, surname = %s, preferred_name = %s, status = %s, student_id = %s, \
+            gender = %s, dob = %s, email= %s,mobile= %s,address= %s, induction = %s, interview = %s, photo = %s \
+            WHERE volun_id = %s",(firstname, surname, prefer,status,studentid,gender,dob,
+            email,phone,address, induction, interview, photo, volun_id,))
+    else:
+        cur.execute("INSERT INTO volunteers VALUES(nextval('volunteerid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
+            %s,%s,%s,%s,%s,%s,%s);", (status, induction , interview, photo, studentid, firstname, surname, prefer,gender,dob,
+            email,phone,address,))

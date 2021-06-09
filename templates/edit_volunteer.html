@@ -1,0 +1,49 @@
+{%extends "layout.html"%}
+{%block title%}
+Volunteer update
+{%endblock%}
+<!-- {% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %} -->
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+{%endblock%}
+{%block content%}
+
+<main class="m-5">
+    <div class="container bg-light p-4 pb-5 rounded">
+        <h1>Edit Volunteer</h1>
+        {% from "_form_helper.html" import render_field %}
+        <form method="POST" enctype="multipart/form-data" class="form_wrapper container">
+            {{ form.csrf_token }}
+            <div class="row">
+                <div class="col">
+                    {{ render_field(form.status) }}
+                    {{ render_field(form.induction) }}
+                    {{ render_field(form.interview) }}
+                    {{ render_field(form.photo) }}
+                    {{ render_field(form.studentid) }}
+                    {{ render_field(form.firstname) }}
+                    {{render_field(form.surname)}}
+                </div>
+                <div class="col">
+                    {{ render_field(form.prefername) }}
+                    {{ render_field(form.gender) }}
+                    {{ render_field(form.dob) }}
+                    {{ render_field(form.email) }}
+                    {{ render_field(form.phone_number) }}
+                    {{ render_field(form.address) }}
+                </div>
+                </br>
+                    <div class="d-grid gap-2 d-md-block">
+                        <button type="button" role="button" class="btn btn-outline-secondary float-end"
+                            onclick="window.location.href = '/destination'">Return</button>
+                        <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
+                        {{ form.submit(class="btn btn-outline-secondary float-end")}}
+                        <label style="color: red;">{{message}}</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+{%endblock%}

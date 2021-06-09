@@ -13,7 +13,7 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info
+import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info, classes
 from functools import wraps
 
 
@@ -82,7 +82,7 @@ def admin_access(f):
     return decorated_function
 
 
-# Disable browser downloads from cache
+# Disable browser downloading from cache
 def no_cache(fun):
     @wraps(fun)
     def inner(*args, **kwargs):
@@ -626,6 +626,10 @@ def volunteer():
     volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria=filter_criteria)
 
+@app.route("/edit_volunteer",methods = ['POST','GET'])
+@login_required
+def edit_volunteer():
+    pass
 
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
 @login_required

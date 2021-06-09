@@ -40,6 +40,7 @@ class members:
     def insert_db(self,events=[]):
         # cur = db.getCursor()
         print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
+        cur = db.getCursor()
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
             password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
              passport_number=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \

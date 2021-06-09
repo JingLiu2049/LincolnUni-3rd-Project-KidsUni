@@ -22,17 +22,17 @@ sch_criteria_dict= {
         }
 
 destination_criteria_dict= {
- 'Status':['status','destinations'],
- 'Region':['region','destinations'],
- 'Member Cost':['member_cost','destinations'],
- 'Adult Cost':['adult_cost','destinations']
+    'Status':['status','destinations'],
+    'Region':['region','destinations'],
+    'Member Cost':['member_cost','destinations'],
+    'Adult Cost':['adult_cost','destinations']
 }
 
 def get_criteria(d={}):
     cur = db.getCursor()
     criteria = {}
     for i in d.keys():
-        cur.execute(f"SELECT DISTINCT {d[i][0]} FROM {d[i][1]} WHERE {d[i][0]} IS NOT null;")
+        cur.execute(f"SELECT DISTINCT {d[i][0]} FROM {d[i][1]} WHERE {d[i][0]} IS NOT null order by {d[i][0]} ASC;")
         results = cur.fetchall()
         value_list = []
         if len(results) > 1:

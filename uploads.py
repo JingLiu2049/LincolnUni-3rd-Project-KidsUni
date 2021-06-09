@@ -2,6 +2,9 @@ import db
 import pandas as pd
 import getid
 import classes
+import member_info
+import volun_info
+import destinations
 
 def add_index(fun):
     def inner(*args,**kwargs):
@@ -16,7 +19,7 @@ def add_index(fun):
 
     
 def mem_obj(l=[]):
-    mem_obj = classes.members(l)
+    mem_obj = member_info.members(l)
     school_id = getid.get_schoolid(mem_obj.school)
     mem_obj.school = school_id
     cur = db.getCursor()
@@ -76,7 +79,7 @@ def insert_coor(l=[]):
 
 
 def dest_obj(l=[]):
-    dest_obj = classes.destination(l)
+    dest_obj = destinations.destination(l)
     sql = "SELECT * FROM destinations WHERE ld_id = %s" % int(dest_obj.id)
     cur = db.getCursor()
     cur.execute(sql)
@@ -97,7 +100,7 @@ def get_dest_df(excelpath):
 
 
 def volun_obj(l=[]):
-    volun_obj = classes.volunteer(l)
+    volun_obj = volun_info.volunteer(l)
     sql = "SELECT * FROM volunteers WHERE volun_id = %s" % int(volun_obj.id)
     cur = db.getCursor()
     cur.execute(sql)

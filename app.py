@@ -7,22 +7,13 @@ import connect
 import re
 from datetime import datetime, time, timedelta, date
 from dateutil.relativedelta import *
-from flask_mail import Mail, Message
-import smtplib
 import os
 from werkzeug.utils import secure_filename
-import pandas as pd
 import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads
-import schools_info
-import member_info
-import destinations
-import login_session
-import classes
-import filter_info
+import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info
 from functools import wraps
 
 
@@ -522,20 +513,17 @@ def add_school():
 @login_required
 def destination():
     cur = db.getCursor()
-    cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
-    dests = cur.fetchall()
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
     if request.method == 'POST':
-        sql = filter_info.get_sql(
-            'destinations', 'ld_id', destination_criteria_dict)
-
+        sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
+        cur.execute(sql)
+        dest_list=cur.fetchall()
+        return render_template('destination.html', name=session['name'], dest_list=dest_list, criteria=filter_criteria)
     else:
-        sql = "SELECT * FROM destinations ORDER BY ld_id;"
-    cur.execute(sql)
-    results = cur.fetchall()
-    dest_list = filter_info.get_display_list(results, classes.destination)
-    return render_template('destination.html', dests=dests, name=session['name'], dest_list=dest_list, criteria=filter_criteria)
+        cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
+        dests = cur.fetchall()
+        return render_template('destination.html', dests=dests, name=session['name'], criteria=filter_criteria)
 
 
 @app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')
@@ -632,7 +620,7 @@ def volunteer():
         sql = "SELECT * FROM volun_detail ORDER BY volun_id;"
     cur.execute(sql)
     results = cur.fetchall()
-    volun_list = filter_info.get_display_list(results, classes.volunteer)
+    volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria=filter_criteria)
 
 

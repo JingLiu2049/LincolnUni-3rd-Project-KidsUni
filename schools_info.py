@@ -12,8 +12,7 @@ from wtforms.fields.simple import TextAreaField, TextField
 
 
 class school:
-    def __init__(self, l=[]):
-
+    def __init__(self,l=[]):
         self.id = int(l[0])
         self.name = l[1]
         self.who = l[2]
@@ -69,10 +68,10 @@ def school_obj(l=[]):
 
 
 def get_df(excelpath):
-    df_all = pd.read_excel(excelpath, 0)
-    df_all.update(df_all.iloc[:, 17:].fillna(0))
-    df_head = df_all.iloc[:, :17]
-    df_number = df_all.iloc[:, 17:].astype(int)
+    df_all = pd.read_excel(excelpath,0)
+    df_all.update(df_all.iloc[:,17:].fillna(0))
+    df_head = df_all.iloc[:,:17]
+    df_number = df_all.iloc[:,17:].astype(int)
     df_school = pd.concat([df_head, df_number], axis=1)
     df_school.fillna('', inplace=True)
     df_school.loc[:, 'index'] = df_school.index
@@ -110,56 +109,30 @@ def total_schools_count():
 
 
 class SchoolInfoForm(FlaskForm):
-    school_name = StringField(label='School Name ', validators=[
-        validators.DataRequired(),
-        
-    ])
+    school_name = StringField(label='School Name')
 
-    who = StringField(label='Who ', validators=[
-        validators.DataRequired(),
-        
-    ])
+    who = StringField(label='Who')
 
-    council = StringField(label='Council', validators=[
-        validators.DataRequired(),
-        
-    ])
+    council = StringField(label='Council')
 
-    category = StringField(label='Category', validators=[
-        validators.DataRequired(),
-    ])
+    category = StringField(label='Category')
 
-    status = StringField(label='Stutus', validators=[
-        validators.DataRequired()]
-    )
+    status = StringField(label='Status')
 
-    training = StringField(label='Training', validators=[
-        validators.DataRequired(),
-    ])
+    training = StringField(label='Training')
 
-    launch = DateField(label='Launch', validators=[
-        validators.DataRequired(),
-    ])
+    launch = DateField(label='Launch')
 
-    presentation = DateField(label='Presentation', validators=[
-        validators.DataRequired(),
-    ])
+    presentation = DateField(label='Presentation')
 
-    portal = SelectField(label='portal', validators=[
-        validators.DataRequired(), 
-    ], choices=['Y', 'N'])
+    portal = SelectField(label='portal', choices=['Y', 'N'])
 
-    passports = SelectField(label='Passports', validators=[
-        validators.DataRequired(),] , choices=['Y', 'N'])
+    passports = SelectField(label='Passports', choices=['Y', 'N'])
 
-    agreement = SelectField(label='Agreement', validators=[
-        validators.DataRequired(),
-     ], choices=['Y', 'N'])
+    agreement = SelectField(label='Agreement', choices=['Y', 'N'])
         
 
-    consent = SelectField(label='Consent', validators=[
-        validators.DataRequired(), 
-    ], choices=['Y', 'N'])
+    consent = SelectField(label='Consent', choices=['Y', 'N'])
 
 
     notes = TextField (label='Note ')

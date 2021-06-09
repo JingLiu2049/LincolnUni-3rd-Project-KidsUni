@@ -8,6 +8,69 @@ from wtforms import StringField, SubmitField, SelectField, IntegerField
 from wtforms import validators
 from wtforms.fields.html5 import DateField
 
+class members:
+    def __init__(self,l=[]):
+        self.id = int(l[0])
+        self.first = l[1]
+        self.last = l[2]
+        self.gender = l[3]
+        self.age = l[4]
+        self.ethnicity = l[5]
+        self.mtype = l[6]
+
+        self.status = l[7]
+        self.passport = l[8] 
+        
+        self.date = l[9] if l[9] !='' else None
+        self.eth_info = l[10]
+        self.research = l[11]
+        self.promos = l[12]
+        self.social = l[13]
+
+        self.username = l[14]
+        self.password = l[15]
+        self.school = l[16]
+
+        self.previous = float(l[17])
+        self.term1 = float(l[18])
+        self.term2 = float(l[19])
+        self.term3 = float(l[20])
+        self.term4 = float(l[21])
+        self.total = float(l[22])
+        self.gown = l[23]
+        self.hat = l[24]
+        self.year = int(l[25][0:4])
+
+        self.attend = l[26:-1] if len(l)>27 else False
+
+
+    def insert_db(self,events=[]):
+        # cur = db.getCursor()
+        print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
+        cur = db.getCursor()
+        cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
+            password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
+             passport_number=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \
+             publication_promos=%s, social_media=%s, gown_size=%s, hat_size=%s, status = %s WHERE \
+             member_id = %s;",(self.school, self.first, self.last, self.username, self.password, self.gender, 
+            self.age,self.ethnicity,self.mtype, self.passport, self.date, self.eth_info, self.research, self.promos, 
+            self.social,  self.gown, self.hat, self.status,self.id,))
+        
+        sql = f"INSERT INTO membershours VALUES({self.id}, '{self.year}', {self.term1}, {self.term2}, \
+             {self.term3}, {self.term4}) ON CONFLICT (member_id, year) DO UPDATE SET member_id = EXCLUDED.member_id, \
+            year = EXCLUDED.year, term1 = EXCLUDED.term1, term2 = EXCLUDED.term2, term3 = EXCLUDED. term3, term4 = EXCLUDED.term4;"
+        cur.execute(sql)
+
+        cur.execute("UPDATE membershours SET total = (SELECT SUM(term4) FROM membershours WHERE member_id = %s) \
+            WHERE member_id = %s AND year = %s;",(self.id,self.id,self.year))
+
+        
+        if events:
+            for i in range(0,len(events)):
+                sql = "INSERT INTO attendance VALUES(%s, %s,'%s') ON CONFLICT (member_id, event_id) \
+                DO UPDATE SET member_id = EXCLUDED.member_id, event_id = EXCLUDED.event_id,status = \
+                EXCLUDED.status" %(self.id,events[i],self.attend[i].lower())
+                cur.execute(sql)
 
 
 def active_members_count():

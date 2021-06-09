@@ -22,12 +22,19 @@
     });
 
     $(document).ready(function () {
-        $('.table').on('click', '.clickable', function () {
+        $(this).on('click', '.clickable', function () {
             window.document.location = $(this).data("href");
         });
     });
 
     $('select').selectpicker();
+
+    $('td', 'table').each(function(i) {
+    $(this).text(i+1);
+});
+
+
+
 </script>
 
 <main class="m-4">
@@ -39,10 +46,10 @@
             <button type="submit" id="btn" class="btn btn-outline-secondary">submit</button>
         </div>
     </form>
-    <form action="destination" method="POST">
+    <form action="destination" method="POST" id="dest_filter_group">
         <div class="row">
             {% for i in criteria.keys()%}
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label for="{{i}}">{{i}}</label>
                 <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
                     {%for j in criteria[i]%}
@@ -51,27 +58,25 @@
                 </select>
             </div>
             {%endfor%}
-        </div>
-    </br>
-        <div class="row">
-            <div class="col-md-5">
-                <input class="form-control" id="myInput" type="text" placeholder="Search..">
-            </div>
             <div class="col">
+            </br>
                 <button class="btn btn-outline-secondary float-end" type="submit" role="button">Submit</button>
-                <button class="btn btn-outline-secondary float-end" type="reset" role="button">Reset</button>
+                <a class="btn btn-outline-secondary float-end clickable" data-href="/destination">Reset</a>
             </div>
         </div>
     </form>
     </br>
-
-    <div class="col">
-        <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_destination">Add
-            New</a>
+    <div class="row">
+        <div class="col-md-5">
+            <input class="form-control" id="myInput" type="text" placeholder="Search..">
+        </div>
+        <div class="col">
+            <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_destination">Add
+                New</a>
+        </div>
     </div>
-
     <div class="table-responsive">
-        <table class="table table-striped table-hover" id="dests">
+        <table class="table table-striped table-hover paginated" id="dests">
             <thead style="background-color:#1871AB;">
                 <tr>
                     <th scope="col">Status</th>
@@ -117,7 +122,6 @@
                     <td>{{result[12]}}</td>
                 </tr>
                 {%endfor%}
-
             </tbody>
         </table>
 </main>

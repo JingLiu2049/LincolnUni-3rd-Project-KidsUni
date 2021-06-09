@@ -112,11 +112,11 @@ class DestinationForm(FlaskForm):
 
     adult_cost = StringField(label='Adult Cost ')
 
-    agrt_signed = DateField(label='Agreement Signed *', validators=[
+    agrt_signed = StringField(label='Agreement Signed *', validators=[
         validators.DataRequired(),
     ])
 
-    rov_signed = DateField(label='ROV Signed *', validators=[
+    rov_signed = StringField(label='ROV Signed *', validators=[
         validators.DataRequired()])
 
     poster_sent = SelectField(label='Poster Sent *', validators=[

@@ -12,8 +12,7 @@ from wtforms.fields.simple import TextAreaField, TextField
 
 
 class school:
-    def __init__(self, l=[]):
-
+    def __init__(self,l=[]):
         self.id = int(l[0])
         self.name = l[1]
         self.who = l[2]
@@ -69,10 +68,10 @@ def school_obj(l=[]):
 
 
 def get_df(excelpath):
-    df_all = pd.read_excel(excelpath, 0)
-    df_all.update(df_all.iloc[:, 17:].fillna(0))
-    df_head = df_all.iloc[:, :17]
-    df_number = df_all.iloc[:, 17:].astype(int)
+    df_all = pd.read_excel(excelpath,0)
+    df_all.update(df_all.iloc[:,17:].fillna(0))
+    df_head = df_all.iloc[:,:17]
+    df_number = df_all.iloc[:,17:].astype(int)
     df_school = pd.concat([df_head, df_number], axis=1)
     df_school.fillna('', inplace=True)
     df_school.loc[:, 'index'] = df_school.index

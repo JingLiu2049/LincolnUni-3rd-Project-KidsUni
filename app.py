@@ -288,7 +288,7 @@ def index():
 @app.route("/member", methods=['GET'])
 @login_required
 def member():
-    cur = getCursor()
+    cur = db.getCursor_NT()
     cur.execute("select member_id, school_name, concat(first_name,' ' ,last_name) as name, username, gender, member_age, ethnicity, continuing_new, passport_number,\
                    passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,\
                    hat_size from member_info where status !='Deactive' ;")  # display the member database table in students' page
@@ -301,7 +301,7 @@ def member():
 @app.route("/edit_member", methods=['POST', 'GET'])
 @login_required
 def edit_member():
-    cur = getCursor()
+    cur = db.getCursor_NT()
     member_id = request.args.get('id')
     form = member_info.MemberInfoForm()  # import flask form member_info.py
     cur.execute(f"select * from member_info where member_id={member_id};")
@@ -363,7 +363,7 @@ def add_member():
     if request.method == 'POST':
         if form.validate_on_submit():
             schoolArray = []
-            cur = getCursor()
+            cur = db.getCursor_NT()
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
@@ -463,7 +463,7 @@ def school_upload():
 @app.route("/edit_school", methods=['POST', 'GET'])
 @login_required
 def edit_school():
-    cur = getCursor()
+    cur = db.getCursor_NT()
     form = schools_info.SchoolInfoForm()
     school_id = request.args.get('id')
     cur.execute(f"select * from schools where school_id={school_id};")
@@ -531,7 +531,7 @@ def destination():
 @login_required
 def edit_destination():
     version = request.endpoint
-    cur = getCursor()
+    cur = db.getCursor_NT()
     form = destinations.DestinationForm()
     ld_id = request.args.get('id')
     if request.method == 'POST':
@@ -585,12 +585,9 @@ def destination_upload():
     # get data from client-side and insert into database
     if form:
         paperwork = request.form.getlist('des_col')[20:-1]
-        print(paperwork, 'ppppppppppppppppppppppppp')
         for i in range(0, len(form)-1):
             dest_info = request.form.getlist(f'des{i}')
-            print(dest_info[:-1])
             dest_obj = uploads.dest_obj(dest_info[:-1])
-            print(dest_obj.paperwork)
             dest_obj.insert_db(paperwork)
         return redirect(url_for('destination'))
     #  read uploaded excel file and send info to client-side
@@ -623,10 +620,53 @@ def volunteer():
     volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria=filter_criteria)
 
-@app.route("/edit_volunteer",methods = ['POST','GET'])
+@app.route("/edit_volunteer",methods = ['POST','GET'], endpoint = 'edit')
+@app.route("/add_volunteer", methods = ['POST','GET'], endpoint = 'add')
 @login_required
 def edit_volunteer():
-    pass
+    cur = db.getCursor_NT()
+    form = volun_info.volunForm()
+    volun_id = request.args.get('id')
+    version = request.endpoint
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if version == 'edit':
+                volun_info.upsertVoluns(form, volun_id)
+                message = 'Update successful'
+                return render_template('edit_volunteer.html', name=session['name'], form=form, message=message)
+            else:
+                volun_info.upsertVoluns(form, 'new')
+                message = 'You have successfully added a new Volunteer.'
+                return render_template('add_volunteer.html', name=session['name'], form=form, message=message)
+        else:
+            print(form.errors)
+            if version == 'edit':
+                return render_template('edit_volunteer.html', name=session['name'], form=form)
+            else:
+                return render_template('add_volunteer.html', name=session['name'], form=form)
+    else:
+        if version == 'edit':
+            cur.execute(f"select * from volunteers where volun_id={volun_id};")
+            volun = cur.fetchone()
+            print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+            form.status.data = volun.status
+            form.induction.data  = volun.induction
+            form.interview.data  = volun.interview
+            form.photo.data  = volun.photo
+            form.studentid.data  = volun.student_id
+            form.firstname.data  = volun.first_name
+            form.surname.data  = volun.surname
+            form.prefername.data  = volun.preferred_name
+            form.gender.data  = volun.gender
+            form.dob.data  = volun.dob
+            form.email.data  = volun.email
+            form.phone_number.data  = volun.mobile
+            form.address.data = volun.address
+            
+            return render_template('edit_volunteer.html', form=form, name=session['name'])
+        else:
+            return render_template('add_volunteer.html', name=session['name'], form=form)
+    
 
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
 @login_required
@@ -638,7 +678,7 @@ def volunteer_upload():
         for i in range(0, len(form)-1):
             volun_info = request.form.getlist(f'index{i}')
             volun_obj = uploads.volun_obj(volun_info)
-            volun_obj.insert_db(events)
+            # volun_obj.insert_db(events)
         return redirect(url_for('volunteer'))
     else:
         excelpath = upload_path('file')
@@ -646,9 +686,10 @@ def volunteer_upload():
             df_volun = uploads.get_volun_df(excelpath)
             volun_cols = df_volun.columns
             volun_data = df_volun.values
-
         except Exception as e:
-            return render_template('error.html')
+            return print(e)
+            # return render_template('error.html')
+            
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data, name=session['name'])
 
 
@@ -660,7 +701,6 @@ def event():
         LEFT JOIN event_attend ON events.event_id = event_attend.event_id LEFT JOIN \
         volun_attend ON events.event_id = volun_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
-    print(events, 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
     return render_template('event.html', events=events, name=session['name'])
 
 
@@ -736,8 +776,6 @@ def edit_user():
         current_status = request.form.get('current_status')
         updated_status = request.form.get('updated_status')
 
-        print(current_status)
-        print(updated_status)
         if updated_status == None:
             user = request.form.to_dict()
             sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \

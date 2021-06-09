@@ -1,5 +1,6 @@
 import psycopg2
 import connect
+from psycopg2.extras import RealDictCursor, NamedTupleCursor
 
 
 dbuser = "postgres"
@@ -50,3 +51,10 @@ def getOne(query, parameters):
     return cur.fetchone()
 
 
+def getCursor_NT():
+    conn = psycopg2.connect(conn_string)
+    conn.autocommit = True
+    dbconn = conn.cursor(cursor_factory=psycopg2.extras.NamedTupleCursor)
+    return dbconn
+
+cur = getCursor_NT()

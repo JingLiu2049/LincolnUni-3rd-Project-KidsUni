@@ -10,11 +10,11 @@ from wtforms.fields.html5 import DateField
 
 class members:
     def __init__(self,l=[]):
-        self.id = int(l[0])
+        self.id = int(l[0]) if l[0] != '' else 1
         self.first = l[1]
         self.last = l[2]
         self.gender = l[3]
-        self.age = l[4]
+        self.age = int(l[4]) if l[4] != '' else None 
         self.ethnicity = l[5]
         self.mtype = l[6]
 
@@ -45,7 +45,6 @@ class members:
 
 
     def insert_db(self,events=[]):
-        # cur = db.getCursor()
         print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
         cur = db.getCursor()
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \

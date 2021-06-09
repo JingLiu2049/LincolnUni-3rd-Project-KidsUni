@@ -33,19 +33,16 @@ def mem_obj(l=[]):
 
 # use pandas to read excel file and get data
 def get_mem_df(excelpath):
-    df_school = pd.read_excel(excelpath,0,header=None,nrows=5)
+    df_school = pd.read_excel(excelpath,0,header=None,nrows=5,dtype = str)
     df_school.dropna(axis='columns',how='all',inplace=True)
     df_school.fillna('', inplace=True)
     name = df_school.loc[0,3]
-    df_mem = pd.read_excel(excelpath,0,header=[5])
-    df_mem.update(df_mem.iloc[:,0].fillna(1)) 
-    df_mem.iloc[:,0] = df_mem.iloc[:,0].astype(int)
+    df_mem = pd.read_excel(excelpath,0,header=[5],dtype = {"#":str,"Age":str})
     df_mem.update(df_mem.iloc[:,14:20].fillna(0)) 
     df_mem.iloc[:,14:20] = df_mem.iloc[:,14:20].astype(float)
     df_mem.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
     df_mem.dropna(axis='columns',how='all',inplace=True)
     df_mem.fillna('', inplace=True)
-    df_mem.rename(columns={'#':'Memberid'},inplace = True)
     df_up = pd.read_excel(excelpath,1,header=[5])
     if len(df_mem) != len(df_up):
         for i in range(0,len(df_mem)-len(df_up)):
@@ -54,7 +51,7 @@ def get_mem_df(excelpath):
     df_mem.insert(15,'PASSWORD',df_up['PASSWORD'].values)
     df_mem.insert(16,'School name',name)
     df_mem.loc[:,'index'] = df_mem.index
-    df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1)
+    df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1,dtype=str)
     df_coor.dropna(axis='columns',how='all',inplace=True)
     df_coor[['School', 'Email','Phone','year']] = pd.DataFrame([[
             df_school.loc[0,3], 
@@ -90,7 +87,7 @@ def dest_obj(l=[]):
 
 @add_index
 def get_dest_df(excelpath):
-    df_des = pd.read_excel(excelpath,0,header=[1])
+    df_des = pd.read_excel(excelpath,0,header=[1],dtype = str)
     df_des.dropna(axis = 0, how='all', inplace=True)
     df_des.update(df_des.iloc[:,15:19].fillna('No'))
     df_des.update(df_des.iloc[:,20:].fillna('No'))
@@ -111,9 +108,17 @@ def volun_obj(l=[]):
 
 @add_index
 def get_volun_df(excelpath):
-    df_volun = pd.read_excel(excelpath,0)
+
+    typedict = {"ID":str,
+                "Student ID":str,
+                "Mobile number":str, 
+                "Emergency contact person - Mobile number":str,
+                "Referee one - Phone number":str,
+                "Referee two - Phone number":str}
+    df_volun = pd.read_excel(excelpath,0, dtype=str)
     df_hours = pd.read_excel(excelpath,1,header=[4])
     df_joined = pd.concat([df_volun,df_hours.iloc[:,5:]],axis=1)
+
     df_joined.dropna(axis = 0, how='all', inplace=True)
     df_joined.update(df_joined.iloc[:,[4,14,15,17]].fillna('No'))
     df_joined.update(df_joined.iloc[:,38:].fillna('0')) 

@@ -3,7 +3,6 @@
 
 {%block head%}
 <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
-<link rel="stylesheet" href="<td>{{url_for('static', filename = 'table.css')}}">
 <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
 <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
@@ -14,128 +13,38 @@
 
 <script>
      $(document).ready(function () {
-          $("#input").on("keyup", function () {
-               var value = $(this).val().toLowerCase();
-               $("#mytable tr").filter(function () {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-               });
-          });
+     $("#myInput").on("keyup", function () {
+         var value = $(this).val().toLowerCase();
+         $("#mytable tr").filter(function () {
+             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+         });
      });
-
-
-     $(document).ready(function () {
-          var $rows = $('tbody#mytable tr')
-
-          var $filters = $('.table-filter').change(function () {
-               var filterArr = $filters.filter(function () {
-                    return this.value
-               }).map(function () {
-                    var $el = $(this);
-                    var value = $el.is('select') ? $el.find(':selected').text() : $el.val()
-                    return {
-                         col: $el.data('col'),
-                         value: value.toLowerCase()
-                    }
-               }).get();
-               if (!filterArr.length) {
-                    $rows.show()
-               } else {
-                    $rows.hide().filter(function () {
-                         var $row = $(this)
-                         return filterArr.every(function (filterObj, i) {
-                              var cellText = $row.find('td').eq(filterObj.col).text().toLowerCase();
-                              return cellText.includes(filterObj.value);
-                         })
-                    }).show()
-               }
-          })
+ });
+ 
+   $(document).ready(function () {
+     $('.table').on('click','.clickable',function () {
+       window.document.location = $(this).data("href");
+       });
      });
-
-     $(document).ready(function () {
-
-          var table = $('#table').DataTable({
-               initComplete: function () {
-                    count = 0;
-                    this.api().columns().every(function () {
-                         var title = this.header();
-                         //replace spaces with dashes
-                         title = $(title).html().replace(/[\W]/g, '-');
-                         var column = this;
-                         var select = $('<select id="' + title + '" class="select2" ></select>')
-                              .appendTo($(column.footer()).empty())
-                              .on('change', function () {
-                                   //Get the "text" property from each selected data 
-                                   //regex escape the value and store in array
-                                   var data = $.map($(this).select2('data'), function (value, key) {
-                                        return value.text ? '^' + $.fn.dataTable.util.escapeRegex(value.text) + '$' : null;
-                                   });
-
-                                   //if no data selected use ""
-                                   if (data.length === 0) {
-                                        data = [""];
-                                   }
-
-                                   //join array into string with regex or (|)
-                                   var val = data.join('|');
-
-                                   //search for the option(s) selected
-                                   column
-                                        .search(val ? val : '', true, false)
-                                        .draw();
-                              });
-
-                         column.data().unique().sort().each(function (d, j) {
-                              select.append('<option value="' + d + '">' + d + '</option>');
-                         });
-
-                         //use column title as selector and placeholder
-                         $('#' + title).select2({
-                              multiple: true,
-                              closeOnSelect: false,
-                              placeholder: "Select a " + title
-                         });
-
-                         //initially clear select otherwise first option is selected
-                         $('.select2').val(null).trigger('change');
-                    });
-               }
-          });
-     });
-
-     $(document).ready(function () {
-          $(".clickable").click(function () {
-               window.document.location = $(this).data("href");
-          });
-     });
-
-</script>
+ </script>
 
 <main class="m-4">
      <div class="container-fluid">
           <h1>School Information List</h1>
           <form action="/school_upload" method="POST" enctype="multipart/form-data">
-               <input type="file" id="file" name="file">
-               <button type="submit" id="btn">submit</button>
-               <!--<div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile01">Upload</label>
-            <input type="file" class="form-control" id="inputGroupFile01" required>
-            <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
-            
-          </div>-->
-
+               <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                    <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+                    <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+               </div>
           </form>
+
+          <div class="input-group mb-3">
+              <label class="input-group-text" for="inputGroupFile01">Search</label>
+              <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
+          </div>
           </br>
-          <table class="table">
-               {% for i in schools%}
-               <tr>
-                    {% for j in i%}
-                    <td class="clickable" data-href="/edit_school?id={{i[0]}}" style="cursor: pointer;">{{j}}</td>
-                    {%endfor%}
-               </tr>
-               {% endfor %}
-          </table>
 
-          </form>
           <form action="/school" method="POST" class="criteria clearfix">
                {% for i in schoolcriteria.keys()%}
                <div class="each">
@@ -152,8 +61,14 @@
                <button type="submit">Submit</button>
                <button><a href="/school">Reset</a></button>
           </form>
+          <div class="col">
+               <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_school">Add
+                   New School</a>
+           </div>
+          </br>
+
           <table class="table">
-               <thead>
+               <thead style="background-color:#269548">
                     <tr>
                          <td>School ID</td>
                          <td>School Name</td>
@@ -178,146 +93,35 @@
                          <td>Confirmed Number</td>
                     </tr>
                </thead>
+               <tbody id="mytable">
                {%for i in schoollist%}
-               <tr>
-                    <td>{{i.id}}</td>
-                    <td>{{i.name }}</td>
-                    <td>{{i.who }}</td>
-                    <td>{{i.council }}</td>
-                    <td>{{i.category }}</td>
-                    <td>{{i.status }}</td>
-                    <td>{{i.coor_name }}</td>
-                    <td>{{i.coor_email }}</td>
-                    <td>{{i.training }}</td>
-                    <td>{{i.launch }}</td>
-                    <td>{{i.presentation }}</td>
-                    <td>{{i.portal }}</td>
-                    <td>{{i.passports }}</td>
-                    <td>{{i.agreement }}</td>
-                    <td>{{i.consent }}</td>
-                    <td>{{i.notes }}</td>
-                    <td>{{i.year}}</td>
-                    <td>{{i.returning }}</td>
-                    <td>{{i.max}}</td>
-                    <td>{{i.request}}</td>
-                    <td>{{i.confirm }}</td>
+                    <tr class="clickable" data-href="/edit_school?id={{i.id}}" style="cursor: pointer;">
+                         <td>{{i.id}}</td>
+                         <td>{{i.name }}</td>
+                         <td>{{i.who }}</td>
+                         <td>{{i.council }}</td>
+                         <td>{{i.category }}</td>
+                         <td>{{i.status }}</td>
+                         <td>{{i.coor_name }}</td>
+                         <td>{{i.coor_email }}</td>
+                         <td>{{i.training }}</td>
+                         <td>{{i.launch }}</td>
+                         <td>{{i.presentation }}</td>
+                         <td>{{i.portal }}</td>
+                         <td>{{i.passports }}</td>
+                         <td>{{i.agreement }}</td>
+                         <td>{{i.consent }}</td>
+                         <td>{{i.notes }}</td>
+                         <td>{{i.year}}</td>
+                         <td>{{i.returning }}</td>
+                         <td>{{i.max}}</td>
+                         <td>{{i.request}}</td>
+                         <td>{{i.confirm }}</td>
 
-               </tr>
-               {%endfor%}
+                    </tr>
+                    {%endfor%}
+               </tbody>
           </table>
 </main>
-
-
-
-<!-- <div name="input group">
-          <form method="POST" action="/school_filter">
-            <div class="input-group mb-3">
-              <label class="input-group-text" for="inputGroupFile01">Search</label>
-              <input type="text" class="form-control" id="input" onkeyup="myFunction()">
-            </div>
-        </div>
-        
-     <div class="row">
-          <div class="col-md-2">
-               <h4>School</h4>
-               <select id="schoolfilter" name="schoolfilter" class="table-filter form-control" data-col="1" multiple>
-                    <option value="">Select one</option>
-                    {% for col in school_filter %}
-                    {% for result in col%}
-                    <option value="<td>{{result}}"><td>{{result}}</option>
-                    {% endfor %}
-                    {% endfor %}
-               </select>
-
-     </div>
-          <div class="col-md-3">
-               <h4>Who</h4>
-               <select id="genderfilter" name="genderfilter" class="table-filter form-control">
-                    <option value="">Select one</option>
-                    <option value="Jack">Jack</option>
-                    
-               </select>
-          </div>
-          <div class="col-md-3">
-               <h4>Council</h4>
-               <input type="text" class="form-control" id="table-filter form-control">
-          </div>
-          <div class="col-md-3">
-               <h4>Category</h4>
-               <input type="text" class="form-control" id="table-filter form-control">
-          </div>
-          <div class="col-md-2">
-               <h4>Status</h4>
-               <select id="servicefilter" name="servicefilter" class="table-filter form-control" data-col="3">
-                    <option value="">Select one</option>
-                    <option value="1">Active</option>
-                    <option value="2">Inactive</option>
-               </select>
-
-          <div class="col-md-2">
-          </br>
-          <button type="reset" id="reset" role="button" class="btn btn-outline-secondary"
-            onclick="window.location.reload()">Reset</button>
-          <button type="submit" id="reset" role="button" class="btn btn-outline-secondary">Submit</button>
-        </div>
-     </div>
-     <div class="table-responsive">
-          <table class="table table-striped table-hover table-sm" style="font-size: xx-small">
-          <thead>
-               <tr>
-                    <th scope="col">School ID</th>
-                    <th scope="col">School Name</th>
-                    <th scope="col">Who</th>
-                    <th scope="col">Council</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Returning Number</th>
-                    <th scope="col">Max Number 2021</th>
-                    <th scope="col">Confirmed Number</th>
-                    <th scope="col">Coordinator ID</th>
-                    <th scope="col">Training</th>
-                    <th scope="col">Launch</th>
-                    <th scope="col">Passport Presentation</th>
-                    <th scope="col">Portal</th>
-                    <th scope="col">Passports</th>
-                    <th scope="col">Agreement</th>
-                    <th scope="col">Consent</th>
-                    <th scope="col">Notes</th>
-               </tr>
-          </thead>
-          <tfoot>
-               <tr>
-                    <th>School ID</th>
-                    <th>School Name</th>
-                    <th>Who</th>
-                    <th>Council</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Returning Number</th>
-                    <th>Max Number 2021</th>
-                    <th>Confirmed Number</th>
-                    <th>Coordinator ID</th>
-                    <th>Training</th>
-                    <th>Launch</th>
-                    <th>Passport Presentation</th>
-                    <th>Portal</th>
-                    <th>Passports</th>
-                    <th>Agreement</th>
-                    <th>Consent</th>
-                    <th>Notes</th>    
-               </tr>
-          </tfoot>
-          <tbody id="mytable">
-               {% for item in result %}
-               <tr>
-                    {% for col in item %}
-                    <td><td>{{col}}</td>
-                    {% endfor %}
-               </tr>
-               {%endfor%}
-          </tbody>
-     </table>
-     </div>
-</div>
-</main> -->
 {%endblock%}
+

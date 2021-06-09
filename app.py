@@ -13,19 +13,20 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info
+import uploads, schools_info, member_info, destinations, filter_info,volun_info
 from functools import wraps
+import bcrypt
+from flask_bcrypt import Bcrypt
+from forms import UpdatePassword
 
 
 # Global Functions
 ################################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'project2_kids_uni'
-app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
-
-
 # app.secret_key = 'project2_kids_uni'
 dbconn = None
+bcrypt = Bcrypt(app)
 
 
 def getCursor():
@@ -198,12 +199,12 @@ def upsertDestinations(form, ld_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
-
-    # Check if "username" and "password" POST requests exist (user submitted form)
+        # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
+        # password = bcrypt.check_password_hash(User.password, request.form['password'])
         next_url = request.form.get('next')
         remember_me = request.form.get('remember_me')
         print(username)
@@ -237,6 +238,7 @@ def login():
                     session['user_id'] = account[0]
                     session['username'] = account[1]
                     session['name'] = user[1]
+                    session['password'] = account[2]
                     session['user_access'] = account[3]
                     session['remember_me'] = True if request.form.get(
                         'remember_me') else False
@@ -261,6 +263,7 @@ def logout():
     session.pop('user_id', None)
     session.pop('username', None)
     session.pop('name', None)
+    session['password'] = None
     session.pop('user_access', None)
     session.pop('remember_me', None)
 
@@ -769,12 +772,14 @@ def add_user():
         email = request.form.get('email')
         phone_number = request.form.get('phone_number')
         user_access = request.form.get('user_access')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         status = "active"
         cur = db.getCursor()
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
-        cur.execute(
-            "INSERT INTO authorisation(user_id, username, user_access) VALUES (%s,%s,%s);", (user_id, email, user_access))
+        cur.execute("INSERT INTO authorisation(user_id, username, password, user_access) VALUES (%s,%s,%s,%s);", (int(user_id), email, hashed_password, user_access))
         flash(f'User successfully added!', 'success')
         return redirect(url_for('users'))
     return render_template('add_user.html', name=session['name'])
@@ -845,6 +850,29 @@ def download_school_sheet():
     file = spreadsheet.gen_sch_sheet(sheet)
     return send_file(file, mimetype='xlsx', as_attachment=True)
 
+@app.route("/account", methods=['GET'])
+@login_required
+def account():
+    cur = db.getCursor()
+    user_id = session['user_id']
+    print(user_id)
+    cur.execute('SELECT * FROM admin WHERE user_id=%s;', (int(user_id),))
+    account = cur.fetchone()
+    return render_template('account.html', account=account)
+
+@app.route("/account/update_password", methods=['GET', 'POST'])
+@login_required
+def update_password():
+    form = UpdatePassword()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        cur = db.getCursor()
+        user_id = session['user_id']
+        print(user_id)
+        cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(user_id),))
+        flash('Your password was successfully updated!', 'success')
+        return redirect(url_for('account'))
+    return render_template('update_password.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)

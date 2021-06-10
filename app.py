@@ -478,6 +478,7 @@ def edit_school():
     school_id = request.args.get('id')
     cur.execute(f"select * from schools where school_id={school_id};")
     sch = cur.fetchone()
+    print(sch)
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, school_id)
@@ -500,7 +501,8 @@ def edit_school():
         form.agreement.data = sch.agreement
         form.consent.data = sch.consent
         form.notes.data = sch.notes
-        return render_template('edit_school.html', date=date, form=form, name=session['name'])
+        print(form.school_name.data)
+        return render_template('edit_school.html', form=form, name=session['name'])
 
 
 @app.route("/add_school", methods=['POST', 'GET'])

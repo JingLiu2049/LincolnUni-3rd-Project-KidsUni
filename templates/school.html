@@ -25,7 +25,7 @@
  });
  
    $(document).ready(function () {
-     $('.table').on('click','.clickable',function () {
+     $(this).on('click','.clickable',function () {
        window.document.location = $(this).data("href");
        });
      });
@@ -69,8 +69,8 @@
                     {%endfor%}
                     <div class="col">
                     </br>
-                        <button class="btn btn-outline-secondary float-end" type="submit" role="button">Search</button>
-                        <a class="btn btn-outline-secondary float-end clickable" data-href="/destination">Reset</a>
+                        <button class="btn btn-outline-secondary float-end" type="submit" role="button">Submit</button>
+                        <a class="btn btn-outline-secondary float-end clickable" data-href="/school">Reset</a>
                     </div>
                 </div>
           </form>

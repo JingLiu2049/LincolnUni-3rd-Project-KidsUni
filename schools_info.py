@@ -115,13 +115,13 @@ class SchoolInfoForm(FlaskForm):
 
     category = StringField(label='Category')
 
-    status = StringField(label='Status')
+    status = SelectField(label='Status', choices=['Active', 'Deative'])
 
     training = StringField(label='Training')
 
-    launch = DateField(label='Launch')
+    launch = StringField(label='Launch')
 
-    presentation = DateField(label='Presentation')
+    presentation = StringField(label='Presentation')
 
     portal = SelectField(label='portal', choices=['Y', 'N'])
 

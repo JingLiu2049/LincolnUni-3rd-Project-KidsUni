@@ -7,6 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, IntegerField
 from wtforms import validators
 from wtforms.fields.html5 import DateField
+from wtforms.fields.simple import TextField
 
 class members:
     def __init__(self,l=[]):
@@ -87,8 +88,8 @@ def total_members_hours():
     
 
 class MemberInfoForm(FlaskForm):
-    school_name = StringField(label='School Name *', validators=[
-        validators.DataRequired(), validators.regexp('^[a-zA-Z ]*$', message='The school should in the list')])
+    school_name = StringField(label='School Name ', validators=[
+        validators.regexp('^[a-zA-Z ]*$', message='The school should in the list')])
 
     first_name = StringField(label='First Name *', validators=[
         validators.DataRequired(),
@@ -98,59 +99,33 @@ class MemberInfoForm(FlaskForm):
         validators.DataRequired(),
         validators.regexp('^\w+$', message='Letters only')
     ])
-    username = StringField(label='Username *', validators=[
-        validators.DataRequired(),
+    username = StringField(label='Username ', validators=[
         validators.regexp('^\w+$', message='Letters only')
     ])
-    password = StringField(label='Password *', validators=[
-        validators.DataRequired(),
+    password = StringField(label='Password ', validators=[
         validators.regexp('^\w+$', message='Letters only')
     ])
-    gender = SelectField(label='Gender * ', validators=[
-        validators.DataRequired(),], choices=['Boy', 'Girl', 'Other'])
+    gender = SelectField(label='Gender ', choices=['Boy', 'Girl', 'Other'])
  
-    age = IntegerField(label='Age *', validators=[
-        validators.DataRequired()]
-    )
+    age = IntegerField(label='Age ')
 
-    ethnicity = StringField(label='Ethnicity *', validators=[
-        validators.DataRequired(),        
-    ])
+    ethnicity = StringField(label='Ethnicity ')
 
-    continuing_new = SelectField(label='Continuing or New', validators=[
-        validators.DataRequired(),], choices=['Continuing', 'New'])
+    continuing_new = SelectField(label='Continuing or New ', choices=['Continuing', 'New'])
 
-    passport_number = StringField(label='Passport Number*', validators=[
-        validators.DataRequired(),
-    ])
+    passport_number = StringField(label='Passport Number ')
 
-    previous_hours = StringField(label='Previous Hours *', validators=[
-        validators.DataRequired()]
-    )
+    previous_hours = StringField(label='Previous Hours ')
 
-    passport_date = DateField(label='Passport Date Issued *', validators=[
-        validators.DataRequired(),
-    ])
+    passport_date = StringField(label='Passport Date Issued ')
 
-    ethnicity_info = SelectField(label='Ethnicity Info *', validators=[
-        validators.DataRequired(),
-    ], choices=['True', 'False'])
+    ethnicity_info = SelectField(label='Ethnicity Info ', choices=['True', 'False'])
 
-    teaching_research = SelectField(label='Teaching Research *', validators=[
-        validators.DataRequired(),
-    ], choices=['True', 'False'])
+    teaching_research = SelectField(label='Teaching Research ', choices=['True', 'False'])
 
-    publication_promos = SelectField(label='Pubilication Promos *', validators=[
-        validators.DataRequired(),
-    ], choices=['True', 'False'])
+    publication_promos = SelectField(label='Pubilication Promos ', choices=['True', 'False'])
 
-    social_media = SelectField(label='Social Media *', validators=[
-        validators.DataRequired(),
-    ], choices=['True', 'False'])
-
-    total_hours = StringField(label='Total Hours *',validators=[
-        validators.DataRequired(),
-    ])
+    social_media = SelectField(label='Social Media ', choices=['True', 'False'])
     
     gown_size = SelectField(label='Gown Size ', choices=['','S', 'M', 'L'])
 

@@ -22,9 +22,9 @@ class school:
         # self.coor_id = int(l[6])
         self.coor_name = l[6]
         self.coor_email = l[7]
-        self.training = l[8] if l[8] != '' and l[8] != 'NA' else None
-        self.launch = l[9] if l[9] != '' and l[9] != 'NA'else None
-        self.presentation = l[10] if l[10] != '' and l[10] != 'NA'else None
+        self.training = l[8] 
+        self.launch = l[9] 
+        self.presentation = l[10] 
         self.portal = l[11]
         self.passports = l[12]
         self.agreement = l[13]
@@ -68,22 +68,20 @@ def school_obj(l=[]):
 
 
 def get_df(excelpath):
-    df_all = pd.read_excel(excelpath,0)
-    df_all.update(df_all.iloc[:,17:].fillna(0))
-    df_head = df_all.iloc[:,:17]
-    df_number = df_all.iloc[:,17:].astype(int)
-    df_school = pd.concat([df_head, df_number], axis=1)
+    typedict = {
+        'Total(Last Year)' : str,
+        'Returning (Last year)'	: str,
+        'Max Number(Current Year)'	: str,
+        'Requested Number(Current Year)' : str,	
+        'Confirmed Number(Current Year)' : str
+
+    }
+    df_school = pd.read_excel(excelpath,0,dtype=typedict)
+    df_school.update(df_school.iloc[:,17:].fillna(0))
+    df_school.update(df_school.iloc[:,[8,9,10]].fillna('NA'))
     df_school.fillna('', inplace=True)
     df_school.loc[:, 'index'] = df_school.index
 
-    # df_school = pd.read_excel(excelpath,0)
-    # df_school.update(df_school.iloc[:,18:].fillna(0))
-    # df_school.fillna('',inplace=True)
-    # df_school.update(df_school.iloc[:,18:].astype(int))
-
-    # df_school = pd.to_numeric(df_school, downcast='integer')
-
-    df_school.loc[:, 'index'] = df_school.index
     return df_school
 
 

@@ -2,6 +2,14 @@
 {%block title%} Volunteers {%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'volunteer.css')}}">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename = 'layout.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
 {%endblock%}
 
 {%block content%}
@@ -18,20 +26,26 @@
     </form>
     <input class="form-control" id="myInput" type="text" placeholder="Search..">
     <form action="/volunteer" method="POST" class="criteria clearfix">
-        {% for i in criteria.keys()%}
-        <div class="each">
-            <span>
-                {{i}}:
-            </span>
-            {%for j in criteria[i]%}
-            <label for="{{j[0]}}">{{j[0]}}</label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
+        <div class="row">
+            {% for i in criteria.keys()%}
+            <div class="col-sm-2">
+                <label for="{{i}}">{{i}}</label>
+                <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
+                    {%for j in criteria[i]%}
+                    <option>{{j[0]}}</option>
+                    {%endfor%}
+                </select> 
+            </div>
             {%endfor%}
+            <div class="col">
+            </br>
+                <button class="btn btn-outline-secondary float-end" type="submit" role="button">Search</button>
+                <a class="btn btn-outline-secondary float-end clickable" data-href="/volunteer">Reset</a>
+            </div>
         </div>
-        {%endfor%}
-        <button type="submit">Submit</button>
-        <button><a href="/volunteer">Reset</a></button>
     </form>
-    <table class="table">
+    <a href="/add_volunteer">Add a New Volunteer</a>
+    <table class="table-striped table-hover paginated" id="volunteer">
         <thead style="background-color: #F3D712;">
             <tr>
                 <th>ID</th>
@@ -90,5 +104,11 @@
         });
     });
 
+    $(document).ready(function() {
+    $('#volunteer').dataTable( {
+        "lengthChange": false,
+        "searching":false,
+    });
+});
 </script>
 {%endblock%}

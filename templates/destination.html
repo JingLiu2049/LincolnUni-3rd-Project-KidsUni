@@ -7,7 +7,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
 {% endblock head %}
 {% block content %}
 
@@ -16,7 +17,7 @@
         $("#myInput").on("keyup", function () {
             var value = $(this).val().toLowerCase();
             $("#mytable tr").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
             });
         });
     });
@@ -27,12 +28,13 @@
         });
     });
 
-    $('select').selectpicker();
 
-    $('td', 'table').each(function(i) {
-    $(this).text(i+1);
+$(document).ready(function() {
+    $('#dests').dataTable( {
+        "lengthChange": false,
+        "searching":false,
+    });
 });
-
 
 
 </script>
@@ -55,12 +57,12 @@
                     {%for j in criteria[i]%}
                     <option>{{j[0]}}</option>
                     {%endfor%}
-                </select>
+                </select> 
             </div>
             {%endfor%}
             <div class="col">
             </br>
-                <button class="btn btn-outline-secondary float-end" type="submit" role="button">Submit</button>
+                <button class="btn btn-outline-secondary float-end" type="submit" role="button">Search</button>
                 <a class="btn btn-outline-secondary float-end clickable" data-href="/destination">Reset</a>
             </div>
         </div>
@@ -75,13 +77,13 @@
                 New</a>
         </div>
     </div>
-    <div class="table-responsive">
+    <div class="table-borderless">
         <table class="table table-striped table-hover paginated" id="dests">
             <thead style="background-color:#1871AB;">
                 <tr>
                     <th scope="col">Status</th>
                     <th scope="col">Name</th>
-                    <th scope="col" style="width: 20px;">Contact Person</th>
+                    <th scope="col">Contact Person</th>
                     <th scope="col">Position</th>
                     <th scope="col">Address</th>
                     <th scope="col">Region</th>
@@ -105,10 +107,8 @@
                     <td>{{result[11]}}</td>
                     <td>{{result[12]}}</td>
                 </tr>
-                {%endfor%}
-            </tbody>
-            <tbody id="mytable">
-                {%for result in dest_list%}
+                {%else%}
+                    {%for result in dest_list%}
                 <tr class="clickable" data-href="/edit_destination?id={{result[0]}}" style="cursor: pointer;">
                     <td>{{result[1]}}</td>
                     <td>{{result[2]}}</td>
@@ -121,6 +121,7 @@
                     <td>{{result[11]}}</td>
                     <td>{{result[12]}}</td>
                 </tr>
+                {%endfor%}
                 {%endfor%}
             </tbody>
         </table>

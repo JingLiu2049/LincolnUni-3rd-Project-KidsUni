@@ -159,7 +159,7 @@ def upsertSchool(form, school_id):
                     (school_name, who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes, school_id))
         cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
-        cur.execute("Update school_members set confirm=%s where school_id=%s;", (confirm, school_id))
+        cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
     else:
         cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (school_name, who, council, category, status, training, launch, presentation,

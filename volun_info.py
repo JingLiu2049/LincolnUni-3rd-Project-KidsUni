@@ -1,5 +1,5 @@
 from wtforms.fields.simple import TextAreaField, TextField
-import db
+import db, app
 import pandas as pd
 import getid
 from flask_wtf import FlaskForm
@@ -164,3 +164,15 @@ def upsertVoluns(form, volun_id):
         cur.execute("INSERT INTO volunteers VALUES(nextval('volunteerid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
             %s,%s,%s,%s,%s,%s,%s);", (status, induction , interview, photo, studentid, firstname, surname, prefer,gender,dob,
             email,phone,address,))
+
+def active_volunteers_count():
+    # Function returns the number of active volunteers in the system to display on dashboard
+    query = "SELECT COUNT(volun_id) FROM volun_detail WHERE status='Active' or status='active';"
+    result = db.getOne(query, [])
+    return result[0]
+
+def total_volunteers_hours():
+    # Function returns the total number of volunteers hours in the system to display on dashboard
+    query = "SELECT SUM(total) FROM volun_total;"
+    result = db.getOne(query, [])
+    return result[0]

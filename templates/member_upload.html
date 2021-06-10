@@ -1,6 +1,5 @@
 {%extends "layout.html"%}
-{%block title%}
-{%endblock%}
+{%block title%}Students Upload{%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'member_upload.css')}}">
 
@@ -10,7 +9,7 @@
 <main class="m-4">
     <form action="/member_upload" method="POST">
         <div class="wrapper member">
-            <h2>Student Information Uploadt</h2>
+            <h2>Student Information Upload</h2>
             <table class="table">
                 <thead>
                     <tr>

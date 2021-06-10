@@ -12,66 +12,131 @@
         <div class="mb-3 row">
             <h1>Register New User</h1>
         </div>
-        <form action="/add_user" method="POST">
-            <div class="mb-3 row">
-                <label for="firstname" class="col-sm-2 col-form-label">First Name</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user"
-                        id="first_name" name="first_name" required="required">
+        <form method="POST" action="{{ url_for('add_user') }}">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <div class="mb-3 row">
+                    {{ form.first_name.label(class="col-sm-2 col-form-label") }}
+                    {% if form.first_name.errors %}
+                        <div class="col-sm-6">
+                        {{ form.first_name(class="form-control form-control-user is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.first_name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.first_name(class="form-control form-control-user") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="lastname" class="col-sm-2 col-form-label">Surname</label>
-                <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user"
-                        id="lastname" name="surname" required="required"></div>
+                <div class="mb-3 row">
+                    {{ form.surname.label(class="col-sm-2 col-form-label") }}
+                    {% if form.surname.errors %}
+                        <div class="col-sm-6">
+                        {{ form.surname(class="form-control form-control-user is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.surname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.surname(class="form-control form-control-user") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            <div class="mb-3 row">
-                <label for="email" class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-6">
-                    <input type="email" class="form-control form-control-user"
-                        id="#" name="email" placeholder="firstname.lastname@childrensuniversity.co.nz" required="required">
+                <div class="mb-3 row">
+                    {{ form.email.label(class="col-sm-2 col-form-label") }}
+                    {% if form.email.errors %}
+                        <div class="col-sm-6">
+                        {{ form.email(class="form-control form-control-user is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.email(class="form-control form-control-user") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="phone_number" class="col-sm-2 col-form-label">Phone number</label>
-                <div class="col-sm-6">
-                    <input type="phonenumber" class="form-control form-control-user"
-                        id="phone_number" name="phone_number" placeholder="" required="required">
+                <div class="mb-3 row">
+                    {{ form.phone_number.label(class="col-sm-2 col-form-label") }}
+                    {% if form.phone_number.errors %}
+                        <div class="col-sm-6">
+                        {{ form.phone_number(class="form-control form-control-user is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.phone_number.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.phone_number(class="form-control form-control-user") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="phone_number" class="col-sm-2 col-form-label">User Access</label>
-                <div class="col-sm-6">
-                    <select class="form-select" aria-label="user_access" type="user_access" class="form-control form-control-user"
-                        id="user_access" name="user_access" placeholder="" required="required">
-                        <option selected>Select user access</option>
-                        <option value="admin">Admin</option>
-                        <option value="restricted">Restricted</option>
-                    </select>
+                <div class="mb-3 row">
+                    {{ form.user_access.label(class="col-sm-2 col-form-label") }}
+                    {% if form.user_access.errors %}
+                        <div class="col-sm-6">
+                        {{ form.user_access(class="form-control form-control-user is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.user_access.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.user_access(class="form-control form-control-user form-select") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            </div>
-            <legend>Set Password</legend>
-            <div class="mb-3 row">
-                <label for="password" class="col-sm-2 col-form-label">Password</label>
-                <div class="col-sm-6">
-                    <input type="password" class="form-control form-control-user"
-                        id="password" name="password" required="required">
+                <legend>Set Password</legend>
+                <div class="mb-3 row">
+                    {{ form.password.label(class="col-sm-2 col-form-label") }}
+                    {% if form.password.errors %}
+                        <div class="col-sm-6">
+                        {{ form.password(class="form-control form-control-user is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.password(class="form-control form-control-user") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            </div>
-            <div class="mb-3 row">
-                <label for="confirm_password" class="col-sm-2 col-form-label">Confirm Password</label>
-                <div class="col-sm-6">
-                    <input type="confirm_password" class="form-control form-control-user"
-                        id="confirm_password" name="confirm_password" required="required">
+                <div class="mb-3 row">
+                    {{ form.confirm_password.label(class="col-sm-2 col-form-label") }}
+                    {% if form.confirm_password.errors %}
+                        <div class="col-sm-6">
+                            {{ form.confirm_password(class="form-control form-control-user is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.confirm_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                    <div class="col-sm-6">
+                        {{ form.confirm_password(class="form-control form-control-user") }}
+                    </div>
+                    {% endif %}                   
                 </div>
-            </div>
+            </fieldset>
             <div class="d-grid gap-2 d-md-block">
                 <button type="button" role="button" class="btn btn-outline-secondary" onclick="history.back()">Cancel</button>
                 <button type="reset" role="button" class="btn btn-outline-secondary">Reset</button>
-                <button type="submit" role="button" class="btn btn-outline-secondary">Submit</button>
+                {{ form.submit(class="btn btn-outline-secondary") }}
             </div>
         </form>
     </div>
-</main>
+    </div>
+</main> 
 {% endblock content%}

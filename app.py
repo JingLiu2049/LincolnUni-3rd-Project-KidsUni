@@ -444,10 +444,10 @@ def school_upload():
     if form:
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
-            test(school_info[17])
+            school_info.pop(16)
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
-        return redirect(url_for('school'))
+        return redirect(url_for('sch'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')

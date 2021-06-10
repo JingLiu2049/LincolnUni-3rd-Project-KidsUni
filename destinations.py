@@ -70,68 +70,49 @@ def total_destinations_count():
     return result[0]
 
 class DestinationForm(FlaskForm):
-    status = StringField(label='Status *', validators=[
-        validators.DataRequired(), validators.regexp('^\w+$', message='Letters only')])
+    status = SelectField(label='Status *', validators=[
+        validators.DataRequired()],  choices=['Active', 'Deactive','Pending'])
 
     ld_name = StringField(label='Name *', validators=[
-        validators.DataRequired(),
-        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+        validators.DataRequired()
     ])
-    contact_person = StringField(label='Contact Person*', validators=[
-        validators.DataRequired(),
+    contact_person = StringField(label='Contact Person', validators=[
         validators.regexp('^[a-zA-Z ]*$', message='Letters only')
     ])
 
     ld_position = StringField(label='Position ', validators=[
-        validators.DataRequired(),
         validators.regexp('^[a-zA-Z ]*$', message='Letters only')
     ])
 
-    address = StringField(label='Address *', validators=[
-        validators.DataRequired()])
+    address = StringField(label='Address ')
 
-    region = StringField(label='Region *', validators=[
-        validators.DataRequired(), 
-        validators.regexp('^[a-zA-Z ]*$', message='Letters only')])
+    region = StringField(label='Region ')
 
-    postal_address = StringField(label='Postal Address *', validators=[
-        validators.DataRequired()])
+    postal_address = StringField(label='Postal Address ')
 
-    phone_number = TelField(label='Phone Number *', validators=[
-        validators.DataRequired(),        
-    ])
+    phone_number = TelField(label='Phone Number ')
 
-    email = EmailField(label='Email *', validators=[
-        validators.DataRequired(), validators.Email()])
+    email = EmailField(label='Email ', validators=[
+        validators.Email()])
 
-    web_address = URLField(label='Web Address *', validators=[
-        validators.DataRequired(),
-    ])
+    web_address = URLField(label='Web Address ')
 
     member_cost = StringField(label='Member Cost ')
 
     adult_cost = StringField(label='Adult Cost ')
 
-    agrt_signed = StringField(label='Agreement Signed *', validators=[
-        validators.DataRequired(),
-    ])
+    agrt_signed = StringField(label='Agreement Signed ')
 
-    rov_signed = StringField(label='ROV Signed *', validators=[
-        validators.DataRequired()])
+    rov_signed = StringField(label='ROV Signed ')
 
-    poster_sent = SelectField(label='Poster Sent *', validators=[
-        validators.DataRequired(),
-    ], choices=['','Yes', 'No'])
+    poster_sent = SelectField(label='Poster Sent ', choices=['','Yes', 'No'])
 
-    logo_sent = SelectField(label='Logo Sent *', validators=[
-        validators.DataRequired(),
-    ], choices=['','Yes', 'No'])
+    logo_sent = SelectField(label='Logo Sent' , choices=['','Yes', 'No'])
 
-    promo = SelectField(label='Facebook Promotion *', validators=[
-        validators.DataRequired(),
-    ], choices=['','Yes', 'No'])
+    promo = SelectField(label='Facebook Promotion ', choices=['','Yes', 'No'])
 
     note = TextField (label='Note ')
+
     photo = SelectField(label='Photo Provide ', choices=['Yes', 'No'])
 
     submit = SubmitField(label=('Save'))

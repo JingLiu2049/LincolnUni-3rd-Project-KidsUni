@@ -2,11 +2,14 @@
 {%block title%}School Page{%endblock%}
 
 {%block head%}
-<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
-<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-<link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
-<script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
-
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{url_for('static', filename = 'layout.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
 {%endblock%}
 
 {%block content%}
@@ -26,6 +29,13 @@
        window.document.location = $(this).data("href");
        });
      });
+
+     $(document).ready(function() {
+    $('#school').dataTable( {
+        "lengthChange": false,
+        "searching":false,
+    });
+});
  </script>
 
 <main class="m-4">
@@ -46,28 +56,31 @@
           </br>
 
           <form action="/school" method="POST" class="criteria clearfix">
-               {% for i in schoolcriteria.keys()%}
-               <div class="each">
-                    <span>
-                         <td>{{i}}:
-                    </span>
-                    {%for j in schoolcriteria[i]%}
-                    <label for="{{j[0]}}">
-                         <td>{{j[0]}}
-                    </label> <input type="checkbox" name="{{i}}" id="{{j[0]}}" value="{{j[0]}}">
+               <div class="row">
+                    {% for i in schoolcriteria.keys()%}
+                    <div class="col-sm-2">
+                        <label for="{{i}}">{{i}}</label>
+                        <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
+                            {%for j in schoolcriteria[i]%}
+                            <option>{{j[0]}}</option>
+                            {%endfor%}
+                        </select> 
+                    </div>
                     {%endfor%}
-               </div>
-               {%endfor%}
-               <button type="submit">Submit</button>
-               <button><a href="/school">Reset</a></button>
+                    <div class="col">
+                    </br>
+                        <button class="btn btn-outline-secondary float-end" type="submit" role="button">Search</button>
+                        <a class="btn btn-outline-secondary float-end clickable" data-href="/destination">Reset</a>
+                    </div>
+                </div>
           </form>
           <div class="col">
                <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_school">Add
                    New School</a>
            </div>
           </br>
-
-          <table class="table">
+<div class="table-borderless">
+          <table class="table-striped table-hover paginated" id="school">
                <thead style="background-color:#269548">
                     <tr>
                          <td>School ID</td>
@@ -122,6 +135,8 @@
                     {%endfor%}
                </tbody>
           </table>
+     </div>
+</div>
 </main>
 {%endblock%}
 

@@ -13,19 +13,20 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info
+import uploads, schools_info, member_info, destinations, filter_info,volun_info, classes
 from functools import wraps
+import bcrypt
+from flask_bcrypt import Bcrypt
+from forms import UpdatePassword
 
 
 # Global Functions
 ################################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'project2_kids_uni'
-app.config['REMEMBER_COOKIE_DURATION'] = timedelta(minutes=30)
-
-
 # app.secret_key = 'project2_kids_uni'
 dbconn = None
+bcrypt = Bcrypt(app)
 
 
 def getCursor():
@@ -82,7 +83,7 @@ def admin_access(f):
     return decorated_function
 
 
-# Disable browser downloads from cache
+# Disable browser downloading from cache
 def no_cache(fun):
     @wraps(fun)
     def inner(*args, **kwargs):
@@ -94,7 +95,8 @@ def no_cache(fun):
     return inner
 
 
-# if school_id == school_id, update member info database, otherwise add a new member
+# if member_id is not new , update member info database, otherwise add a new member
+# get data from member_info form
 def upsertMember(form, member_id, school_id):
     first_name = form.first_name.data
     last_name = form.last_name.data
@@ -113,16 +115,15 @@ def upsertMember(form, member_id, school_id):
     social_media = form.social_media.data
     gown_size = form.gown_size.data
     hat_size = form.hat_size.data
-    total = form.total_hours.data
     status = form.status.data
     cur = db.getCursor()
     if member_id != "new":
         cur.execute("Update members set school_id=%s, first_name=%s, last_name=%s, \
                 username=%s, password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new=%s, passport_number=%s,\
                 previous=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, publication_promos=%s, \
-                social_media=%s, total=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;",
+                social_media=%s, gown_size=%s, hat_size=%s, status=%s where member_id=%s;",
                     (school_id, first_name, last_name, username, password, gender, member_age, ethnicity, continuing_new, passport_number,
-                     previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, total, gown_size,
+                     previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,
                      hat_size, status, member_id))
     else:
         cur.execute("INSERT INTO members VALUES(nextval('membered_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
@@ -157,7 +158,8 @@ def upsertSchool(form, school_id):
                     (school_name, who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes))
 
-
+# if ld_id is not new, update destiantion daata for sql, otherwise insert a new destiantion
+# get data from destiantion form
 def upsertDestinations(form, ld_id):
     status = form.status.data
     ld_name = form.ld_name.data
@@ -198,12 +200,12 @@ def upsertDestinations(form, ld_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
-
-    # Check if "username" and "password" POST requests exist (user submitted form)
+        # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
+        # password = bcrypt.check_password_hash(User.password, request.form['password'])
         next_url = request.form.get('next')
         remember_me = request.form.get('remember_me')
         print(username)
@@ -237,6 +239,7 @@ def login():
                     session['user_id'] = account[0]
                     session['username'] = account[1]
                     session['name'] = user[1]
+                    session['password'] = account[2]
                     session['user_access'] = account[3]
                     session['remember_me'] = True if request.form.get(
                         'remember_me') else False
@@ -261,6 +264,7 @@ def logout():
     session.pop('user_id', None)
     session.pop('username', None)
     session.pop('name', None)
+    session['password'] = None
     session.pop('user_access', None)
     session.pop('remember_me', None)
 
@@ -288,22 +292,23 @@ def index():
 @app.route("/member", methods=['GET'])
 @login_required
 def member():
-    cur = getCursor()
+    cur = db.getCursor_NT()
     cur.execute("select member_id, school_name, concat(first_name,' ' ,last_name) as name, username, gender, member_age, ethnicity, continuing_new, passport_number,\
                    passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,\
-                   hat_size from member_info where status !='Deactive' ;")  # display the member database table in students' page
+                   hat_size from member_info where status !='Deactive' ;") 
     result = cur.fetchall()
-    return render_template("member.html", result=result, name=session['name'])
+    return render_template("member.html", result=result)
 
 
-# click member id's <tr> to edit member info
-# return to member page, reset form, submit
+# click each row to edit member info detail, and check study hours for each year and term
+# return to member page after submit
 @app.route("/edit_member", methods=['POST', 'GET'])
 @login_required
 def edit_member():
-    cur = getCursor()
+    cur = db.getCursor_NT()
     member_id = request.args.get('id')
-    form = member_info.MemberInfoForm()  # import flask form member_info.py
+    # import flask form member_info.py
+    form = member_info.MemberInfoForm()  
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
     school_name = request.form.get('school_name')
@@ -312,26 +317,29 @@ def edit_member():
     hour_result = cur.fetchall()
     if request.method == 'POST':
         if form.validate_on_submit():
-            # create a currently school list from database with school table
+            # create a currently school name list from database 
             schoolArray = []
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
-            if school_name in schoolArray:  # the new school cannot be update if its not in the school list
+            if school_name in schoolArray:  
+                # the new school name should be find in currently school name list
+                # get school name by matching school_id
                 cur.execute(
                     f"select school_id from schools where school_name='{school_name}';")
                 result = cur.fetchall()
                 school_id = result[0]
+                # upsert member info to database
                 upsertMember(form, member_id, school_id)
                 message = 'Update successful'
-                return render_template('edit_member.html', name=session['name'], form=form, message=message, member=member, hour_result=hour_result)
+                return render_template('edit_member.html', form=form, message=message, member=member, hour_result=hour_result)
             else:
-                # if the school is not in the list, print error
+                # if the school name is not in the list, print error
                 print(form.errors)
-                return render_template('edit_member.html', name=session['name'], form=form, member=member, hour_result=hour_result)
+                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
         else:
             print(form.errors)
-            return render_template('edit_member.html', name=session['name'], form=form, member=member, hour_result=hour_result)
+            return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
     else:
         form.first_name.data = member.first_name
         form.last_name.data = member.last_name
@@ -351,9 +359,8 @@ def edit_member():
         form.social_media.data = member.social_media
         form.gown_size.data = member.gown_size
         form.hat_size.data = member.hat_size
-        form.total_hours.data = member.total
         form.status.data = member.status
-        return render_template("edit_member.html", date=date, name=session['name'], form=form, hour_result=hour_result)
+        return render_template("edit_member.html", date=date, form=form, hour_result=hour_result)
 
 
 @app.route("/add_member", methods=['POST', 'GET'])
@@ -362,29 +369,32 @@ def add_member():
     form = member_info.MemberInfoForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            # create a currently school name list from database 
             schoolArray = []
-            cur = getCursor()
+            cur = db.getCursor_NT()
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
                 school_name = form.school_name.data
-            if form.school_name.data in schoolArray:  # the new school cannot be added if its not in the school list
+            if form.school_name.data in schoolArray:  
+                # the new school name should be find in currently school name list
+                # get school name by matching school_id
                 cur.execute(
                     f"select school_id from schools where school_name='{school_name}';")
                 result = cur.fetchall()
                 school_id = result[0]
-                print(school_id)
+                # upsert member info to database, print message once submit successful
                 upsertMember(form, 'new', school_id)
                 message = 'You have successfully added a new student.'
-                return render_template('add_member.html', name=session['name'], form=form, message=message)
+                return render_template('add_member.html', form=form, message=message)
             else:
                 print(form.errors)
-                return render_template('add_member.html', name=session['name'], form=form)
+                return render_template('add_member.html', form=form)
         else:
             print(form.errors)
-            return render_template('add_member.html', name=session['name'], form=form)
+            return render_template('add_member.html', form=form)
     else:
-        return render_template("add_member.html", name=session['name'], form=form)
+        return render_template("add_member.html", form=form)
 
 
 @app.route("/member_upload", methods=['POST'])
@@ -414,9 +424,9 @@ def member_upload():
             coor_col = df_coor.columns
             coor_data = df_coor.values
         except Exception as e:
-            return render_template('error.html', name=session['name'])
+            return render_template('error.html')
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
-                               coor_col=coor_col, coor_data=coor_data, name=session['name'])
+                               coor_col=coor_col, coor_data=coor_data)
 
 
 @app.route("/school", methods=['POST', 'GET'])
@@ -444,10 +454,10 @@ def school_upload():
     if form:
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
-            test(school_info[17])
+            school_info.pop(16)
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
-        return redirect(url_for('school'))
+        return redirect(url_for('sch'))
     #  read uploaded excel file and send info to client-side
     else:
         excelpath = upload_path('file')
@@ -463,7 +473,7 @@ def school_upload():
 @app.route("/edit_school", methods=['POST', 'GET'])
 @login_required
 def edit_school():
-    cur = getCursor()
+    cur = db.getCursor_NT()
     form = schools_info.SchoolInfoForm()
     school_id = request.args.get('id')
     cur.execute(f"select * from schools where school_id={school_id};")
@@ -513,17 +523,20 @@ def add_school():
 @login_required
 def destination():
     cur = db.getCursor()
+    # import destiantion dictionarty from filter_info destiantion_dic
+    # display select labels and options group by filter_criteria 
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
     if request.method == 'POST':
+        # if POST, get sql from filter_info
         sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
         cur.execute(sql)
         dest_list=cur.fetchall()
-        return render_template('destination.html', name=session['name'], dest_list=dest_list, criteria=filter_criteria)
+        return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
     else:
         cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
         dests = cur.fetchall()
-        return render_template('destination.html', dests=dests, name=session['name'], criteria=filter_criteria)
+        return render_template('destination.html', dests=dests, criteria=filter_criteria)
 
 
 @app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')
@@ -531,25 +544,28 @@ def destination():
 @login_required
 def edit_destination():
     version = request.endpoint
-    cur = getCursor()
+    cur = db.getCursor_NT()
     form = destinations.DestinationForm()
     ld_id = request.args.get('id')
     if request.method == 'POST':
         if form.validate_on_submit():
+            # if verion == '1', update detiantion row
+            # else verion =='2', insert new detiantion row into database
             if version == '1':
                 upsertDestinations(form, ld_id)
                 message = 'Update successful'
-                return render_template('edit_destination.html', name=session['name'], form=form, message=message)
+                return render_template('edit_destination.html', form=form, message=message)
             else:
                 upsertDestinations(form, 'new')
                 message = 'You have successfully added a new learning destination.'
-                return render_template('add_destination.html', name=session['name'], form=form, message=message)
+                return render_template('add_destination.html', form=form, message=message)
         else:
+            # print errors when the input values are not matching the setting input value type
             print(form.errors)
             if version == '1':
-                return render_template('edit_destination.html', name=session['name'], form=form)
+                return render_template('edit_destination.html', form=form)
             else:
-                return render_template('add_destination.html', name=session['name'], form=form)
+                return render_template('add_destination.html', form=form)
     else:
         if version == '1':
             cur.execute(f"select * from destinations where ld_id={ld_id};")
@@ -573,9 +589,9 @@ def edit_destination():
             form.promo.data = ld.promo
             form.photo.data = ld.photo
             form.note.date = ld.note
-            return render_template('edit_destination.html', form=form, name=session['name'])
+            return render_template('edit_destination.html', form=form)
         else:
-            return render_template('add_destination.html', name=session['name'], form=form)
+            return render_template('add_destination.html', form=form)
 
 
 @app.route("/destination_upload", methods=['POST'])
@@ -585,12 +601,9 @@ def destination_upload():
     # get data from client-side and insert into database
     if form:
         paperwork = request.form.getlist('des_col')[20:-1]
-        print(paperwork, 'ppppppppppppppppppppppppp')
         for i in range(0, len(form)-1):
             dest_info = request.form.getlist(f'des{i}')
-            print(dest_info[:-1])
             dest_obj = uploads.dest_obj(dest_info[:-1])
-            print(dest_obj.paperwork)
             dest_obj.insert_db(paperwork)
         return redirect(url_for('destination'))
     #  read uploaded excel file and send info to client-side
@@ -603,7 +616,7 @@ def destination_upload():
 
         except Exception as e:
             return render_template('error.html')
-        return render_template('destination_upload.html', cols=dest_cols, data=dest_data, name=session['name'])
+        return render_template('destination_upload.html', cols=dest_cols, data=dest_data)
 
 
 @app.route("/volunteer", methods=['POST', 'GET'])
@@ -623,6 +636,53 @@ def volunteer():
     volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', name=session['name'], voluns=volun_list, criteria=filter_criteria)
 
+@app.route("/edit_volunteer",methods = ['POST','GET'], endpoint = 'edit')
+@app.route("/add_volunteer", methods = ['POST','GET'], endpoint = 'add')
+@login_required
+def edit_volunteer():
+    cur = db.getCursor_NT()
+    form = volun_info.volunForm()
+    volun_id = request.args.get('id')
+    version = request.endpoint
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if version == 'edit':
+                volun_info.upsertVoluns(form, volun_id)
+                message = 'Update successful'
+                return render_template('edit_volunteer.html', name=session['name'], form=form, message=message)
+            else:
+                volun_info.upsertVoluns(form, 'new')
+                message = 'You have successfully added a new Volunteer.'
+                return render_template('add_volunteer.html', name=session['name'], form=form, message=message)
+        else:
+            print(form.errors)
+            if version == 'edit':
+                return render_template('edit_volunteer.html', name=session['name'], form=form)
+            else:
+                return render_template('add_volunteer.html', name=session['name'], form=form)
+    else:
+        if version == 'edit':
+            cur.execute(f"select * from volunteers where volun_id={volun_id};")
+            volun = cur.fetchone()
+            print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
+            form.status.data = volun.status
+            form.induction.data  = volun.induction
+            form.interview.data  = volun.interview
+            form.photo.data  = volun.photo
+            form.studentid.data  = volun.student_id
+            form.firstname.data  = volun.first_name
+            form.surname.data  = volun.surname
+            form.prefername.data  = volun.preferred_name
+            form.gender.data  = volun.gender
+            form.dob.data  = volun.dob
+            form.email.data  = volun.email
+            form.phone_number.data  = volun.mobile
+            form.address.data = volun.address
+            
+            return render_template('edit_volunteer.html', form=form, name=session['name'])
+        else:
+            return render_template('add_volunteer.html', name=session['name'], form=form)
+    
 
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
 @login_required
@@ -634,7 +694,7 @@ def volunteer_upload():
         for i in range(0, len(form)-1):
             volun_info = request.form.getlist(f'index{i}')
             volun_obj = uploads.volun_obj(volun_info)
-            volun_obj.insert_db(events)
+            # volun_obj.insert_db(events)
         return redirect(url_for('volunteer'))
     else:
         excelpath = upload_path('file')
@@ -642,9 +702,10 @@ def volunteer_upload():
             df_volun = uploads.get_volun_df(excelpath)
             volun_cols = df_volun.columns
             volun_data = df_volun.values
-
         except Exception as e:
-            return render_template('error.html')
+            return print(e)
+            # return render_template('error.html')
+            
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data, name=session['name'])
 
 
@@ -656,7 +717,6 @@ def event():
         LEFT JOIN event_attend ON events.event_id = event_attend.event_id LEFT JOIN \
         volun_attend ON events.event_id = volun_attend.event_id ORDER BY events.event_date DESC;")
     events = cur.fetchall()
-    print(events, 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
     return render_template('event.html', events=events, name=session['name'])
 
 
@@ -732,8 +792,6 @@ def edit_user():
         current_status = request.form.get('current_status')
         updated_status = request.form.get('updated_status')
 
-        print(current_status)
-        print(updated_status)
         if updated_status == None:
             user = request.form.to_dict()
             sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \
@@ -769,12 +827,14 @@ def add_user():
         email = request.form.get('email')
         phone_number = request.form.get('phone_number')
         user_access = request.form.get('user_access')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         status = "active"
         cur = db.getCursor()
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
-        cur.execute(
-            "INSERT INTO authorisation(user_id, username, user_access) VALUES (%s,%s,%s);", (user_id, email, user_access))
+        cur.execute("INSERT INTO authorisation(user_id, username, password, user_access) VALUES (%s,%s,%s,%s);", (int(user_id), email, hashed_password, user_access))
         flash(f'User successfully added!', 'success')
         return redirect(url_for('users'))
     return render_template('add_user.html', name=session['name'])
@@ -845,6 +905,29 @@ def download_school_sheet():
     file = spreadsheet.gen_sch_sheet(sheet)
     return send_file(file, mimetype='xlsx', as_attachment=True)
 
+@app.route("/account", methods=['GET'])
+@login_required
+def account():
+    cur = db.getCursor()
+    user_id = session['user_id']
+    print(user_id)
+    cur.execute('SELECT * FROM admin WHERE user_id=%s;', (int(user_id),))
+    account = cur.fetchone()
+    return render_template('account.html', account=account)
+
+@app.route("/account/update_password", methods=['GET', 'POST'])
+@login_required
+def update_password():
+    form = UpdatePassword()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        cur = db.getCursor()
+        user_id = session['user_id']
+        print(user_id)
+        cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(user_id),))
+        flash('Your password was successfully updated!', 'success')
+        return redirect(url_for('account'))
+    return render_template('update_password.html', form=form)
 
 if __name__ == '__main__':
     app.run(debug=True)

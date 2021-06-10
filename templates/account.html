@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block title %}Account{% endblock title %}
+
+{% block head %}
+<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+{% endblock head %}
+{%block content%}
+<main class="edit-container m-5">
+    <div class="container bg-light p-4 pb-5 rounded">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="mb-3 row">
+            <h2>Account</h2>
+        </div>  
+        <form>
+            <div class="input_wrapper">
+            <div id="base" class="eventinfo">
+                <div class="mb-3 row">
+                    <label class="col-sm-2 col-form-label">First Name</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user" required="required" name="first_name" value="{{ account[1] }}" readonly>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label  class="col-sm-2 col-form-label">Surname</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user"  required="required" name="surname" value="{{ account[2] }}" readonly>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label  class="col-sm-2 col-form-label">Phone Number</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user"  required="required" name="phone_number" value="{{ account[3] }}" readonly>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label  class="col-sm-2 col-form-label">Email</label>
+                    <div class="col-sm-6">
+                        <input type="email" class="form-control form-control-user" name="email" value="{{ account[4] }}" readonly>
+                    </div>
+                </div>
+                <div class="d-grid gap-2 d-md-block">
+                    <a href="{{ url_for('update_password') }}" type="button" role="button" class="btn btn-outline-secondary">Update Password</a>
+                </div>
+            </div>
+            </div>
+        </form>
+    </div>
+</main> 
+{%endblock%}

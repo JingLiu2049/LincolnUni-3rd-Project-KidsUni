@@ -297,11 +297,11 @@ def gen_sch_sheet(sheet):
         current_year = int(year_result[0]) if year_result else int(dt.datetime.now().year)
 
     cur.execute("SELECT confirm_no FROM school_members WHERE year = %s ORDER BY school_id",(current_year-1,))
-    result = cur.fetchall()
-    previous_totals = result if result else [0]*len(schools)
+    previous_results = cur.fetchall()
+    previous_totals = list(previous_results) + [[0]]*(len(schools)-len(previous_results))
     
     for i in range(0,len(schools)):
-        sch_value = list(schools[i]) + [current_year] + [previous_totals[i]]
+        sch_value = list(schools[i]) + [current_year] + [previous_totals[i][0]]
         for j in range(0,len(sch_value)):
             sheet1.cell(column = j+1,row = 2+i,value = sch_value[j] )
 
@@ -313,9 +313,12 @@ def gen_sch_sheet(sheet):
             for j in range(0,len(member_nos[i])):
                 sheet1.cell(column = j+19,row = 2+i,value = member_nos[i][j] )
         bg.save(newPath)
-        pd_sql = "SELECT schools.school_name, school_members.*  FROM school_members INNER JOIN schools ON \
-            school_members.school_id = schools.school_id ORDER BY school_id, year DESC;"
-        new_sheet(newPath,pd_sql,'Member Details')
+        cur.execute("SELECT DISTINCT year FROM school_members;")
+        years = cur.fetchall()
+        for i in years:
+            pd_sql = "SELECT schools.school_name, school_members.*  FROM school_members INNER JOIN schools ON \
+                school_members.school_id = schools.school_id WHERE year = %s ORDER BY school_id;" % int(i[0])
+            new_sheet(newPath,pd_sql,f'{i[0]} Member Details')
     else:
         bg.save(newPath)
 

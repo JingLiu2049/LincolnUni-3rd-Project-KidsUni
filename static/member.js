@@ -1,7 +1,15 @@
 
-
-  $(document).ready(function () {
-    var table = $('#table').DataTable({
+$.fn.dataTable.Api.register( 'column().data().sum()', function () {
+  return this.reduce( function (a, b) {
+      var x = parseFloat( a ) || 0;
+      var y = parseFloat( b ) || 0;
+      return x + y;
+  } );
+} );
+ 
+ $(document).ready(function () {
+    var table = $('#table').DataTable({ 
+      "sPaginationType": "full_numbers",
       initComplete: function () {
         count = 0;
         this.api().columns().every(function () {
@@ -45,6 +53,7 @@
 
           //initially clear select otherwise first option is selected
           $('.select2').val(null).trigger('change');
+
         });
       }
     });

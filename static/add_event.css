@@ -1,3 +1,7 @@
 div.eventinfo{
     background-color: #F8F9FA;
 }
+p.error{
+    color: red;
+    background-color: #bfa;
+}

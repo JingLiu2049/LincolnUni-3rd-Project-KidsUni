@@ -1,4 +1,4 @@
-import db
+import db, app
 import pandas as pd
 import getid
 from flask_wtf import FlaskForm
@@ -89,22 +89,27 @@ def get_df(excelpath):
 
 def active_schools_count():
     # Function returns the number of active schools in the system to display on dashboard
-    query = "SELECT COUNT(status) FROM schools WHERE status='active' OR status='Active';"
-    result = db.getOne(query, [])
+    parameters = [app.current_year()]
+    query = "SELECT COUNT(schools.status) FROM schools JOIN school_members ON schools.school_id=school_members.school_id \
+        WHERE schools.status='active' OR schools.status='Active' and school_members.year=%s;"
+    result = db.getOne(query, parameters)
     return result[0]
 
 
 def in_progress_schools_count():
     # Function returns the number of in progress schools in the system to display on dashboard
-    query = "SELECT COUNT(status) FROM schools WHERE status='in progress' OR status='In Progress';"
-    result = db.getOne(query, [])
+    parameters = [app.current_year()]
+    query = "SELECT COUNT(schools.status) FROM schools JOIN school_members ON schools.school_id=school_members.school_id \
+        WHERE schools.status='in progress' OR schools.status='In Progress' and school_members.year=%s;"
+    result = db.getOne(query, parameters)
     return result[0]
 
 
 def total_schools_count():
     # Function returns the total number of schools in the system to display on dashboard
-    query = "SELECT COUNT(school_id) FROM schools;"
-    result = db.getOne(query, [])
+    parameters = [app.current_year()]
+    query = "SELECT COUNT(school_id) FROM school_members WHERE year=%s;"
+    result = db.getOne(query, parameters)
     return result[0]
 
 

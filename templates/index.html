@@ -1,5 +1,5 @@
 {%extends "layout.html"%}
-{% block title %}Home Page{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{{url_for('static', filename = 'index.css')}}">
@@ -68,8 +68,8 @@ $(document).ready(function() {
                 <div class="card" data-href="/volunteer" style="background-color: #F3D712;">
                     <div class="card-body">
                         <h3 class="card-title ">Volunteers</h3>
-                        <p class="mb-0">Volunteers active:</p>
-                        <p class="mb-0">Volunteers hours:</p>
+                        <p class="mb-0">Volunteers active: {{ total_volunteers }}</p>
+                        <p class="mb-0">Volunteers hours: {{ total_volunteers_hours }} hours</p>
                     </div>
                 </div>
             </div>

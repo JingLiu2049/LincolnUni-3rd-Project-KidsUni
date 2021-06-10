@@ -1,6 +1,6 @@
 from schools_info import school
 from flask.app import Flask
-import db
+import db, app
 import pandas as pd
 import getid
 from flask_wtf import FlaskForm
@@ -80,8 +80,9 @@ def active_members_count():
 
 def total_members_hours():
     # Function returns the number of active schools in the system to display on dashboard
-    query = "SELECT SUM(total) FROM current_total;"
-    result = db.getOne(query, [])
+    parameters = [app.current_year()]
+    query = "SELECT SUM(total) FROM mem_hour_detail WHERE year=%s;"
+    result = db.getOne(query, parameters)
     return result[0]
     
 

@@ -1,4 +1,6 @@
+from flask_login import UserMixin
 import db
+
 
 cur = db.getCursor()
 class members:
@@ -187,3 +189,11 @@ class criteria:
         self.key = [i for i in d.keys()][0]
         self.column = [i for i in d.values()][0][1]
         self.table = [i for i in d.values()][0][1]
+
+
+class User(UserMixin):
+    def __init__(self, id, username, password, user_access):
+        self.id = id
+        self.username = username
+        self.password = password
+        self.user_access = user_access       

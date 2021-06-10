@@ -482,7 +482,7 @@ def edit_school():
     cur = db.getCursor_NT()
     form = schools_info.SchoolInfoForm()
     school_id = request.args.get('id')
-    cur.execute(f"select * from schools where school_id={school_id};")
+    cur.execute(f"select * from school_details where school_id={school_id};")
     sch = cur.fetchone()
     print(sch)
     if request.method == 'POST':
@@ -507,7 +507,10 @@ def edit_school():
         form.agreement.data = sch.agreement
         form.consent.data = sch.consent
         form.notes.data = sch.notes
-        return render_template('edit_school.html', date=date, form=form)
+        form.name.data = sch.name
+        form.email.data = sch.email
+        form.confirm.data = sch.confirm
+        return render_template('edit_school.html', form=form)
 
 
 @app.route("/add_school", methods=['POST', 'GET'])

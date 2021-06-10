@@ -140,4 +140,10 @@ class SchoolInfoForm(FlaskForm):
 
     notes = TextField (label='Note ')
 
+    name = StringField(label='name')
+
+    email = StringField(label='email')
+    
+    confirm = StringField(label='confirm')
+
     submit = SubmitField(label=('Save'))

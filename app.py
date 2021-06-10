@@ -148,6 +148,9 @@ def upsertSchool(form, school_id):
     agreement = form.agreement.data
     consent = form.consent.data
     notes = form.notes.data
+    name = form.name.data
+    email = form.email.data
+    confirm = form.confirm.data
     cur = db.getCursor()
     if school_id != "new":
         cur.execute("Update schools set school_name=%s, who=%s, council=%s, category=%s,\
@@ -155,10 +158,13 @@ def upsertSchool(form, school_id):
         agreement=%s, consent=%s, notes=%s where school_id=%s;",
                     (school_name, who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes, school_id))
+        cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
+        cur.execute("Update school_members set confirm=%s where school_id=%s;", (confirm, school_id))
     else:
         cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (school_name, who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes))
+
 
 # if ld_id is not new, update destiantion daata for sql, otherwise insert a new destiantion
 # get data from destiantion form

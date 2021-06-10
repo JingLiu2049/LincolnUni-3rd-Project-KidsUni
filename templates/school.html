@@ -2,8 +2,8 @@
 {%block title%}Schools Page{%endblock%}
 
 {%block head%}
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="{{url_for('static', filename = 'layout.css')}}">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
@@ -70,7 +70,7 @@
                     <div class="col">
                     </br>
                         <button class="btn btn-outline-secondary float-end" type="submit" role="button">Submit</button>
-                        <a class="btn btn-outline-secondary float-end clickable" data-href="/school">Reset</a>
+                        <a class="btn btn-outline-secondary float-end clickable" style="margin-right: 1rem;" data-href="/school">Reset</a>
                     </div>
                 </div>
           </form>
@@ -90,7 +90,7 @@
                          <td>Category</td>
                          <td>Status</td>
                          <td>Coordinator Name</td>
-                         <td>Coordinator Email</td>
+                         <td id="changewidth">Coordinator Email</td>
                          <td>Training</td>
                          <td>Launch</td>
                          <td>Presentation</td>
@@ -108,7 +108,7 @@
                </thead>
                <tbody id="mytable">
                {%for i in schoollist%}
-                    <tr class="clickable" data-href="/edit_school?id={{i.id}}" style="cursor: pointer;">
+                    <tr class="clickable" data-href="/edit_school?id={{i.id}}" style="cursor:pointer;">
                          <td>{{i.id}}</td>
                          <td>{{i.name }}</td>
                          <td>{{i.who }}</td>
@@ -116,7 +116,7 @@
                          <td>{{i.category }}</td>
                          <td>{{i.status }}</td>
                          <td>{{i.coor_name }}</td>
-                         <td>{{i.coor_email }}</td>
+                         <td id="changewidth">{{i.coor_email }}</td>
                          <td>{{i.training }}</td>
                          <td>{{i.launch }}</td>
                          <td>{{i.presentation }}</td>

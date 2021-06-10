@@ -3,7 +3,6 @@ main{
     position: relative;
 }
 div.form_wrap{
-    background-color: rgba(255, 254, 203, 0.9);
     position: absolute;
     width: 80%;
     height: 500px;
@@ -28,11 +27,9 @@ div.details{
 .show {
     display: block;
 }
-form.criteria{
-}
+
 form.criteria div.each{
     float: left;
-    background-color: #F8F9FA;
     margin: 10px 20px 5px 0;
     line-height: 1.5em;
 }
@@ -40,7 +37,6 @@ form.criteria button{
     float: left;
 }
 form.criteria span{
-    background-color: rgb(192, 192, 192);
     display: inline-block;
     padding: 3px 10px;
 }

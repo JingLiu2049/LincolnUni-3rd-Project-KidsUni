@@ -23,6 +23,7 @@ sch_criteria_dict= {
 
 destination_criteria_dict= {
     'Status':['status','destinations'],
+    'Name':['ld_name','destinations'],
     'Region':['region','destinations'],
     'Member Cost':['member_cost','destinations'],
     'Adult Cost':['adult_cost','destinations']

@@ -13,7 +13,7 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, login_session, filter_info,volun_info, classes
+import uploads, schools_info, member_info, destinations, filter_info,volun_info, classes
 from functools import wraps
 import bcrypt
 from flask_bcrypt import Bcrypt

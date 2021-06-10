@@ -1,0 +1,245 @@
+{%extends "layout.html"%}
+{% block title %}Students Page{% endblock %}
+
+{% block head %}
+
+<link rel="stylesheet" href="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+<script src="https://cdn.datatables.net/r/dt/dt-1.10.9/datatables.min.js"></script> 
+<script src="/static/member.js"></script>
+
+{% endblock head %}
+{% block current_user %}{{ name[0] }} {{ name[1] }} {% endblock current_user %}    
+{%block content%}
+
+<div class="container-fluid">
+  <h1>Student Information List</h1>
+    <form action="/member_upload" method="POST" enctype="multipart/form-data">
+
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFile01">Upload</label>
+        <input type="file" class="form-control" id="inputGroupFile01" required>
+        <button class="btn btn-outline-secondary" type="button" id="btn">Submit</button>
+      </div>
+    </form>
+    </br>
+
+  <div class="row" name="input group">
+      <label>Search</label>
+      <input type="text" class="form-control" id="input" onkeyup="myFunction()">
+  </div>
+
+  <form method="POST" >
+      <div class="row">
+        <div class="col-md-2">
+            <label>School</label>
+           <select id="schoolfilter" name="schoolfilter" multiple data-col="1">   
+            <option value="" selected>Select one</option>      
+            </select>
+          
+        </div>
+        <div class="col-md-2">
+            <label>Gender</label>
+            <select id="gender" name="gender" data-col="6" multiple >
+              <option value="">Select one</option> 
+              </select>
+        </div>
+        <div class="col-md-2">
+            <label>Age</label>
+            <select id="agefilter" name="agefilter"  data-col="7" multiple>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+          <label>Ethnicity</label>
+          <select id="ethnicityfilter" name="ethnicityfilter"  multiple data-col="8">
+            <option value="">Select one</option> 
+            </select>
+      </div>
+
+      <div class="col-md-2">
+        <label>Continuing/New</label>
+        <select id="filter" name="filter" class="table-filter form-control" data-col="9">
+          <option value="">Select one</option> 
+          <option value="Continuing">Continuing</option>
+          <option value="New">New</option>
+        </select>
+    </div>
+        <div class="col-md-2">
+            <label>Previous Hours</label>
+           <select id="previoushoursfilter" name="previoushoursfilter" class="table-filter form-control"  data-col="11">
+            <option value="">Select one</option> 
+            {% for col in previous_hours %}
+              {% for result in col%} 
+              <option value="{{result}}">{{result}}</option>
+              {% endfor %}
+            {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-3">
+          <label>Passport Date Issued</label>
+          <input type="date" class="form-control" id="datefilterfrom" data-date-split-input="true"  data-col="12">
+        </div>
+
+      <div class="col-md-2">
+        <label>Ethnicity Info</label>
+        <select id="ethnicityfilter" name="ethnicityfilter" class="table-filter form-control" data-col="13">
+          <option value="">Select one</option> 
+          <option value="True">True</option>
+          <option value="False">False</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label>Teaching Research</label>
+        <select id="teachfilter" name="teachfilter" class="table-filter form-control" data-col="14">
+          <option value="">Select one</option> 
+          <option value="True">True</option>
+          <option value="False">False</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label>Pubilication Promos</label>
+        <select id="promofilter" name="promofilter" class="table-filter form-control" data-col="15">
+          <option value="">Select one</option> 
+          <option value="True">True</option>
+          <option value="False">False</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label>Social Media</label>
+        <select id="socialfilter" name="socialfilter" class="table-filter form-control" data-col="16">
+          <option value="">Select one</option> 
+          <option value="True">True</option>
+          <option value="False">False</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <label>Total Hours</label>
+        <select id="hoursfilter" name="hoursfilter" class="table-filter form-control" data-col="17">
+          <option value="">Select one</option>
+          {% for col in total_hours %}
+            {% for result in col%} 
+          <option value="{{result}}">{{result}}</option>
+            {% endfor %}
+          {% endfor %}
+        </select>
+        </div>
+
+        <div class="col-md-2">
+          <label>Gown Size</label>
+          <select id="gownfilter" name="gownfilter" class="table-filter form-control" data-col="18">
+            <option value="">Select one</option>
+            {% for col in gown_size %}
+              {% for result in col%} 
+            <option value="{{result}}">{{result}}</option>
+              {% endfor %}
+            {% endfor %}
+          </select>
+        </div>
+
+          <div class="col-md-2">
+            <label>Hat Size</label>
+            <select id="hatfilter" name="hatfilter" class="table-filter form-control" data-col="19">
+              <option value="">Select one</option>
+              {% for col in hat_size %}
+                {% for result in col%} 
+              <option value="{{result}}">{{result}}</option>
+                {% endfor %}
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-2">
+              <label>Status</label>
+              <select id="statusfilter" name="statusfilter" class="table-filter form-control" data-col="20">
+                <option value="">Select one</option>
+                {% for col in status%}
+                  {% for result in col%} 
+                <option value="{{result}}">{{result}}</option>
+                  {% endfor %}
+                {% endfor %}
+              </select>           
+          </div>
+          <div class="col-md-2">
+          </br>
+            <button type="reset" id="reset" role="button" class="btn btn-outline-secondary"  onclick="window.location.reload()">Reset</button>
+          </div>
+  </form>
+</div>
+
+    <div class="table-responsive">
+    <table class="table table-striped table-hover table-sm" style="font-size: .875rem" id="table">
+        <thead>
+            <tr>
+                <th scope="col">Member ID</th>
+                <th scope="col">School Name</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Username</th>
+                <th scope="col">Password</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Age</th>
+                <th scope="col">Ethnicity</th>
+                <th scope="col">Continuing/ New</th>
+                <th scope="col">Passport Number</th>
+                <th scope="col">Previous Hours</th>
+                <th scope="col">Passport Date Issued </th>
+                <th scope="col">Ethnicity Info</th>
+                <th scope="col">Teaching Research</th>
+                <th scope="col">Pubilication Promos</th>
+                <th scope="col">Social Media</th>
+                {% if date %}
+                <th scope="col">{{date}} Total Hours </th>
+                {% endif %}
+                <th scope="col">Gown Size</th>
+                <th scope="col">Hat Size</th>
+                <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tfoot>
+            <tr>
+                <th>Member ID</th>
+                <th>School Name</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Ethnicity</th>
+                <th>Continuing/ New</th>
+                <th>Passport Number</th>
+                <th>Previous Hours</th>
+                <th>Passport Date Issued </th>
+                <th>Ethnicity Info</th>
+                <th>Teaching Research</th>
+                <th>Pubilication Promos</th>
+                <th>Social Media</th>
+                {% if date %}
+                <th>{{date}} Total Hours </th>
+                {% endif %}
+                <th>Gown Size</th>
+                <th>Hat Size</th>
+                <th>Status</th>
+            </tr>
+          </tfoot>
+        <tbody id="mytable">
+            {% for item in result %}
+            <tr> 
+                {% for col in item %}
+                <td>{{col}}</td>
+                {% endfor %}
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+{%endblock%}

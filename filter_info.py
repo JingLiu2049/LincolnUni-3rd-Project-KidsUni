@@ -15,10 +15,11 @@ volun_criteria_dict= {
         'Completion Date':['completion_date','volun_detail']
         }
 sch_criteria_dict= {
-        'who':['who', 'sch_detail'],
-        'Council':['council','sch_detail'],
-        'Category':['category','sch_detail'],
-        'Status':['status','sch_detail']
+        'who':['who', 'school_details'],
+        'Council':['council','school_details'],
+        'Category':['category','school_details'],
+        'Status':['status','school_details'],
+        'Year':['year', 'school_details']
         }
 
 destination_criteria_dict= {

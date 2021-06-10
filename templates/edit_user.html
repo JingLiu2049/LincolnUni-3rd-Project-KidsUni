@@ -8,9 +8,9 @@
 <main class="edit-container m-5">
     <div class="container bg-light p-4 pb-5 rounded">
         <div class="mb-3 row">
-            <h2>Edit User</h2>
+            <h1>Edit User</h1>
         </div>  
-    <form action="{{ url_for('edit_user') }}" method="POST">
+    <form action="{{ url_for('edit_user') }}" method="POST" class="offset-md-2 mr-auto ml-auto">
         <div class="input_wrapper">
         <div id="base" class="eventinfo">
             <div class="mb-3 row">
@@ -69,6 +69,12 @@
                 {% elif userinfo[6] == 'deactivated' %}
                     <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Reactivate</button>
                 {% endif %}
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label class="col-sm-2 col-form-label">Password</label>
+                <div class="col-sm-2">
+                    <a href="#" type="button" role="button" class="btn btn-outline-secondary">Update Password</a>
                 </div>
             </div>
         </div>

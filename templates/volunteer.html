@@ -1,6 +1,5 @@
 {%extends "layout.html"%}
-{%block title%}
-{%endblock%}
+{%block title%} Volunteers {%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'volunteer.css')}}">
 {%endblock%}
@@ -9,7 +8,7 @@
 
 
 <main class="m-4">
-    <h1>volunteer page</h1>
+    <h1>Volunteers</h1>
     <form action="/volunteer_upload" method="POST" enctype="multipart/form-data">
         <div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>

@@ -31,11 +31,11 @@ class school:
         self.consent = l[14]
         self.notes = l[15]
 
-        self.year = int(l[16])
-        self.returning = int(l[17])
-        self.max = int(l[18])
-        self.request = int(l[19])
-        self.confirm = int(l[20])
+        self.year = l[16]
+        self.returning = l[17]
+        self.max = l[18]
+        self.request = l[19]
+        self.confirm = l[20]
 
     def insert_db(self):
         cur = db.getCursor()
@@ -140,10 +140,10 @@ class SchoolInfoForm(FlaskForm):
 
     notes = TextField (label='Note ')
 
-    name = StringField(label='name')
+    name = StringField(label='Coordinator Name')
 
-    email = StringField(label='email')
+    email = StringField(label='Coordinator Email')
     
-    confirm = StringField(label='confirm')
+    confirm = IntegerField(label='Confirmed Student Number')
 
     submit = SubmitField(label=('Save'))

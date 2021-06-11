@@ -1,0 +1,26 @@
+div.eventinfo{
+    background-color: #F8F9FA;
+}
+p.error{
+    color: red;
+    background-color: #bfa;
+}
+.form-horizontal{
+    margin: 20px auto;
+    width: 50%;
+}
+.col-form-label {
+    font-weight: 700;
+}
+#submit-btn {
+    background-color: #269548; 
+}
+#reset-btn{
+    background-color:#1871AB; 
+}
+#cancel-btn{
+    background-color: #F3D712;
+}
+#submit-btn,#reset-btn,#cancel-btn {
+    color: white;
+}

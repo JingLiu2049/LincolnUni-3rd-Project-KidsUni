@@ -2,23 +2,24 @@
  
 {% block title %}Register New User{% endblock title%}
 {% block head %}
-<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {% endblock %}
 
 {%block content%}
+
 
 <main class="m-5">
     <div class="container bg-light p-4 pb-5 rounded">
         <div class="mb-3 row">
             <h1>Register New User</h1>
         </div>
-        <form method="POST" action="{{ url_for('add_user') }}">
+        <form method="POST" action="{{ url_for('add_user') }}" class="form-horizontal">
             {{ form.hidden_tag() }}
-            <fieldset class="form-group">
+            <div class="form-group">
                 <div class="mb-3 row">
-                    {{ form.first_name.label(class="col-sm-2 col-form-label") }}
+                    {{ form.first_name.label(class="col-sm-4 col-form-label") }}
                     {% if form.first_name.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                         {{ form.first_name(class="form-control form-control-user is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.first_name.errors %}
@@ -26,15 +27,15 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.first_name(class="form-control form-control-user") }}
                     </div>
                     {% endif %}                   
                 </div>
                 <div class="mb-3 row">
-                    {{ form.surname.label(class="col-sm-2 col-form-label") }}
+                    {{ form.surname.label(class="col-sm-4 col-form-label") }}
                     {% if form.surname.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                         {{ form.surname(class="form-control form-control-user is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.surname.errors %}
@@ -42,15 +43,15 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.surname(class="form-control form-control-user") }}
                     </div>
                     {% endif %}                   
                 </div>
                 <div class="mb-3 row">
-                    {{ form.email.label(class="col-sm-2 col-form-label") }}
+                    {{ form.email.label(class="col-sm-4 col-form-label") }}
                     {% if form.email.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                         {{ form.email(class="form-control form-control-user is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.email.errors %}
@@ -58,15 +59,15 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.email(class="form-control form-control-user") }}
                     </div>
                     {% endif %}                   
                 </div>
                 <div class="mb-3 row">
-                    {{ form.phone_number.label(class="col-sm-2 col-form-label") }}
+                    {{ form.phone_number.label(class="col-sm-4 col-form-label") }}
                     {% if form.phone_number.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                         {{ form.phone_number(class="form-control form-control-user is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.phone_number.errors %}
@@ -74,15 +75,15 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.phone_number(class="form-control form-control-user") }}
                     </div>
                     {% endif %}                   
                 </div>
                 <div class="mb-3 row">
-                    {{ form.user_access.label(class="col-sm-2 col-form-label") }}
+                    {{ form.user_access.label(class="col-sm-4 col-form-label") }}
                     {% if form.user_access.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                         {{ form.user_access(class="form-control form-control-user is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.user_access.errors %}
@@ -90,16 +91,16 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.user_access(class="form-control form-control-user form-select") }}
                     </div>
                     {% endif %}                   
                 </div>
                 <legend>Set Password</legend>
                 <div class="mb-3 row">
-                    {{ form.password.label(class="col-sm-2 col-form-label") }}
+                    {{ form.password.label(class="col-sm-4 col-form-label") }}
                     {% if form.password.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                         {{ form.password(class="form-control form-control-user is-invalid") }}
                         <div class="invalid-feedback">
                             {% for error in form.password.errors %}
@@ -107,15 +108,15 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.password(class="form-control form-control-user") }}
                     </div>
                     {% endif %}                   
                 </div>
                 <div class="mb-3 row">
-                    {{ form.confirm_password.label(class="col-sm-2 col-form-label") }}
+                    {{ form.confirm_password.label(class="col-sm-4 col-form-label") }}
                     {% if form.confirm_password.errors %}
-                        <div class="col-sm-6">
+                        <div class="col-sm-8">
                             {{ form.confirm_password(class="form-control form-control-user is-invalid") }}
                             <div class="invalid-feedback">
                                 {% for error in form.confirm_password.errors %}
@@ -124,19 +125,21 @@
                             </div>
                         </div>
                     {% else %}
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                         {{ form.confirm_password(class="form-control form-control-user") }}
                     </div>
                     {% endif %}                   
                 </div>
-            </fieldset>
-            <div class="d-grid gap-2 d-md-block">
-                <button type="button" role="button" class="btn btn-outline-secondary" onclick="history.back()">Cancel</button>
-                <button type="reset" role="button" class="btn btn-outline-secondary">Reset</button>
-                {{ form.submit(class="btn btn-outline-secondary") }}
+            </div>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-6 col-sm-offset-4">
+                    {{ form.submit(id="submit-btn", class="btn btn-outline-secondary") }}
+                    <button id="reset-btn" type="reset" role="button" class="btn btn-outline-secondary">Reset</button>
+                    <button id="cancel-btn" type="button" role="button" class="btn btn-outline-secondary" onclick="history.back()">Cancel</button>
+                </div>
             </div>
         </form>
-    </div>
     </div>
 </main> 
 {% endblock content%}

@@ -2,50 +2,51 @@
 {% block title %}Edit User{% endblock title %}
 
 {% block head %}
-<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {% endblock head %}
 {%block content%}
-<main class="edit-container m-5">
+
+<main class="m-5">
     <div class="container bg-light p-4 pb-5 rounded">
         <div class="mb-3 row">
             <h1>Edit User</h1>
         </div>  
-    <form action="{{ url_for('edit_user') }}" method="POST" class="offset-md-2 mr-auto ml-auto">
+    <form action="{{ url_for('edit_user') }}" method="POST" class="form-horizontal">
         <div class="input_wrapper">
         <div id="base" class="eventinfo">
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">User ID</label>
-                <div class="col-sm-6">
+                <label class="col-sm-4 col-form-label">User ID</label>
+                <div class="col-sm-8">
                     <input type="text" class="form-control form-control-user" required="required" name="user_id" value="{{ userinfo[0] }}" readonly>
                 </div>
             </div>
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">First Name</label>
-                <div class="col-sm-6">
+                <label class="col-sm-4 col-form-label">First Name</label>
+                <div class="col-sm-8">
                     <input type="text" class="form-control form-control-user" required="required" name="first_name" value="{{ userinfo[1] }}">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">Surname</label>
-                <div class="col-sm-6">
+                <label  class="col-sm-4 col-form-label">Surname</label>
+                <div class="col-sm-8">
                     <input type="text" class="form-control form-control-user"  required="required" name="surname" value="{{ userinfo[2] }}">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">Phone Number</label>
-                <div class="col-sm-6">
+                <label  class="col-sm-4 col-form-label">Phone Number</label>
+                <div class="col-sm-8">
                     <input type="text" class="form-control form-control-user"  required="required" name="phone_number" value="{{ userinfo[3] }}">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">Email</label>
-                <div class="col-sm-6">
+                <label  class="col-sm-4 col-form-label">Email</label>
+                <div class="col-sm-8">
                     <input type="email" class="form-control form-control-user" name="email" value="{{ userinfo[4] }}">
                 </div>
             </div>
             <div class="mb-3 row">
-                <label  class="col-sm-2 col-form-label">User Access</label>
-                <div class="col-sm-6">
+                <label  class="col-sm-4 col-form-label">User Access</label>
+                <div class="col-sm-4">
                     <select class="form-select" aria-label="user_access" type="user_access" class="form-control form-control-user"
                         id="user_access" name="user_access" placeholder="" required="required">
                         <option selected>{{ userinfo[5].title() }}</option>
@@ -58,31 +59,34 @@
                 </div>
             </div>
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">Status</label>
-                <div class="col-sm-2">
+                <label class="col-sm-4 col-form-label">Status</label>
+                <div class="col-sm-4">
                     <input type="text" class="form-control form-control-user" required="required" name="current_status" value="{{ userinfo[6] }}" readonly>
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-4">
                 <!-- Button trigger modal -->
                 {% if userinfo[6] == 'active' %}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Deactivate</button>
+                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Deactivate</button>
                 {% elif userinfo[6] == 'deactivated' %}
-                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Reactivate</button>
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Reactivate</button>
                 {% endif %}
                 </div>
             </div>
             <div class="mb-3 row">
-                <label class="col-sm-2 col-form-label">Password</label>
-                <div class="col-sm-2">
-                    <a href="#" type="button" role="button" class="btn btn-outline-secondary">Update Password</a>
+                <label class="col-sm-4 col-form-label">Password</label>
+                <div class="col-sm-8">
+                    <a href="#" type="button" role="button" class="btn btn-secondary">Update Password</a>
                 </div>
             </div>
         </div>
         </div>
-        <div class="d-grid gap-2 d-md-block">
-            <button type="button" role="button" class="btn btn-outline-secondary" onclick="history.back()">Cancel</button>
-            <button type="reset" role="button" class="btn btn-outline-secondary">Reset</button>
-            <button type="submit" role="button" class="btn btn-outline-secondary">Submit</button>   
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-8 col-sm-offset-4 g-0">
+                <button id="submit-btn" type="submit" role="button" class="btn">Submit</button>  
+                <button id="reset-btn" type="reset" role="button" class="btn">Reset</button>
+                <button id="cancel-btn" type="button" role="button" class="btn" onclick="history.back()">Cancel</button>
+            </div>
         </div>
        
 

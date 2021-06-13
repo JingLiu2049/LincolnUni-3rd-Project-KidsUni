@@ -21,7 +21,8 @@ Add New Student
                     {{ render_field(form.username) }}
                     {{ render_field(form.previous_hours) }}
                     {{ render_field(form.ethnicity_info, class="form-select") }}
-                    {{ render_field(form.publication_promos, class="form-select") }}                
+                    {{ render_field(form.publication_promos, class="form-select") }} 
+                    {{render_field(form.status, class="form-select")}}
                 </div>
                 <div class="col">
                     {{ render_field(form.first_name) }}

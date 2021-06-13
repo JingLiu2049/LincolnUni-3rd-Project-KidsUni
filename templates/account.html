@@ -5,20 +5,7 @@
 <link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {% endblock head %}
 {%block content%}
-<main class="edit-container m-5">
     <div class="container bg-light p-4 pb-5 rounded">
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
-        {% endwith %}
-
         <div class="mb-3 row">
             <h1>Account</h1>
         </div>  
@@ -59,5 +46,4 @@
             </div>
         </form>
     </div>
-</main> 
 {%endblock%}

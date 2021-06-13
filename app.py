@@ -159,15 +159,11 @@ def upsertSchool(form, school_id):
                     (school_name, who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes, school_id))
         cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
-        if confirm == '':
-            cur.execute("Update school_members set confirm_no = '0'")
-        else:
-            cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
+        cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
     else:
         cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (school_name, who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes))
-        #cur.execute("INSERT INTO coordinator VALUES (%s,%s);", (name, email))
 
 
 # if ld_id is not new, update destiantion daata for sql, otherwise insert a new destiantion
@@ -531,12 +527,6 @@ def add_school():
         if form.validate_on_submit():
             upsertSchool(form, 'new')
             message = 'You have successfully added a new school.'
-            cur = db.getCursor_NT()
-            cur.execute("select school_id from schools order by school_id desc limit 1")
-            school_id = cur.fetchone()
-            print(school_id)
-            cur.execute("insert into coordinator values(%s);", (school_id))
-            cur.execute("insert into school_members values(%s);", (school_id))
             return render_template('add_school.html', form=form, message=message)
         else:
             print(form.errors)
@@ -662,53 +652,54 @@ def volunteer():
     volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', voluns=volun_list, criteria=filter_criteria)
 
-@app.route("/edit_volunteer",methods = ['POST','GET'], endpoint = 'edit')
-@app.route("/add_volunteer", methods = ['POST','GET'], endpoint = 'add')
+@app.route("/edit_volunteer",methods = ['POST','GET'])
 @login_required
 def edit_volunteer():
     cur = db.getCursor_NT()
     form = volun_info.volunForm()
     volun_id = request.args.get('id')
-    version = request.endpoint
     if request.method == 'POST':
         if form.validate_on_submit():
-            if version == 'edit':
-                volun_info.upsertVoluns(form, volun_id)
-                message = 'Update successful'
-                return render_template('edit_volunteer.html', form=form, message=message)
-            else:
-                volun_info.upsertVoluns(form, 'new')
-                message = 'You have successfully added a new Volunteer.'
-                return render_template('add_volunteer.html', form=form, message=message)
+            volun_info.upsertVoluns(form, volun_id)
+            message = 'Update successful'
+            return render_template('edit_volunteer.html', form=form, message=message)
         else:
             print(form.errors)
-            if version == 'edit':
-                return render_template('edit_volunteer.html', form=form)
-            else:
-                return render_template('add_volunteer.html', form=form)
+            return render_template('edit_volunteer.html', form=form)
     else:
-        if version == 'edit':
-            cur.execute(f"select * from volunteers where volun_id={volun_id};")
-            volun = cur.fetchone()
-            print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
-            form.status.data = volun.status
-            form.induction.data  = volun.induction
-            form.interview.data  = volun.interview
-            form.photo.data  = volun.photo
-            form.studentid.data  = volun.student_id
-            form.firstname.data  = volun.first_name
-            form.surname.data  = volun.surname
-            form.prefername.data  = volun.preferred_name
-            form.gender.data  = volun.gender
-            form.dob.data  = volun.dob
-            form.email.data  = volun.email
-            form.phone_number.data  = volun.mobile
-            form.address.data = volun.address
-            
-            return render_template('edit_volunteer.html', form=form, )
+        cur.execute(f"select * from volunteers where volun_id={volun_id};")
+        volun = cur.fetchone()
+        print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')            
+        form.status.data = volun.status
+        form.induction.data  = volun.induction
+        form.interview.data  = volun.interview
+        form.photo.data  = volun.photo
+        form.studentid.data  = volun.student_id
+        form.firstname.data  = volun.first_name
+        form.surname.data  = volun.surname
+        form.prefername.data  = volun.preferred_name
+        form.gender.data  = volun.gender
+        form.dob.data  = volun.dob
+        form.email.data  = volun.email
+        form.phone_number.data  = volun.mobile
+        form.address.data = volun.address    
+        return render_template('edit_volunteer.html', form=form, )
+
+@app.route("/add_volunteer", methods=['POST', 'GET'])
+@login_required
+def add_volunteer():
+    form = volun_info.volunForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            volun_info.upsertVoluns(form, "new")
+            flash('You have successfully added a new volunteer.', 'success')
+            return redirect(url_for('volunteer'))
         else:
+            print(form.errors)
             return render_template('add_volunteer.html', form=form)
-    
+    else:
+        return render_template("add_volunteer.html", form=form)
+
 
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
 @login_required
@@ -755,6 +746,7 @@ def edit_event():
         sql = "UPDATE events SET name = '%s', event_date = '%s', location = '%s', description = '%s' \
             WHERE event_id = %s" % (event['name'], event['event_date'], event['location'], event['description'], int(event['id']))
         cur.execute(sql)
+        flash('Event was successfully updated.', 'success')
         return redirect(url_for('event'))
     else:
         eventid = int(request.args.get('eventid'))
@@ -792,6 +784,7 @@ def add_event():
             sql = "INSERT INTO events VALUES(nextval('eventid_seq'),'%s','%s','%s',\
                 '%s');" % (names[i], event_dates[i], locations[i], descriptions[i])
             cur.execute(sql)
+        flash('Event was successfully added.', 'success')
         return redirect(url_for('event'))
     return render_template('add_event.html')
 
@@ -873,7 +866,7 @@ def add_user():
 def download_mem_sheet():
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
     cur = db.getCursor()
-    cur.execute("SELECT school_id, school_name FROM schools;")
+    cur.execute("SELECT school_id, school_name FROM schools ORDER BY school_name ASC;")
     schools = cur.fetchall()
     # get selected info from clined-side
     if request.method == 'POST':

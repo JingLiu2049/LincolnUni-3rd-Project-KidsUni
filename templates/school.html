@@ -2,7 +2,6 @@
 {%block title%}Schools Page{%endblock%}
 
 {%block head%}
-<link rel="stylesheet" href="{{url_for('static', filename = 'layout.css')}}">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -10,6 +9,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
+<style>
+h1 {
+    padding-bottom: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 3rem;
+    text-align: center;
+    letter-spacing: 4.5px;
+}
+</style>
 {%endblock%}
 
 {%block content%}
@@ -38,14 +48,13 @@
 });
  </script>
 
-<main class="m-4">
      <div class="container-fluid">
           <h1>School Information List</h1>
           <form action="/school_upload" method="POST" enctype="multipart/form-data">
                <div class="input-group mb-3">
                     <label class="input-group-text" for="inputGroupFile01">Upload</label>
                     <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-                    <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+                    <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
                </div>
           </form>
 
@@ -69,14 +78,13 @@
                     {%endfor%}
                     <div class="col">
                     </br>
-                        <button class="btn btn-outline-secondary float-end" type="submit" role="button">Submit</button>
-                        <a class="btn btn-outline-secondary float-end clickable" style="margin-right: 1rem;" data-href="/school">Reset</a>
+                        <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
+                        <a id="reset-btn" class="btn btn-secondary float-end clickable" style="margin-right: 1rem;" data-href="/school">Reset</a>
                     </div>
                 </div>
           </form>
           <div class="col">
-               <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_school">Add
-                   New School</a>
+               <a class="btn btn-secondary float-end" type="button" role="button" href="/add_school">Add School</a>
            </div>
           </br>
 <div class="table-borderless">
@@ -137,6 +145,5 @@
           </table>
      </div>
 </div>
-</main>
 {%endblock%}
 

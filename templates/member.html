@@ -13,9 +13,7 @@
 <script src="/static/member.js"></script>
 {% endblock head %}
 {%block content%}
-
-
-<main class="m-4">
+<div class="container-fluid">
   <h1>Student Information List</h1>
   <form action="/member_upload" method="POST" enctype="multipart/form-data">
     <div class="row">
@@ -23,12 +21,12 @@
         <div class="input-group mb-3">
           <label class="input-group-text" for="inputGroupFile01">Upload</label>
           <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-          <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+          <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
         </div>
       </div>
       <div class="col">
-        <a href="{{ url_for('add_member') }}" type="button" role="button" class="btn btn-outline-secondary float-end">
-          Add New</a>
+        <a href="{{ url_for('add_member') }}" type="button" role="button" class="btn btn-secondary float-end">
+          Add Student</a>
       </div>
     </div>
   </form>
@@ -87,5 +85,5 @@
       </tbody>
     </table>
   </div>
-</main>
+</div>
 {%endblock%}

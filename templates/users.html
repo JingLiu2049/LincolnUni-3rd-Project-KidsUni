@@ -4,61 +4,48 @@
 
 {% block content %}
 
-  <main class="m-5">
-    <div class="container bg-light p-4 rounded">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      <div class="container bg-light p-4 rounded">
+        <div class="row">
+          <h1>Users</h1>
+        </div>
+        <div class="row mb-2">
+          <div class="col-12 mb-2">
+            <a href="{{ url_for('add_user') }}" type="button" role="button" class="btn btn-secondary float-end">
+              Add New User</a>
           </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+        </div>
+        <div class="table">
+            <table class="table">
+              <thead style="background-color: rgb(43, 42, 42);">
+                <tr>
+                  <th>User ID</th>
+                  <th>First Name</th>
+                  <th>Surname</th>
+                  <th>Phone Number</th>
+                  <th>Email</th> 
+                  <th>User Access</th>  
+                  <th>Status</th>     
+                  <th></th>                 
+                </tr>
+              </thead>
+              {# this is a comment the line below prints the db result #}
+              <tbody>
+              {% for user in users %}
+                <tr>
+                  {% for row in user[0:7] %}
+                  <td> {{ row }}</td>
+                  {% endfor %}
+                  <td> 
+                    <a href="/edit_user?user_id={{user[0]}}" role="button">
+                      <img src="/static/image/pencil-square.svg" alt="Edit" width="20" height="20"></a>
+                  </td>
+                </tr>  
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+      </div>
 
-      <div class="row">
-        <h1>Users</h1>
-      </div>
-      <div class="row mb-2">
-        <div class="col-12 mb-2">
-          <a href="{{ url_for('add_user') }}" type="button" role="button" class="btn btn-secondary float-end">
-            Add New User</a>
-        </div>
-      </div>
-      <div class="table">
-          <table class="table">
-            <thead style="background-color: rgb(43, 42, 42);">
-              <tr>
-                <th>User ID</th>
-                <th>First Name</th>
-                <th>Surname</th>
-                <th>Phone Number</th>
-                <th>Email</th> 
-                <th>User Access</th>  
-                <th>Status</th>     
-                <th></th>                 
-              </tr>
-            </thead>
-            {# this is a comment the line below prints the db result #}
-            <tbody>
-            {% for user in users %}
-              <tr>
-                {% for row in user[0:7] %}
-                <td> {{ row }}</td>
-                {% endfor %}
-                <td> 
-                  <a href="/edit_user?user_id={{user[0]}}" role="button">
-                    <img src="/static/image/pencil-square.svg" alt="Edit" width="20" height="20"></a>
-                </td>
-              </tr>  
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-    </div>
-    </div>
-  </main>
 {% endblock content %}
 
     

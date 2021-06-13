@@ -39,15 +39,20 @@ $(document).ready(function() {
 
 </script>
 
-<main class="m-4">
+<div class="container-fluid">
     <h1>Learning Destinations</h1>
     <form action="/destination_upload" method="POST" enctype="multipart/form-data">
         <div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" id="file" name="file" class="form-control" required>
-            <button type="submit" id="btn" class="btn btn-outline-secondary">submit</button>
+            <button type="submit" id="btn" class="btn btn-secondary">Submit</button>
         </div>
     </form>
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFile01">Search</label>
+        <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
+    </div>
+    <br>
     <form action="destination" method="POST" id="dest_filter_group">
         <div class="row">
             {% for i in criteria.keys()%}
@@ -62,19 +67,15 @@ $(document).ready(function() {
             {%endfor%}
             <div class="col">
             </br>
-                <button class="btn btn-outline-secondary float-end" type="submit" role="button">Search</button>
-                <a class="btn btn-outline-secondary float-end clickable" data-href="/destination">Reset</a>
+                <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
+                <a class="btn btn-secondary float-end clickable" data-href="/destination">Reset</a>
             </div>
         </div>
     </form>
     </br>
     <div class="row">
-        <div class="col-md-5">
-            <input class="form-control" id="myInput" type="text" placeholder="Search..">
-        </div>
         <div class="col">
-            <a class="btn btn-outline-secondary float-end" type="button" role="button" href="/add_destination">Add
-                New</a>
+            <a class="btn btn-secondary float-end" type="button" role="button" href="/add_destination">Add Learning Destination</a>
         </div>
     </div>
     <div class="table-borderless">
@@ -125,5 +126,5 @@ $(document).ready(function() {
                 {%endfor%}
             </tbody>
         </table>
-</main>
+</div>
 {%endblock%}

@@ -1,11 +1,13 @@
 {%extends "layout.html"%}
-{%block title%}Edit Volunteer{%endblock%}
+{%block title%}
+Edit Volunteer
+{%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {%endblock%}
 {%block content%}
     <div class="container bg-light p-4 pb-5 rounded">
-        <h1>Edit Volunteer</h1>
+        <h1>Add Volunteer</h1>
         {% from "_form_helper.html" import render_field %}
         <form method="POST" enctype="multipart/form-data" class="form_wrapper container">
             {{ form.csrf_token }}
@@ -39,5 +41,4 @@
             </div>
         </form>
     </div>
-
 {%endblock%}

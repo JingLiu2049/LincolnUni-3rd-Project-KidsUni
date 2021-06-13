@@ -13,18 +13,19 @@
 {%endblock%}
 
 {%block content%}
-
-
-<main class="m-4">
+<div class="container-fluid">
     <h1>Volunteers</h1>
     <form action="/volunteer_upload" method="POST" enctype="multipart/form-data">
         <div class="input-group mb-3">
             <label class="input-group-text" for="inputGroupFile01">Upload</label>
             <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-            <button class="btn btn-outline-secondary" type="submit" id="btn">Submit</button>
+            <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
         </div>
     </form>
-    <input class="form-control" id="myInput" type="text" placeholder="Search..">
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="inputGroupFile01">Search</label>
+        <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
+    </div>
     <form action="/volunteer" method="POST" class="criteria clearfix">
         <div class="row">
             {% for i in criteria.keys()%}
@@ -39,12 +40,12 @@
             {%endfor%}
             <div class="col">
             </br>
-                <button class="btn btn-outline-secondary float-end" type="submit" role="button">Search</button>
-                <a class="btn btn-outline-secondary float-end clickable" data-href="/volunteer">Reset</a>
+                <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
+                <a class="btn btn-secondary float-end clickable" data-href="/volunteer">Reset</a>
             </div>
         </div>
     </form>
-    <a href="/add_volunteer">Add a New Volunteer</a>
+    <a href="{{ url_for('add_volunteer') }}" type="button" role="button" class="btn btn-secondary">Add Volunteer</a>
     <table class="table-striped table-hover paginated" id="volunteer">
         <thead style="background-color: #F3D712;">
             <tr>
@@ -83,8 +84,7 @@
             {%endfor%}
         </tbody>
     </table>
-    
-</main>
+</div>
 
 <script>
     

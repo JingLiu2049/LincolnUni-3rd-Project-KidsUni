@@ -5,8 +5,6 @@
 <link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {% endblock head %}
 {%block content%}
-
-<main class="m-5">
     <div class="container bg-light p-4 pb-5 rounded">
         <div class="mb-3 row">
             <h1>Edit User</h1>
@@ -63,7 +61,7 @@
                 <div class="col-sm-4">
                     <input type="text" class="form-control form-control-user" required="required" name="current_status" value="{{ userinfo[6] }}" readonly>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-4 g-0">
                 <!-- Button trigger modal -->
                 {% if userinfo[6] == 'active' %}
                 <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Deactivate</button>
@@ -103,22 +101,21 @@
                     <p>Do you really want to deactivate this user?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-secondary" id="updated_status" name="updated_status" value="deactivated">Confirm</button>
+                    <button id="cancel-btn" type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button id="submit-btn" type="submit" class="btn" id="updated_status" name="updated_status" value="deactivated">Confirm</button>
                 </div>
                 {% elif userinfo[6] == 'deactivated' %}
                 <div class="modal-body">
                     <p>Do you really want to reactivate this user?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-secondary" id="updated_status" name="updated_status" value="active">Confirm</button>
+                    <button id="cancel-btn" type="button" class="btn" data-bs-dismiss="modal">Cancel</button>
+                    <button id="submit-btn" type="submit" class="btn" id="updated_status" name="updated_status" value="active">Confirm</button>
                 </div>
                 {% endif %}
             </div>
             </div>
         </div>
-    </form>
-</div>
-</main> 
+        </form>
+    </div>
 {%endblock%}

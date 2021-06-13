@@ -5,9 +5,10 @@ Edit Student
 
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'edit_member.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {%endblock%}
 {%block content%}
-<main class="m-5">
+
     <div class="container" id="hour_table">
         <h1>Study Hours</h1>
         <div class="table">
@@ -69,10 +70,10 @@ Edit Student
 
                     </br>
                     <div class="d-grid gap-2 d-md-block">
-                        <button type="button" role="button" class="btn btn-outline-secondary float-end"
+                        <button id="cancel-btn" type="button" role="button" class="btn float-end"
                             onclick="window.location.href = '/member'">Return</button>
-                        <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
-                        {{ form.submit(class="btn btn-outline-secondary float-end")}} 
+                        <button id="reset-btn" type="reset" role="button" class="btn float-end">Reset</button>
+                        {{ form.submit(id="submit-btn", class="btn float-end")}} 
                         <label style="color: red;">{{message}}</label>
                     </div>
                 </div>
@@ -80,6 +81,5 @@ Edit Student
         </form>
     </div>
     </div>
-</main>
 
 {%endblock%}

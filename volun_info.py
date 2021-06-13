@@ -133,9 +133,7 @@ class volunForm(FlaskForm):
     address = StringField(label='Current Address *', validators=[
         validators.DataRequired()])
     
-
-
-    submit = SubmitField(label=('Save'))
+    submit = SubmitField(label=('Submit'))
 
 
 
@@ -162,7 +160,7 @@ def upsertVoluns(form, volun_id):
             email,phone,address, induction, interview, photo, volun_id,))
     else:
         cur.execute("INSERT INTO volunteers VALUES(nextval('volunteerid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
-            %s,%s,%s,%s,%s,%s,%s);", (status, induction , interview, photo, studentid, firstname, surname, prefer,gender,dob,
+            %s);", (status, induction , interview, photo, studentid, firstname, surname, prefer,gender,dob,
             email,phone,address,))
 
 def active_volunteers_count():

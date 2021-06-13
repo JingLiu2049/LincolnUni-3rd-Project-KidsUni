@@ -4,10 +4,9 @@ Add New School
 {%endblock%}
 
 {%block head%}
-<link rel="stylesheet" href="{{url_for('static', filename = 'add_event.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {%endblock%}
 {%block content%}
-<main class="m-5">
      <div class="container bg-light p-4 pb-5 rounded">
           <div class="mb-3 row">
                <h1>Add New School</h1>
@@ -41,15 +40,12 @@ Add New School
                     </div>
                </div>
                <div class="d-grid gap-2 d-md-block">
-                    <button type="button" role="button" class="btn btn-outline-secondary float-end"
+                    <button id="cancel-btn" type="button" role="button" class="btn float-end"
                          onclick="window.location.href = '/school'">Return</button>
-                    <button type="reset" role="button" class="btn btn-outline-secondary float-end">Reset</button>
-                    {{ form.submit(class="btn btn-outline-secondary float-end")}} <label
+                    <button id="reset-btn" type="reset" role="button" class="btn float-end">Reset</button>
+                    {{ form.submit(id="submit-btn", class="btn float-end")}} <label
                          style="color: green;">{{message}}</label>
                </div>
           </form>
      </div>
-     </div>
-</main>
-
 {%endblock%}

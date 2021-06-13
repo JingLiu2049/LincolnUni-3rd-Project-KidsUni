@@ -68,7 +68,7 @@ h1 {
                <div class="row">
                     {% for i in schoolcriteria.keys()%}
                     <div class="col-sm-2">
-                        <label for="{{i}}">{{i}}</label>
+                        <label for="{{i}}">{{i.title()}}</label>
                         <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
                             {%for j in schoolcriteria[i]%}
                             <option>{{j[0]}}</option>

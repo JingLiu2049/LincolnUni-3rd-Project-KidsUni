@@ -14,12 +14,12 @@ Edit Learning Destination
             {{ form.csrf_token }}
             <div class="row">
                 <div class="col">
-                    {{ render_field(form.status) }}
+                    {{ render_field(form.status, class="form-select") }}
                     {{ render_field(form.ld_position) }}
                     {{ render_field(form.postal_address) }}
                     {{ render_field(form.web_address) }}
                     {{ render_field(form.agrt_signed) }}
-                    {{ render_field(form.logo_sent) }}
+                    {{ render_field(form.logo_sent, class="form-select") }}
                     {{render_field(form.note)}}
                 </div>
                 <div class="col">
@@ -28,15 +28,15 @@ Edit Learning Destination
                     {{ render_field(form.email) }}
                     {{ render_field(form.member_cost) }}
                     {{ render_field(form.rov_signed) }}
-                    {{ render_field(form.promo) }}
+                    {{ render_field(form.promo, class="form-select") }}
                 </div>
                 <div class="col">
                     {{ render_field(form.contact_person) }}
                     {{ render_field(form.region) }}
                     {{ render_field(form.phone_number) }}
                     {{ render_field(form.adult_cost) }}
-                    {{ render_field(form.poster_sent) }}
-                    {{ render_field(form.photo) }}
+                    {{ render_field(form.poster_sent, class="form-select") }}
+                    {{ render_field(form.photo, class="form-select") }}
                 </br>
                     <div class="d-grid gap-2 d-md-block">
                         <button id="cancel-btn" type="button" role="button" class="btn float-end"

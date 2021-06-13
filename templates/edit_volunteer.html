@@ -11,17 +11,17 @@
             {{ form.csrf_token }}
             <div class="row">
                 <div class="col">
-                    {{ render_field(form.status) }}
+                    {{ render_field(form.status, class="form-select") }}
                     {{ render_field(form.induction) }}
                     {{ render_field(form.interview) }}
-                    {{ render_field(form.photo) }}
+                    {{ render_field(form.photo, class="form-select") }}
                     {{ render_field(form.studentid) }}
                     {{ render_field(form.firstname) }}
                     {{render_field(form.surname)}}
                 </div>
                 <div class="col">
                     {{ render_field(form.prefername) }}
-                    {{ render_field(form.gender) }}
+                    {{ render_field(form.gender, class="form-select") }}
                     {{ render_field(form.dob) }}
                     {{ render_field(form.email) }}
                     {{ render_field(form.phone_number) }}

@@ -1,5 +1,6 @@
 # Imports
 ################################################
+from warnings import resetwarnings
 from flask import Flask, url_for, session, redirect, flash, render_template, request, send_file, make_response
 import psycopg2
 from psycopg2.extras import RealDictCursor, NamedTupleCursor
@@ -166,39 +167,7 @@ def upsertSchool(form, school_id):
                      portal, passports, agreement, consent, notes))
 
 
-# if ld_id is not new, update destiantion daata for sql, otherwise insert a new destiantion
-# get data from destiantion form
-def upsertDestinations(form, ld_id):
-    status = form.status.data
-    ld_name = form.ld_name.data
-    contact_person = form.contact_person.data
-    position = form.ld_position.data
-    address = form.address.data
-    region = form.region.data
-    postal_address = form.postal_address.data
-    email = form.email.data
-    phone_number = form.phone_number.data
-    web_address = form.web_address.data
-    member_cost = form.member_cost.data
-    adult_cost = form.adult_cost.data
-    agrt_signed = form.agrt_signed.data
-    rov_signed = form.rov_signed.data
-    poster_sent = form.poster_sent.data
-    logo_sent = form.logo_sent.data
-    promo = form.promo.data
-    photo = form.photo.data
-    note = form.note.data
-    cur = db.getCursor()
-    if ld_id != "new":
-        cur.execute(" Update destinations set status=%s, ld_name=%s, contact_person=%s, ld_position=%s, \
-            address=%s, region=%s,  postal_address=%s, phone_number=%s, email=%s, web_address=%s, member_cost=%s,\
-            adult_cost=%s, agrt_signed=%s, rov_signed=%s, poster_sent=%s, logo_sent=%s,  promo=%s, photo=%s , note=%s where ld_id=%s;",
-                    (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email, web_address,
-                     member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note, ld_id))
-    else:
-        cur.execute("INSERT INTO destinations VALUES(nextval('destinationid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
-            %s,%s,%s,%s,%s,%s,%s);", (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email,
-                                      web_address, member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note))
+
 
 # App Route
 ##################################################
@@ -494,8 +463,8 @@ def edit_school():
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, school_id)
-            message = 'Update successful'
-            return render_template('edit_school.html', form=form, message=message)
+            flash('School was successfully updated.', 'success')
+            return render_template('edit_school.html', form=form)
         else:
             print(form.errors)
             return render_template('edit_school.html', form=form)
@@ -526,8 +495,8 @@ def add_school():
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, 'new')
-            message = 'You have successfully added a new school.'
-            return render_template('add_school.html', form=form, message=message)
+            flash('You have successfully added a new school.', 'success')
+            return redirect(url_for('sch'))
         else:
             print(form.errors)
             return render_template('add_school.html', form=form)
@@ -565,16 +534,16 @@ def edit_destination():
     ld_id = request.args.get('id')
     if request.method == 'POST':
         if form.validate_on_submit():
-            # if verion == '1', update detiantion row
-            # else verion =='2', insert new detiantion row into database
+            # if version == '1', update detiantion row
+            # else version =='2', insert new detiantion row into database
             if version == '1':
-                upsertDestinations(form, ld_id)
-                message = 'Update successful'
-                return render_template('edit_destination.html', form=form, message=message)
+                destinations.upsertDestinations(form, ld_id)
+                flash('Learning Destination was successfully updated.', 'success')
+                return render_template('edit_destination.html', form=form)
             else:
-                upsertDestinations(form, 'new')
-                message = 'You have successfully added a new learning destination.'
-                return render_template('add_destination.html', form=form, message=message)
+                destinations.upsertDestinations(form, 'new')
+                flash('You have successfully added a new learning destination.', 'success')
+                return redirect(url_for('destination'))
         else:
             # print errors when the input values are not matching the setting input value type
             print(form.errors)
@@ -661,8 +630,8 @@ def edit_volunteer():
     if request.method == 'POST':
         if form.validate_on_submit():
             volun_info.upsertVoluns(form, volun_id)
-            message = 'Update successful'
-            return render_template('edit_volunteer.html', form=form, message=message)
+            flash('Update successful', 'success')
+            return render_template('edit_volunteer.html', form=form)
         else:
             print(form.errors)
             return render_template('edit_volunteer.html', form=form)
@@ -685,16 +654,19 @@ def edit_volunteer():
         form.address.data = volun.address    
         return render_template('edit_volunteer.html', form=form, )
 
+# Route to add a new volunteer
 @app.route("/add_volunteer", methods=['POST', 'GET'])
 @login_required
 def add_volunteer():
     form = volun_info.volunForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+            # Add volunteer to database if form was completed correctly
             volun_info.upsertVoluns(form, "new")
             flash('You have successfully added a new volunteer.', 'success')
             return redirect(url_for('volunteer'))
         else:
+            # Displays errors on form data inputted incorrectly
             print(form.errors)
             return render_template('add_volunteer.html', form=form)
     else:
@@ -725,10 +697,11 @@ def volunteer_upload():
             
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data)
 
-
+# Event's page
 @app.route("/event", methods=['POST', 'GET'])
 @login_required
 def event():
+    # Display all the events in the database ordered by date
     cur = db.getCursor()
     cur.execute("SELECT events.*, event_attend.number,volun_attend.attend FROM events\
         LEFT JOIN event_attend ON events.event_id = event_attend.event_id LEFT JOIN \
@@ -736,16 +709,18 @@ def event():
     events = cur.fetchall()
     return render_template('event.html', events=events)
 
-
+# Edit event page - when user clicks the edit icon on event list on the table
 @app.route("/edit_event", methods=['POST', 'GET'])
 @login_required
 def edit_event():
     cur = db.getCursor()
     if request.method == 'POST':
+        # Add all the event details into a dictionary to add to the database.
         event = request.form.to_dict()
         sql = "UPDATE events SET name = '%s', event_date = '%s', location = '%s', description = '%s' \
             WHERE event_id = %s" % (event['name'], event['event_date'], event['location'], event['description'], int(event['id']))
         cur.execute(sql)
+        # Display message that even was successfully updated.
         flash('Event was successfully updated.', 'success')
         return redirect(url_for('event'))
     else:
@@ -788,11 +763,13 @@ def add_event():
         return redirect(url_for('event'))
     return render_template('add_event.html')
 
-
+# Users page
 @app.route("/users", methods=['POST', 'GET'])
 @login_required
 @admin_access
 def users():
+    # Display all the users registered on the database. 
+    # Ordered by they surname
     cur = db.getCursor()
     cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
         authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
@@ -801,7 +778,7 @@ def users():
     column_names = [desc[0] for desc in cur.description]
     return render_template('users.html', users=select_result, dbcols=column_names)
 
-
+# Edit user page - when user clicks on the edit icon on the user to edit
 @app.route("/edit_user", methods=['POST', 'GET'])
 @login_required
 @admin_access
@@ -810,7 +787,6 @@ def edit_user():
     if request.method == 'POST':
         current_status = request.form.get('current_status')
         updated_status = request.form.get('updated_status')
-
         if updated_status == None:
             user = request.form.to_dict()
             sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \
@@ -834,7 +810,7 @@ def edit_user():
         userinfo = cur.fetchone()
         return render_template("edit_user.html", userinfo=userinfo)
 
-
+# Add user page
 @app.route("/add_user", methods=['POST', 'GET'])
 @login_required
 @admin_access

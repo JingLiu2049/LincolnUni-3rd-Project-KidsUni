@@ -98,7 +98,7 @@ class volunForm(FlaskForm):
     ])
 
     photo = SelectField(label='Photo provided ', validators=[
-    ], choices=['Yes', 'No'])
+    ], choices=['','Yes', 'No'])
 
 
     studentid = StringField(label='Student ID *', validators=[
@@ -119,7 +119,7 @@ class volunForm(FlaskForm):
     ])
 
     gender = SelectField(label='Gender', 
-        choices=['Male', 'Female', 'Other'])
+        choices=['','Male', 'Female', 'Other'])
 
     dob = DateField(label='Date of birth')
     

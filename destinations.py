@@ -113,6 +113,40 @@ class DestinationForm(FlaskForm):
 
     note = TextField (label='Note ')
 
-    photo = SelectField(label='Photo Provide ', choices=['Yes', 'No'])
+    photo = SelectField(label='Photo Provide ', choices=['','Yes', 'No'])
 
     submit = SubmitField(label=('Save'))
+
+# if ld_id is not new, update destiantion daata for sql, otherwise insert a new destiantion
+# get data from destiantion form
+def upsertDestinations(form, ld_id):
+    status = form.status.data
+    ld_name = form.ld_name.data
+    contact_person = form.contact_person.data
+    position = form.ld_position.data
+    address = form.address.data
+    region = form.region.data
+    postal_address = form.postal_address.data
+    email = form.email.data
+    phone_number = form.phone_number.data
+    web_address = form.web_address.data
+    member_cost = form.member_cost.data
+    adult_cost = form.adult_cost.data
+    agrt_signed = form.agrt_signed.data
+    rov_signed = form.rov_signed.data
+    poster_sent = form.poster_sent.data
+    logo_sent = form.logo_sent.data
+    promo = form.promo.data
+    photo = form.photo.data
+    note = form.note.data
+    cur = db.getCursor()
+    if ld_id != "new":
+        cur.execute(" Update destinations set status=%s, ld_name=%s, contact_person=%s, ld_position=%s, \
+            address=%s, region=%s,  postal_address=%s, phone_number=%s, email=%s, web_address=%s, member_cost=%s,\
+            adult_cost=%s, agrt_signed=%s, rov_signed=%s, poster_sent=%s, logo_sent=%s,  promo=%s, photo=%s , note=%s where ld_id=%s;",
+                    (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email, web_address,
+                     member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note, ld_id))
+    else:
+        cur.execute("INSERT INTO destinations VALUES(nextval('destinationid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
+            %s,%s,%s,%s,%s,%s,%s);", (status, ld_name, contact_person, position, address, region, postal_address, phone_number, email,
+                                      web_address, member_cost, adult_cost, agrt_signed, rov_signed, poster_sent, logo_sent, promo, photo, note))

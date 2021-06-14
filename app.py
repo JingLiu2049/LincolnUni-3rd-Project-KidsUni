@@ -841,69 +841,55 @@ def add_user():
 
 
 # generating excel file of member for downloading
-@app.route("/download_mem_sheet", methods=['POST', 'GET'])
+@app.route("/downloads/<sheetType>/", methods=['POST', 'GET'])
 @login_required
 @no_cache
-def download_mem_sheet():
+def downloads(sheetType):
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
     cur = db.getCursor()
-    cur.execute("SELECT school_id, school_name FROM schools ORDER BY school_name ASC;")
-    schools = cur.fetchall()
-    # get selected info from clined-side
-    if request.method == 'POST':
-        request_file = request.form.get('type')
-        school_list = request.form.getlist('schools')
-    # generating excel of blanck template and send to client-side
-        if request_file == 'template':
-            zfile = zipfile.ZipFile(
-                f'{app.root_path}\downloads\Templates.zip', 'w')
-            for schoolid in school_list:
-                filename = spreadsheet.gen_mem_tmp(schoolid)
-                zfile.write(filename)
-            zfile.close()
-            return send_file(f'{app.root_path}\downloads\Templates.zip',
-                             mimetype='zip',
-                             attachment_filename='Templates.zip',
-                             as_attachment=True)
-    # generating excel with completed data and send to client-side
-        elif request_file == 'completed':
-            zfile = zipfile.ZipFile(
-                f'{app.root_path}\downloads\Completed.zip', 'w')
-            for schoolid in school_list:
+    if sheetType == 'members':
+        cur.execute("SELECT school_id, school_name FROM schools ORDER BY school_name ASC;")
+        schools = cur.fetchall()
+        # get selected info from clined-side
+        if request.method == 'POST':
+            request_file = request.form.get('type')
+            school_list = request.form.getlist('schools')
+        # generating excel of blanck template and send to client-side
+            if request_file == 'template':
+                zfile = zipfile.ZipFile(
+                    f'{app.root_path}\downloads\Templates.zip', 'w')
+                for schoolid in school_list:
+                    filename = spreadsheet.gen_mem_tmp(schoolid)
+                    zfile.write(filename)
+                zfile.close()
+                return send_file(f'{app.root_path}\downloads\Templates.zip',
+                                mimetype='zip',
+                                attachment_filename='Templates.zip',
+                                as_attachment=True)
+        # generating excel with completed data and send to client-side
+            elif request_file == 'completed':
+                zfile = zipfile.ZipFile(
+                    f'{app.root_path}\downloads\Completed.zip', 'w')
+                for schoolid in school_list:
 
-                filename = spreadsheet.gen_mem_comp(schoolid)
-                zfile.write(filename)
-            zfile.close()
-            return send_file(f'{app.root_path}\downloads\Completed.zip',
-                             mimetype='zip',
-                             attachment_filename='Completed.zip',
-                             as_attachment=True)
-    return render_template('download_mem_sheet.html', schools=schools)
+                    filename = spreadsheet.gen_mem_comp(schoolid)
+                    zfile.write(filename)
+                zfile.close()
+                return send_file(f'{app.root_path}\downloads\Completed.zip',
+                                mimetype='zip',
+                                attachment_filename='Completed.zip',
+                                as_attachment=True)
+        return render_template('download_mem_sheet.html', schools=schools)
+    else:
+        if sheetType == 'destinations':
+            file = spreadsheet.gen_dest_sheet()
+        elif sheetType == 'volunteers':
+            file = spreadsheet.gen_volun_sheet()
+        elif sheetType == 'schools':
+            sheet = request.args.get('sheet')
+            file = spreadsheet.gen_sch_sheet(sheet)
+        return send_file(file, mimetype='xlsx', as_attachment=True)
 
-
-@app.route("/download_dest_sheet", methods=['POST', 'GET'])
-@login_required
-@no_cache
-def download_dest_sheet():
-    file = spreadsheet.gen_dest_sheet()
-    return send_file(file, mimetype='xlsx', as_attachment=True)
-
-
-@app.route("/download_volun_sheet", methods=['POST', 'GET'])
-@login_required
-@no_cache
-def download_volun_sheet():
-    file = spreadsheet.gen_volun_sheet()
-    return send_file(file, mimetype='xlsx', as_attachment=True)
-
-
-@app.route("/download_school_sheet", methods=['POST', 'GET'])
-@login_required
-@no_cache
-def download_school_sheet():
-    sheet = request.args.get('sheet')
-    file = spreadsheet.gen_sch_sheet(sheet)
-    return send_file(file, mimetype='xlsx', as_attachment=True)
 
 # Displays all users registered on the system
 @app.route("/account", methods=['GET'])

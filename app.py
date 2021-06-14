@@ -130,8 +130,8 @@ def upsertMember(form, member_id, school_id):
                      hat_size, status, member_id))
     else:
         cur.execute("INSERT INTO members VALUES(nextval('membered_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,\
-                    %s,%s,%s,%s,%s,%s,%s,%s);", (school_id, first_name, last_name, username, password, gender, member_age, ethnicity, continuing_new, passport_number,
-                    previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, total, gown_size,
+                    %s,%s,%s,%s,%s,%s,%s);", (school_id, first_name, last_name, username, password, gender, member_age, ethnicity, continuing_new, passport_number,
+                    previous, passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,
                     hat_size, status))
 
 

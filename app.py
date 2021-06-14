@@ -312,8 +312,8 @@ def edit_member():
                 school_id = result[0]
                 # upsert member info to database
                 upsertMember(form, member_id, school_id)
-                message = 'Update successful'
-                return render_template('edit_member.html', form=form, message=message, member=member, hour_result=hour_result)
+                flash('Student was successfully updated!', 'success')
+                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
             else:
                 # if the school name is not in the list, print error
                 print(form.errors)
@@ -366,8 +366,8 @@ def add_member():
                 school_id = result[0]
                 # upsert member info to database, print message once submit successful
                 upsertMember(form, 'new', school_id)
-                message = 'You have successfully added a new student.'
-                return render_template('add_member.html', form=form, message=message)
+                flash('You have successfully added a new student!', 'success')
+                return redirect(url_for('member'))
             else:
                 print(form.errors)
                 return render_template('add_member.html', form=form)

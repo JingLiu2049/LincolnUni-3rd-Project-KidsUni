@@ -40,21 +40,13 @@ Add New Student
                     {{ render_field(form.teaching_research, class="form-select") }}
                     {{ render_field(form.gown_size, class="form-select") }}
                 </br>
-                    <div class="d-grid gap-2 d-md-block">
-                        <button id="cancel-btn" type="button" role="button" class="btn float-end"
-                            onclick="window.location.href = '/member'">Return</button>
-                        <button id="reset-btn" type="reset" role="button" class="btn float-end">Reset</button>
-                        {{ form.submit(id="submit-btn", class="btn float-end")}} <label
-                            style="color: red;">{{message}}</label>
-                    </div>
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-block">
                 <button id="cancel-btn" type="button" role="button" class="btn float-end"
                     onclick="window.location.href = '/member'">Cancel</button>
                 <button id="reset-btn" type="reset" role="button" class="btn float-end">Reset</button>
-                {{ form.submit(id="submit-btn", class="btn float-end")}} <label
-                    style="color: red;">{{message}}</label>
+                {{ form.submit(id="submit-btn", class="btn float-end")}} 
             </div>
         </form>
     </div>

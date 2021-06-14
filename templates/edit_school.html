@@ -23,7 +23,7 @@
                         </div>
                         <div class="col">
                             {{ render_field(form.category) }}
-                            {{ render_field(form.status) }}
+                            {{ render_field(form.status, class="form-select") }}
                             {{ render_field(form.training) }}
                             {{ render_field(form.launch) }}
                             {{ render_field(form.presentation) }}
@@ -31,18 +31,17 @@
                         </div>
                         <div class="col">
                             {{ render_field(form.portal) }}
-                            {{ render_field(form.passports) }}
-                            {{ render_field(form.agreement) }}
-                            {{ render_field(form.consent) }}
+                            {{ render_field(form.passports, class="form-select") }}
+                            {{ render_field(form.agreement, class="form-select") }}
+                            {{ render_field(form.consent, class="form-select") }}
                             {{ render_field(form.notes) }}
                             
                         </div>
                     </div>                                     
                 <div class="d-grid gap-2 d-md-block">
-                    <button id="cancel-btn" type="button" role="button" class="btn float-end" onclick="window.location.href = '/school';">Return</button>
+                    <button id="cancel-btn" type="button" role="button" class="btn float-end" onclick="window.location.href = '/school';">Cancel</button>
                     <button id="reset-btn" type="reset" role="button" class="btn float-end">Reset</button>
                     {{ form.submit(id="submit-btn", class="btn float-end")}}
-                    <label style="color: green;">{{message}}</label>
                 </div>
             </form>
         </div>

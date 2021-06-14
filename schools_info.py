@@ -146,4 +146,4 @@ class SchoolInfoForm(FlaskForm):
     
     confirm = IntegerField(label='Confirmed Student Number')
 
-    submit = SubmitField(label=('Save'))
+    submit = SubmitField(label=('Submit'))

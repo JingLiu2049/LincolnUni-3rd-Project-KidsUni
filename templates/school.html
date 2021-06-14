@@ -1,5 +1,5 @@
 {%extends "layout.html"%}
-{%block title%}Schools Page{%endblock%}
+{%block title%}Schools{%endblock%}
 
 {%block head%}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
@@ -51,21 +51,30 @@ h1 {
      <div class="container-fluid">
           <h1>School Information List</h1>
           <form action="/school_upload" method="POST" enctype="multipart/form-data">
-               <div class="input-group mb-3">
-                    <label class="input-group-text" for="inputGroupFile01">Upload</label>
-                    <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-                    <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
-               </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                        <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+                        <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
+                    </div>
+                </div>
+                <div class="col">
+                        <a class="btn btn-secondary float-end" type="button" role="button" href="/add_school">Add School</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupFile01">Search</label>
+                        <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
+                    </div>
+                </div>
+            </div>
           </form>
-
-          <div class="input-group mb-3">
-              <label class="input-group-text" for="inputGroupFile01">Search</label>
-              <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
-          </div>
-          </br>
-
+          <div class="container-fluid my-3">
           <form action="/school" method="POST" class="criteria clearfix">
-               <div class="row">
+               <!-- <div class="row">
                     {% for i in schoolcriteria.keys()%}
                     <div class="col-sm-2">
                         <label for="{{i}}">{{i.title()}}</label>
@@ -81,14 +90,33 @@ h1 {
                         <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
                         <a id="reset-btn" class="btn btn-secondary float-end clickable" style="margin-right: 1rem;" data-href="/school">Reset</a>
                     </div>
+                </div> -->
+            <div class="form-group">
+                <div class="row">
+                    {% for i in schoolcriteria.keys()%}
+                    <div class="col-sm-2">
+                        <label for="{{i}}">{{i.title()}}</label>
+                        <select class="selectpicker form-control" multiple data-live-search="true" id="{{i}}" name="{{i}}">
+                            {%for j in schoolcriteria[i]%}
+                            <option>{{j[0]}}</option>
+                            {%endfor%}
+                        </select> 
+                    </div>
+                    {%endfor%}
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
+                            <a id="reset-btn" class="btn btn-secondary float-end clickable" style="margin-right: 1rem;" data-href="/school">Reset</a>
+                        </div>
+                    </div>
                 </div>
+            </div>
           </form>
-          <div class="col">
-               <a class="btn btn-secondary float-end" type="button" role="button" href="/add_school">Add School</a>
-           </div>
-          </br>
+        </div>
+
+
 <div class="table-borderless">
-          <table class="table-striped table-hover paginated" id="school">
+          <table class="table-striped table-hover paginated w-auto" id="school" style="font-size: x-small">
                <thead style="background-color:#269548">
                     <tr>
                          <td>School ID</td>
@@ -98,7 +126,7 @@ h1 {
                          <td>Category</td>
                          <td>Status</td>
                          <td>Coordinator Name</td>
-                         <td id="changewidth">Coordinator Email</td>
+                         <td>Coordinator Email</td>
                          <td>Training</td>
                          <td>Launch</td>
                          <td>Presentation</td>
@@ -124,7 +152,7 @@ h1 {
                          <td>{{i.category }}</td>
                          <td>{{i.status }}</td>
                          <td>{{i.coor_name }}</td>
-                         <td id="changewidth">{{i.coor_email }}</td>
+                         <td>{{i.coor_email }}</td>
                          <td>{{i.training }}</td>
                          <td>{{i.launch }}</td>
                          <td>{{i.presentation }}</td>

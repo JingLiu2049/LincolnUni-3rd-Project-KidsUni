@@ -37,13 +37,13 @@ Add New Learning Destination
                     {{ render_field(form.region) }}
                     {{ render_field(form.phone_number) }}
                     {{ render_field(form.adult_cost) }}
-                    {{ render_field(form.poster_sent) }}
+                    {{ render_field(form.poster_sent, class="form-select") }}
                     {{ render_field(form.photo, class="form-select") }}
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-block">
                 <button id="cancel-btn" type="button" role="button" class="btn float-end"
-                    onclick="window.location.href = '/destination'">Return</button>
+                    onclick="window.location.href = '/destination'">Cancel</button>
                 <button id="reset-btn" type="reset" role="button" class="btn float-end">Reset</button>
                 {{ form.submit(id="submit-btn", class="btn float-end")}} <label style="color: green;">{{message}}</label>
             </div>

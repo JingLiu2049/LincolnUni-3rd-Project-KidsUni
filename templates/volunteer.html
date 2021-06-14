@@ -1,33 +1,56 @@
 {%extends "layout.html"%}
-{%block title%} Volunteers {%endblock%}
+{%block title%}Volunteers{%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'volunteer.css')}}">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="{{url_for('static', filename = 'layout.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<style>
+    .themed-grid-col {
+        background-color: rgba(86, 61, 124, .15);
+        border: 1px solid rgba(86, 61, 124, .2);
+    }
+    .selectpicker {
+        background-color: blue;
+        margin-right: 3px;
+    }
+</style>
 {%endblock%}
 
 {%block content%}
 <div class="container-fluid">
     <h1>Volunteers</h1>
     <form action="/volunteer_upload" method="POST" enctype="multipart/form-data">
-        <div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile01">Upload</label>
-            <input type="file" class="form-control" id="inputGroupFile01" required name="file">
-            <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
+        <div class="row">
+            <div class="col-md-10">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                    <input type="file" class="form-control" id="inputGroupFile01" required name="file">
+                    <button class="btn btn-secondary" type="submit" id="btn">Submit</button>
+                </div>
+            </div>
+            <div class="col">
+                <a href="{{ url_for('add_volunteer') }}" type="button" role="button" class="btn btn-secondary float-end">Add Volunteer</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupFile01">Search</label>
+                    <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
+                </div>
+            </div>
         </div>
     </form>
-    <div class="input-group mb-3">
-        <label class="input-group-text" for="inputGroupFile01">Search</label>
-        <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
-    </div>
+   <div class="container-fluid my-3">
     <form action="/volunteer" method="POST" class="criteria clearfix">
-        <div class="row">
+        <!-- <div class="row">
             {% for i in criteria.keys()%}
             <div class="col-sm-2">
                 <label for="{{i}}">{{i}}</label>
@@ -41,12 +64,32 @@
             <div class="col">
             </br> <label style="color: red;">{{message}}</label>
                 <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
-                <a class="btn btn-secondary float-end clickable" data-href="/volunteer">Reset</a>
+                <a id="reset-btn" class="btn float-end clickable" data-href="/volunteer">Reset</a>
+            </div>
+        </div> -->
+        <div class="form-group">
+            <div class="row">
+            {% for i in criteria.keys()%}
+                <div class="col-md-2">
+                    <label for="{{i}}">{{i}}</label>
+                    <select class="selectpicker form-control" multiple data-live-search="true" id="{{i}}" name="{{i}}">
+                        {%for j in criteria[i]%}
+                        <option>{{j[0]}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+            {%endfor%}
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
+                    <a id="reset-btn" class="btn float-end clickable" data-href="/volunteer">Reset</a>
+                </div>
             </div>
         </div>
     </form>
-    <a href="{{ url_for('add_volunteer') }}" type="button" role="button" class="btn btn-secondary float-end">Add Volunteer</a>
-    <table class="table-striped table-hover paginated" id="volunteer">
+</div>
+    <table class="table-striped table-hover paginated" id="volunteer" style="font-size: x-small">
         <thead style="background-color: #F3D712;">
             <tr>
                 <th>ID</th>

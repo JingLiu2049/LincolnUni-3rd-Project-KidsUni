@@ -115,7 +115,7 @@ class DestinationForm(FlaskForm):
 
     photo = SelectField(label='Photo Provide ', choices=['','Yes', 'No'])
 
-    submit = SubmitField(label=('Save'))
+    submit = SubmitField(label=('Submit'))
 
 # if ld_id is not new, update destiantion daata for sql, otherwise insert a new destiantion
 # get data from destiantion form

@@ -207,7 +207,7 @@ def login():
             # If account exists and account is deactivated, user will receive error message
             if account and user[5] == 'deactivated':
                 flash(f'Login unsuccessful. Please contact admin to check your account.', 'danger')
-                return redirect(url_for('login'))               
+                return redirect(url_for('login'))
             elif account and user[5] == 'active':
                 # If account exists, account is active and password is correct, user can log in
                 if bcrypt.check_password_hash(account[2], password):
@@ -276,7 +276,7 @@ def member():
     cur = db.getCursor_NT()
     cur.execute("select member_id, school_name, concat(first_name,' ' ,last_name) as name, username, gender, member_age, ethnicity, continuing_new, passport_number,\
                    passport_date_issued, ethnicity_info, teaching_research, publication_promos, social_media, gown_size,\
-                   hat_size from member_info where status !='Deactive' ;") 
+                   hat_size from member_info where status !='Deactive' ;")
     result = cur.fetchall()
     return render_template("member.html", result=result)
 
@@ -289,7 +289,7 @@ def edit_member():
     cur = db.getCursor_NT()
     member_id = request.args.get('id')
     # import flask form member_info.py
-    form = member_info.MemberInfoForm()  
+    form = member_info.MemberInfoForm()
     cur.execute(f"select * from member_info where member_id={member_id};")
     member = cur.fetchone()
     school_name = request.form.get('school_name')
@@ -298,12 +298,12 @@ def edit_member():
     hour_result = cur.fetchall()
     if request.method == 'POST':
         if form.validate_on_submit():
-            # create a currently school name list from database 
+            # create a currently school name list from database
             schoolArray = []
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
-            if school_name in schoolArray:  
+            if school_name in schoolArray:
                 # the new school name should be find in currently school name list
                 # get school name by matching school_id
                 cur.execute(
@@ -312,8 +312,8 @@ def edit_member():
                 school_id = result[0]
                 # upsert member info to database
                 upsertMember(form, member_id, school_id)
-                message = 'Update successful'
-                return render_template('edit_member.html', form=form, message=message, member=member, hour_result=hour_result)
+                flash('Student was successfully updated!', 'success')
+                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
             else:
                 # if the school name is not in the list, print error
                 print(form.errors)
@@ -350,14 +350,14 @@ def add_member():
     form = member_info.MemberInfoForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            # create a currently school name list from database 
+            # create a currently school name list from database
             schoolArray = []
             cur = db.getCursor_NT()
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
                 school_name = form.school_name.data
-            if form.school_name.data in schoolArray:  
+            if form.school_name.data in schoolArray:
                 # the new school name should be find in currently school name list
                 # get school name by matching school_id
                 cur.execute(
@@ -366,8 +366,8 @@ def add_member():
                 school_id = result[0]
                 # upsert member info to database, print message once submit successful
                 upsertMember(form, 'new', school_id)
-                message = 'You have successfully added a new student.'
-                return render_template('add_member.html', form=form, message=message)
+                flash('You have successfully added a new student!', 'success')
+                return redirect(url_for('member'))
             else:
                 print(form.errors)
                 return render_template('add_member.html', form=form)
@@ -463,7 +463,7 @@ def edit_school():
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, school_id)
-            flash('School was successfully updated.', 'success')
+            flash('School was successfully updated!', 'success')
             return render_template('edit_school.html', form=form)
         else:
             print(form.errors)
@@ -495,7 +495,7 @@ def add_school():
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, 'new')
-            flash('You have successfully added a new school.', 'success')
+            flash('You have successfully added a new school!', 'success')
             return redirect(url_for('sch'))
         else:
             print(form.errors)
@@ -509,7 +509,7 @@ def add_school():
 def destination():
     cur = db.getCursor()
     # import destiantion dictionarty from filter_info destiantion_dic
-    # display select labels and options group by filter_criteria 
+    # display select labels and options group by filter_criteria
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
     cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
@@ -542,11 +542,11 @@ def edit_destination():
             # else version =='2', insert new detiantion row into database
             if version == '1':
                 destinations.upsertDestinations(form, ld_id)
-                flash('Learning Destination was successfully updated.', 'success')
+                flash('Learning Destination was successfully updated!', 'success')
                 return render_template('edit_destination.html', form=form)
             else:
                 destinations.upsertDestinations(form, 'new')
-                flash('You have successfully added a new learning destination.', 'success')
+                flash('You have successfully added a new learning destination!', 'success')
                 return redirect(url_for('destination'))
         else:
             # print errors when the input values are not matching the setting input value type
@@ -634,7 +634,7 @@ def edit_volunteer():
     if request.method == 'POST':
         if form.validate_on_submit():
             volun_info.upsertVoluns(form, volun_id)
-            flash('Update successful', 'success')
+            flash('Volunter was successfully updated!', 'success')
             return render_template('edit_volunteer.html', form=form)
         else:
             print(form.errors)
@@ -642,7 +642,7 @@ def edit_volunteer():
     else:
         cur.execute(f"select * from volunteers where volun_id={volun_id};")
         volun = cur.fetchone()
-        print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')            
+        print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
         form.status.data = volun.status
         form.induction.data  = volun.induction
         form.interview.data  = volun.interview
@@ -655,7 +655,7 @@ def edit_volunteer():
         form.dob.data  = volun.dob
         form.email.data  = volun.email
         form.phone_number.data  = volun.mobile
-        form.address.data = volun.address    
+        form.address.data = volun.address
         return render_template('edit_volunteer.html', form=form, )
 
 # Route to add a new volunteer
@@ -667,7 +667,7 @@ def add_volunteer():
         if form.validate_on_submit():
             # Add volunteer to database if form was completed correctly
             volun_info.upsertVoluns(form, "new")
-            flash('You have successfully added a new volunteer.', 'success')
+            flash('You have successfully added a new volunteer!', 'success')
             return redirect(url_for('volunteer'))
         else:
             # Displays errors on form data inputted incorrectly
@@ -698,7 +698,7 @@ def volunteer_upload():
         except Exception as e:
             return print(e)
             # return render_template('error.html')
-            
+
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data)
 
 # Event's page
@@ -725,7 +725,7 @@ def edit_event():
             WHERE event_id = %s" % (event['name'], event['event_date'], event['location'], event['description'], int(event['id']))
         cur.execute(sql)
         # Display message that even was successfully updated.
-        flash('Event was successfully updated.', 'success')
+        flash('Event was successfully updated!', 'success')
         return redirect(url_for('event'))
     else:
         eventid = int(request.args.get('eventid'))
@@ -763,7 +763,7 @@ def add_event():
             sql = "INSERT INTO events VALUES(nextval('eventid_seq'),'%s','%s','%s',\
                 '%s');" % (names[i], event_dates[i], locations[i], descriptions[i])
             cur.execute(sql)
-        flash('Event was successfully added.', 'success')
+        flash('You have successfully added a new event!', 'success')
         return redirect(url_for('event'))
     return render_template('add_event.html')
 
@@ -772,7 +772,7 @@ def add_event():
 @login_required
 @admin_access
 def users():
-    # Display all the users registered on the database. 
+    # Display all the users registered on the database.
     # Ordered by they surname
     cur = db.getCursor()
     cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
@@ -797,14 +797,14 @@ def edit_user():
                 WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'],
                                        int(user['user_id']))
             cur.execute(sql)
-            flash(f'User successfully updated.', 'success')
+            flash(f'User was successfully updated!', 'success')
             return redirect(url_for('users'))
         if updated_status == 'deactivated' or updated_status == 'active':
             user = request.form.to_dict()
             sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s', status = '%s' \
                 WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'], user['updated_status'], int(user['user_id']))
             cur.execute(sql)
-            flash(f'User successfully updated.', 'success')
+            flash(f'User was successfully updated!', 'success')
             return redirect(url_for('users'))
     else:
         user_id = request.args.get('user_id')
@@ -834,7 +834,7 @@ def add_user():
         cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                     (int(user_id), first_name, surname, phone_number, email, status,))
         cur.execute("INSERT INTO authorisation(user_id, username, password, user_access) VALUES (%s,%s,%s,%s);", (int(user_id), email, hashed_password, user_access))
-        flash(f'User successfully added!', 'success')
+        flash(f'You have successfully added a new user!', 'success')
         return redirect(url_for('users'))
     return render_template('add_user.html', form=form)
 
@@ -904,6 +904,7 @@ def download_school_sheet():
     file = spreadsheet.gen_sch_sheet(sheet)
     return send_file(file, mimetype='xlsx', as_attachment=True)
 
+# Displays all users registered on the system
 @app.route("/account", methods=['GET'])
 @login_required
 def account():
@@ -914,19 +915,40 @@ def account():
     account = cur.fetchone()
     return render_template('account.html', account=account)
 
-@app.route("/account/update_password", methods=['GET', 'POST'])
+
+@app.route("/update_password", methods=['POST', 'GET'], endpoint='3') # Page where user can update their password
+@app.route("/account/update_password", methods=['POST', 'GET'], endpoint='4') # Admin user access can update another user's password
 @login_required
 def update_password():
-    form = UpdatePassword()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        cur = db.getCursor()
-        user_id = session['user_id']
-        print(user_id)
-        cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(user_id),))
-        flash('Your password was successfully updated!', 'success')
-        return redirect(url_for('account'))
-    return render_template('update_password.html', form=form)
+    version = request.endpoint
+    form = UpdatePassword()    
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            # if version == '3', update current users password
+            # else version =='4', update another users password
+            if version == '3':
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                cur = db.getCursor()
+                user_id = session['user_id']
+                print(user_id)
+                cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(user_id),))
+                flash('Your password was successfully updated!', 'success')
+                return redirect(url_for('account'))
+            else:
+                if form.validate_on_submit():
+                    staff_user_id = request.args.get('user_id')
+                    form = UpdatePassword()
+                    print(staff_user_id)
+                    password = form.password.data
+                    print(password)
+                    hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                    cur = db.getCursor()
+                    cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(staff_user_id),))
+                    flash('Password was successfully updated!', 'success')
+                    return redirect(url_for('users'))
+    else:
+        return render_template('update_password.html', form=form)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

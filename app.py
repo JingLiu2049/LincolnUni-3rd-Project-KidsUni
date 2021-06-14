@@ -14,7 +14,7 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, filter_info,volun_info, classes
+import uploads, schools_info, member_info, destinations, filter_info,volun_info
 from functools import wraps
 import bcrypt
 from flask_bcrypt import Bcrypt
@@ -420,7 +420,7 @@ def sch():
         sql = filter_info.get_sql(
             'school_details', 'school_id', sch_criteria_dict)
     else:
-        sql = "SELECT * FROM school_details ORDER BY school_id;"
+        sql = "SELECT * FROM school_details WHERE year = (SELECT MAX(year) FROM school_members) ORDER BY school_id;"
     cur.execute(sql)
     results = cur.fetchall()
     school_list = filter_info.get_display_list(results, schools_info.school)
@@ -435,7 +435,8 @@ def school_upload():
     if form:
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
-            school_info.pop(16)
+            school_info.pop(18)
+            print(school_info)
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
         return redirect(url_for('sch'))

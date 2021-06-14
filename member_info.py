@@ -22,7 +22,7 @@ class members:
         self.status = l[7]
         self.passport = l[8] 
         
-        self.date = l[9] if l[9] !='' else None
+        self.date = l[9]
         self.eth_info = l[10]
         self.research = l[11]
         self.promos = l[12]
@@ -30,7 +30,7 @@ class members:
 
         self.username = l[14]
         self.password = l[15]
-        self.school = l[16]
+        self.school = l[16].lower()
 
         self.previous = float(l[17])
         self.term1 = float(l[18])

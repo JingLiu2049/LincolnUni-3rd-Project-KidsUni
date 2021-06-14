@@ -1,5 +1,4 @@
 import db
-import classes
 from flask import request
 
 volun_criteria_dict= {

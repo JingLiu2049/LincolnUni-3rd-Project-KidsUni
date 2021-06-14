@@ -1,7 +1,6 @@
 import db
 import pandas as pd
 import getid
-import classes
 import member_info
 import volun_info
 import destinations
@@ -87,7 +86,7 @@ def dest_obj(l=[]):
 
 @add_index
 def get_dest_df(excelpath):
-    df_des = pd.read_excel(excelpath,0,header=[1],dtype = str)
+    df_des = pd.read_excel(excelpath,0,header=[1],dtype = str,keep_default_na=False)
     df_des.dropna(axis = 0, how='all', inplace=True)
     df_des.update(df_des.iloc[:,15:19].fillna('No'))
     df_des.update(df_des.iloc[:,20:].fillna('No'))
@@ -115,13 +114,13 @@ def get_volun_df(excelpath):
                 "Emergency contact person - Mobile number":str,
                 "Referee one - Phone number":str,
                 "Referee two - Phone number":str}
-    df_volun = pd.read_excel(excelpath,0, dtype=str)
+    df_volun = pd.read_excel(excelpath,0, dtype= typedict,keep_default_na=False)
     df_hours = pd.read_excel(excelpath,1,header=[4])
     df_joined = pd.concat([df_volun,df_hours.iloc[:,5:]],axis=1)
 
     df_joined.dropna(axis = 0, how='all', inplace=True)
     df_joined.update(df_joined.iloc[:,[4,14,15,17]].fillna('No'))
-    df_joined.update(df_joined.iloc[:,38:].fillna('0')) 
+    df_joined.update(df_joined.iloc[:,38:].fillna(0)) 
     return df_joined
     
 

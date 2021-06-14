@@ -14,7 +14,7 @@ from wtforms.fields.simple import TextAreaField, TextField
 class school:
     def __init__(self,l=[]):
         self.id = int(l[0])
-        self.name = l[1]
+        self.name = l[1].lower()
         self.who = l[2]
         self.council = l[3]
         self.category = l[4]
@@ -50,7 +50,7 @@ class school:
         cur.execute(sql)
         # cur.execute("UPDATE coordinator SET name = %s, email = %s WHERE school_id = %s;",( self.coor_name,self.coor_email,self.id))
         sql = f"INSERT INTO school_members(school_id, year, return_no ,max_no, request_no, confirm_no) VALUES({self.id}, \
-            '{self.year}',{self.returning}, {self.max},{self.request},{self.confirm}) ON CONFLICT (school_id, year) DO UPDATE \
+            {self.year},{self.returning}, {self.max},{self.request},{self.confirm}) ON CONFLICT (school_id, year) DO UPDATE \
             SET school_id = EXCLUDED.school_id, year = EXCLUDED.year, return_no = EXCLUDED.return_no, \
             max_no =EXCLUDED.max_no, request_no = EXCLUDED.request_no, confirm_no = EXCLUDED.confirm_no;"
         cur.execute(sql)
@@ -69,6 +69,7 @@ def school_obj(l=[]):
 
 def get_df(excelpath):
     typedict = {
+        'Current Year' : str,
         'Total(Last Year)' : str,
         'Returning (Last year)'	: str,
         'Max Number(Current Year)'	: str,
@@ -79,6 +80,8 @@ def get_df(excelpath):
     df_school = pd.read_excel(excelpath,0,dtype=typedict)
     df_school.update(df_school.iloc[:,17:].fillna(0))
     df_school.update(df_school.iloc[:,[8,9,10]].fillna('NA'))
+    year = df_school.iat[0, 16]
+    df_school.update(df_school.iloc[:,16].fillna(year))
     df_school.fillna('', inplace=True)
     df_school.loc[:, 'index'] = df_school.index
 

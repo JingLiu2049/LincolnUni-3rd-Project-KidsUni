@@ -1,5 +1,5 @@
 {%extends "layout.html"%}
-{% block title %}Students Page{% endblock %}
+{% block title %}Students{% endblock %}
 {% block head %}
 <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
 <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
@@ -17,7 +17,7 @@
   <h1>Student Information List</h1>
   <form action="/member_upload" method="POST" enctype="multipart/form-data">
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-10">
         <div class="input-group mb-3">
           <label class="input-group-text" for="inputGroupFile01">Upload</label>
           <input type="file" class="form-control" id="inputGroupFile01" required name="file">
@@ -32,7 +32,7 @@
   </form>
 
   <div class="table-responsive">
-    <table class="table table-striped table-hover" id="table">
+    <table class="table table-striped table-hover" id="table" style="font-size: x-small">
       <thead style="background-color: #A01D2F;">
         <tr>
           <th>Student ID</th>

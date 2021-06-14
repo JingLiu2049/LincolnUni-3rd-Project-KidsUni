@@ -134,7 +134,7 @@ class MemberInfoForm(FlaskForm):
     status = SelectField(label='Status *', validators=[
         validators.DataRequired(),
     ], choices=['Active', 'Deactive'])
-    submit = SubmitField(label=('Save'))
+    submit = SubmitField(label=('Submit'))
 
 
 

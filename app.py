@@ -513,15 +513,19 @@ def destination():
     # display select labels and options group by filter_criteria
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
+    cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
+    dests = cur.fetchall()
     if request.method == 'POST':
         # if POST, get sql from filter_info
         sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
-        cur.execute(sql)
-        dest_list=cur.fetchall()
-        return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
-    else:
-        cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
-        dests = cur.fetchall()
+        if sql:
+            cur.execute(sql)
+            dest_list=cur.fetchall()
+            return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
+        else:
+            message='Invalid input'
+            return render_template('destination.html', dests=dests,  message=message, criteria=filter_criteria)
+    else: 
         return render_template('destination.html', dests=dests, criteria=filter_criteria)
 
 

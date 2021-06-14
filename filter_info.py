@@ -64,11 +64,16 @@ def get_sql(table, order,criteria_idct = {}):
                 query += f"{column} = '{values[j]}'"
             elif j == 0:
                 query += f" AND {column} = '{values[j]}'"
-            else:
+            elif j >0:
                 query += f" OR {column} = '{values[j]}'"
-        count += 1
-
+            else:
+                query == ''
+    count += 1
+    if query !='':
         sql = f'SELECT * FROM {table} WHERE {query} ORDER BY {order};'
-    return sql
-
+        return sql
+    else:
+        False
+        
+        
 

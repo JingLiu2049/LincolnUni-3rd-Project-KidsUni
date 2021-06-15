@@ -166,6 +166,10 @@ def upsertSchool(form, school_id):
                      portal, passports, agreement, consent, notes, school_id))
         cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
         cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
+        if confirm == '':
+            cur.execute("Update school_members set confirm_no = '0'")
+        else:
+            cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
     else:
         cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (school_name, who, council, category, status, training, launch, presentation,
@@ -517,7 +521,14 @@ def add_school():
         if form.validate_on_submit():
             upsertSchool(form, 'new')
             flash('You have successfully added a new school!', 'success')
+            cur = db.getCursor_NT()
+            cur.execute("select school_id from schools order by school_id desc limit 1")
+            school_id = cur.fetchone()
+            print(school_id)
+            cur.execute("insert into coordinator values(%s);", (school_id))
+            cur.execute("insert into school_members values(%s);", (school_id))
             return redirect(url_for('sch'))
+            
         else:
             print(form.errors)
             return render_template('add_school.html', form=form)

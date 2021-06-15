@@ -419,17 +419,32 @@ def member_upload():
 @login_required
 def sch():
     cur = db.getCursor()
+    #import school dictionary from filter_info python file (named sch_criteria_dict)
+    #display the selected column names with dropdown unique options
     sch_criteria_dict = filter_info.sch_criteria_dict
     filter_criteria = filter_info.get_criteria(sch_criteria_dict)
+    cur.execute("SELECT * FROM school_details WHERE year = (SELECT MAX(year) FROM school_members) ORDER BY school_id;")
+    schs = cur.fetchall()
     if request.method == 'POST':
+        #if post, process sql query from filter_info
         sql = filter_info.get_sql(
             'school_details', 'school_id', sch_criteria_dict)
+        try :
+            cur.execute(sql)
+            results = cur.fetchall()
+            school_list = filter_info.get_display_list(results, schools_info.school)
+        except:
+            print('error')
+            message='You have not select anything yet, please try again!'
+            school_list = filter_info.get_display_list(schs, schools_info.school)
+            return render_template('school.html', schoollist=school_list,  message=message, schoolcriteria=filter_criteria)
+        return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
     else:
-        sql = "SELECT * FROM school_details WHERE year = (SELECT MAX(year) FROM school_members) ORDER BY school_id;"
-    cur.execute(sql)
-    results = cur.fetchall()
-    school_list = filter_info.get_display_list(results, schools_info.school)
-    return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
+        school_list = filter_info.get_display_list(schs, schools_info.school)
+        return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
+
+    
+    
 
 
 @app.route("/school_upload", methods=['POST'])

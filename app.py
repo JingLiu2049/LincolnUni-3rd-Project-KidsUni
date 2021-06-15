@@ -303,6 +303,7 @@ def edit_member():
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
+                print(schoolArray)
             if school_name in schoolArray:
                 # the new school name should be find in currently school name list
                 # get school name by matching school_id
@@ -316,8 +317,8 @@ def edit_member():
                 return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
             else:
                 # if the school name is not in the list, print error
-                print(form.errors)
-                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
+                name_error='The school should in the list.'
+                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result, name_error=name_error )
         else:
             print(form.errors)
             return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
@@ -369,8 +370,8 @@ def add_member():
                 flash('You have successfully added a new student!', 'success')
                 return redirect(url_for('member'))
             else:
-                print(form.errors)
-                return render_template('add_member.html', form=form)
+                error='The school should in the list.'
+                return render_template('add_member.html', form=form ,error=error)
         else:
             print(form.errors)
             return render_template('add_member.html', form=form)
@@ -523,7 +524,7 @@ def destination():
             dest_list=cur.fetchall()
         except:
             print('error')
-            message='Invalid input'
+            message='Invalid Input'
             return render_template('destination.html', dests=dests,  message=message, criteria=filter_criteria)
         return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
         

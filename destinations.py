@@ -71,7 +71,7 @@ def total_destinations_count():
 
 class DestinationForm(FlaskForm):
     status = SelectField(label='Status *', validators=[
-        validators.DataRequired()],  choices=['Active', 'Deactive','Pending'])
+        validators.DataRequired()],  choices=['Active', 'Deactive','In Progress'])
 
     ld_name = StringField(label='Name *', validators=[
         validators.DataRequired()

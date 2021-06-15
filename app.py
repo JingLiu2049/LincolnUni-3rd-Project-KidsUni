@@ -518,14 +518,15 @@ def destination():
     if request.method == 'POST':
         # if POST, get sql from filter_info
         sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
-        if sql:
+        try :
             cur.execute(sql)
             dest_list=cur.fetchall()
-            return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
-        else:
+        except:
             print('error')
             message='Invalid input'
             return render_template('destination.html', dests=dests,  message=message, criteria=filter_criteria)
+        return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
+        
     else: 
         return render_template('destination.html', dests=dests, criteria=filter_criteria)
 

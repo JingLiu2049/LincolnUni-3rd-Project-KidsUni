@@ -1,4 +1,5 @@
 import db
+import classes
 from flask import request
 
 volun_criteria_dict= {
@@ -23,7 +24,6 @@ sch_criteria_dict= {
 
 destination_criteria_dict= {
     'Status':['status','destinations'],
-    'Name':['ld_name','destinations'],
     'Region':['region','destinations'],
     'Member Cost':['member_cost','destinations'],
     'Adult Cost':['adult_cost','destinations']
@@ -64,16 +64,13 @@ def get_sql(table, order,criteria_idct = {}):
                 query += f"{column} = '{values[j]}'"
             elif j == 0:
                 query += f" AND {column} = '{values[j]}'"
-            elif j >0:
-                query += f" OR {column} = '{values[j]}'"
             else:
-                query == ''
-    count += 1
-    if query !='':
+                query += f" OR {column} = '{values[j]}'"
+        count += 1
         sql = f'SELECT * FROM {table} WHERE {query} ORDER BY {order};'
-        return sql
-    else:
+    if len(form.keys()) < 1:
         False
-        
-        
+    else:
+        return sql
+
 

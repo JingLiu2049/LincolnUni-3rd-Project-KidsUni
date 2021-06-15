@@ -66,23 +66,6 @@ $(document).ready(function() {
     </form>
     <div class="container-fluid my-3">
     <form action="destination" method="POST" id="dest_filter_group">
-        <!-- <div class="row">
-            {% for i in criteria.keys()%}
-            <div class="col-sm-2">
-                <label for="{{i}}">{{i}}</label>
-                <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
-                    {%for j in criteria[i]%}
-                    <option>{{j[0]}}</option>
-                    {%endfor%}
-                </select> 
-            </div>
-            {%endfor%}
-            <div class="col">
-            </br> <label style="color: red;">{{message}}</label>
-                <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
-                <a class="btn float-end clickable" id="reset-btn" data-href="/destination">Reset</a>
-            </div>
-        </div> -->
         <div class="form-group">
             <div class="row">
                 {% for i in criteria.keys()%}
@@ -96,6 +79,7 @@ $(document).ready(function() {
                 </div>
                 {%endfor%}
                 <div class="row">
+                    <label class="float-end" style="color: red;">{{message}}</label>
                     <div class="col">
                         <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
                         <a class="btn float-end clickable" id="reset-btn" data-href="/destination">Reset</a>

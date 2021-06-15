@@ -37,7 +37,7 @@ class members:
         self.term2 = float(l[19])
         self.term3 = float(l[20])
         self.term4 = float(l[21])
-        self.total = float(l[22])
+        self.total = l[22]
         self.gown = l[23]
         self.hat = l[24]
         self.year = int(l[25][0:4])

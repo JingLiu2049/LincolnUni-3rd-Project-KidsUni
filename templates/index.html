@@ -2,7 +2,7 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="{{url_for('static', filename = 'index.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'dashboard.css')}}">
 {% endblock %}
 
 {%block content%}
@@ -17,19 +17,8 @@ $(document).ready(function() {
 
 
 <main class="m-4">
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
     <h1>Dashboard</h1>
+    <h2 style="font-weight: bold;">Summary for current year: {{ current_year }}</h2>
     <div class="container">
         <div class="row row row-cols-1 row-cols-md-2 row-cols-lg-4">
             <div class="col">
@@ -37,7 +26,7 @@ $(document).ready(function() {
                     <div class="card-body" >
                         <h3 class="card-title">Students</h3>
                         <p class="mb-0">Students active: {{ total_members }}</p>
-                        <p class="mb-0">Students hours(current total): {{ total_members_hours }} hours</p>
+                        <p class="mb-0">Students hours (total): {{ total_members_hours }} hrs</p>
                     </div>
                 </div>
             </div>
@@ -69,7 +58,7 @@ $(document).ready(function() {
                     <div class="card-body">
                         <h3 class="card-title ">Volunteers</h3>
                         <p class="mb-0">Volunteers active: {{ total_volunteers }}</p>
-                        <p class="mb-0">Volunteers hours: {{ total_volunteers_hours }} hours</p>
+                        <p class="mb-0">Volunteers hours (total): {{ total_volunteers_hours }} hrs</p>
                     </div>
                 </div>
             </div>

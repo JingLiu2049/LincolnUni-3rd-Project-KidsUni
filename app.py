@@ -67,9 +67,11 @@ def current_year():
 def login_required(f):
     @wraps(f)
     def secure_function(*args, **kwargs):
-        if 'loggedin' in session:
+        # if the user is logged in then the page will load
+        if 'loggedin' in session: 
             return f(*args, **kwargs)
         else:
+            # if the user isn't logged in then they will be redirected to the login page and receive message to login
             flash(f'Please login to access this page.', 'danger')
             return redirect(url_for('login', next=request.url))
     return secure_function
@@ -78,9 +80,12 @@ def login_required(f):
 def admin_access(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # If the user is registered with admin user access type then they can access this page
         if session['user_access'] == "admin":
             return f(*args, **kwargs)
         else:
+            # If user is registered with restricted user access type then they will be redirected to the index page
+            # A message will display saying that they don't have access to this page.
             flash(f"You don't have access to this page.", 'danger')
             return redirect(url_for('index'))
     return decorated_function
@@ -161,6 +166,10 @@ def upsertSchool(form, school_id):
                      portal, passports, agreement, consent, notes, school_id))
         cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
         cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
+        if confirm == '':
+            cur.execute("Update school_members set confirm_no = '0'")
+        else:
+            cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
     else:
         cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
                     (school_name, who, council, category, status, training, launch, presentation,
@@ -183,14 +192,11 @@ def login():
         username = request.form['username']
         password = request.form['password']
         next_url = request.form.get('next')
-        remember_me = request.form.get('remember_me')
         print(username)
         print(next_url)
-        print(remember_me)
         # Check if account exists using MySQL
         cur = db.getCursor()
         cur.execute('SELECT * FROM authorisation WHERE username = %s', (username,))
-        #cur.execute('SELECT * FROM authorisation WHERE username=%s and password=%s', (username,password))
         # Fetch one record and return result
         account = cur.fetchone()
 
@@ -217,9 +223,6 @@ def login():
                     session['name'] = user[1]
                     session['password'] = account[2]
                     session['user_access'] = account[3]
-                    session['remember_me'] = True if request.form.get(
-                        'remember_me') else False
-                    print(session['remember_me'])
                     print(session['user_access'])
                     # If the user tried to access a certain page but wasn't logged in, the system will redirect the user to
                     # this page once they have logged in
@@ -244,7 +247,6 @@ def logout():
     session.pop('name', None)
     session.pop('password', None)
     session.pop('user_access', None)
-    session.pop('remember_me', None)
     # Redirect to login page
     return redirect(url_for('login'))
 
@@ -252,22 +254,28 @@ def logout():
 @app.route("/index", methods=['POST', 'GET'])
 @login_required
 def index():
-    # Get information to display on the dashboard
-    total_members = member_info.active_members_count()
-    total_members_hours = member_info.total_members_hours()
-    active_schools = schools_info.active_schools_count()
-    in_progress_schools = schools_info.in_progress_schools_count()
-    total_schools = schools_info.total_schools_count()
-    active_destinations = destinations.active_destinations_count()
-    pending_destinations = destinations.pending_destinations_count()
-    total_destinations = destinations.total_destinations_count()
-    total_volunteers = volun_info.active_volunteers_count()
-    total_volunteers_hours = volun_info.total_volunteers_hours()
-    return render_template("index.html", total_members=total_members,
-                           total_members_hours=total_members_hours, active_schools=active_schools, in_progress_schools=in_progress_schools,
-                           total_schools=total_schools, active_destinations=active_destinations, pending_destinations=pending_destinations,
-                           total_destinations=total_destinations, total_volunteers=total_volunteers,
-                           total_volunteers_hours=total_volunteers_hours)
+    try:
+        # Get information to display on the dashboard
+        # Displays information for the current year (1st of Jan - 31st Dec)
+        year = current_year()
+        total_members = member_info.active_members_count()
+        total_members_hours = member_info.total_members_hours()
+        active_schools = schools_info.active_schools_count()
+        in_progress_schools = schools_info.in_progress_schools_count()
+        total_schools = schools_info.total_schools_count()
+        active_destinations = destinations.active_destinations_count()
+        pending_destinations = destinations.pending_destinations_count()
+        total_destinations = destinations.total_destinations_count()
+        total_volunteers = volun_info.active_volunteers_count()
+        total_volunteers_hours = volun_info.total_volunteers_hours()
+        return render_template("index.html", current_year=year, total_members=total_members,
+                            total_members_hours=total_members_hours, active_schools=active_schools, in_progress_schools=in_progress_schools,
+                            total_schools=total_schools, active_destinations=active_destinations, pending_destinations=pending_destinations,
+                            total_destinations=total_destinations, total_volunteers=total_volunteers,
+                            total_volunteers_hours=total_volunteers_hours)
+    except Exception as e:
+        # Display error message if unable to load the dashboard
+        return render_template('error.html')
 
 
 @app.route("/member", methods=['GET'])
@@ -303,6 +311,7 @@ def edit_member():
             cur.execute(f"select school_name from schools;")
             for row in cur.fetchall():
                 schoolArray.append(str(row.school_name))
+                print(schoolArray)
             if school_name in schoolArray:
                 # the new school name should be find in currently school name list
                 # get school name by matching school_id
@@ -316,8 +325,8 @@ def edit_member():
                 return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
             else:
                 # if the school name is not in the list, print error
-                print(form.errors)
-                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
+                name_error='The school should in the list.'
+                return render_template('edit_member.html', form=form, member=member, hour_result=hour_result, name_error=name_error )
         else:
             print(form.errors)
             return render_template('edit_member.html', form=form, member=member, hour_result=hour_result)
@@ -369,8 +378,8 @@ def add_member():
                 flash('You have successfully added a new student!', 'success')
                 return redirect(url_for('member'))
             else:
-                print(form.errors)
-                return render_template('add_member.html', form=form)
+                error='The school should in the list.'
+                return render_template('add_member.html', form=form ,error=error)
         else:
             print(form.errors)
             return render_template('add_member.html', form=form)
@@ -414,17 +423,32 @@ def member_upload():
 @login_required
 def sch():
     cur = db.getCursor()
+    #import school dictionary from filter_info python file (named sch_criteria_dict)
+    #display the selected column names with dropdown unique options
     sch_criteria_dict = filter_info.sch_criteria_dict
     filter_criteria = filter_info.get_criteria(sch_criteria_dict)
+    cur.execute("SELECT * FROM school_details WHERE year = (SELECT MAX(year) FROM school_members) ORDER BY school_id;")
+    schs = cur.fetchall()
     if request.method == 'POST':
+        #if post, process sql query from filter_info
         sql = filter_info.get_sql(
             'school_details', 'school_id', sch_criteria_dict)
+        try :
+            cur.execute(sql)
+            results = cur.fetchall()
+            school_list = filter_info.get_display_list(results, schools_info.school)
+        except:
+            print('error')
+            message='You have not select anything yet, please try again!'
+            school_list = filter_info.get_display_list(schs, schools_info.school)
+            return render_template('school.html', schoollist=school_list,  message=message, schoolcriteria=filter_criteria)
+        return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
     else:
-        sql = "SELECT * FROM school_details WHERE year = (SELECT MAX(year) FROM school_members) ORDER BY school_id;"
-    cur.execute(sql)
-    results = cur.fetchall()
-    school_list = filter_info.get_display_list(results, schools_info.school)
-    return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
+        school_list = filter_info.get_display_list(schs, schools_info.school)
+        return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
+
+    
+    
 
 
 @app.route("/school_upload", methods=['POST'])
@@ -497,7 +521,14 @@ def add_school():
         if form.validate_on_submit():
             upsertSchool(form, 'new')
             flash('You have successfully added a new school!', 'success')
+            cur = db.getCursor_NT()
+            cur.execute("select school_id from schools order by school_id desc limit 1")
+            school_id = cur.fetchone()
+            print(school_id)
+            cur.execute("insert into coordinator values(%s);", (school_id))
+            cur.execute("insert into school_members values(%s);", (school_id))
             return redirect(url_for('sch'))
+            
         else:
             print(form.errors)
             return render_template('add_school.html', form=form)
@@ -518,13 +549,15 @@ def destination():
     if request.method == 'POST':
         # if POST, get sql from filter_info
         sql = filter_info.get_sql('destinations', 'ld_id', destination_criteria_dict)
-        if sql:
+        try :
             cur.execute(sql)
             dest_list=cur.fetchall()
-            return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
-        else:
-            message='Invalid input'
+        except:
+            print('error')
+            message='Invalid Input'
             return render_template('destination.html', dests=dests,  message=message, criteria=filter_criteria)
+        return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
+        
     else: 
         return render_template('destination.html', dests=dests, criteria=filter_criteria)
 
@@ -773,15 +806,19 @@ def add_event():
 @login_required
 @admin_access
 def users():
-    # Display all the users registered on the database.
-    # Ordered by they surname
-    cur = db.getCursor()
-    cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
-        authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
-        ORDER BY surname;")
-    select_result = cur.fetchall()
-    column_names = [desc[0] for desc in cur.description]
-    return render_template('users.html', users=select_result, dbcols=column_names)
+    try:
+        # Display all the users registered on the database.
+        # Ordered by they surname
+        cur = db.getCursor()
+        cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+            authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+            ORDER BY surname;")
+        select_result = cur.fetchall()
+        column_names = [desc[0] for desc in cur.description]
+        return render_template('users.html', users=select_result, dbcols=column_names)
+    except:
+        # Display error message if unable to load page
+        return render_template("error.html")
 
 # Edit user page - when user clicks on the edit icon on the user to edit
 @app.route("/edit_user", methods=['POST', 'GET'])
@@ -789,56 +826,72 @@ def users():
 @admin_access
 def edit_user():
     cur = db.getCursor()
+    user_id = request.args.get('user_id')
+    cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+        authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+            WHERE admin.user_id = %s;", (user_id,))
+    userinfo = cur.fetchone()
     if request.method == 'POST':
-        current_status = request.form.get('current_status')
+        # current_status = request.form.get('current_status')
         updated_status = request.form.get('updated_status')
         if updated_status == None:
-            user = request.form.to_dict()
-            sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \
-                WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'],
-                                       int(user['user_id']))
-            cur.execute(sql)
-            flash(f'User was successfully updated!', 'success')
-            return redirect(url_for('users'))
+            try:
+                user = request.form.to_dict()
+                sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s' \
+                    WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'],
+                                        int(user['user_id']))
+                cur.execute(sql)
+                flash(f'User was successfully updated!', 'success')
+                return redirect(url_for('users'))
+            except:
+                flash('Unable to update user, please try again!', 'danger')
+                return render_template("edit_user.html", userinfo=userinfo)
         if updated_status == 'deactivated' or updated_status == 'active':
-            user = request.form.to_dict()
-            sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s', status = '%s' \
-                WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'], user['updated_status'], int(user['user_id']))
-            cur.execute(sql)
-            flash(f'User was successfully updated!', 'success')
-            return redirect(url_for('users'))
+            try:
+                user = request.form.to_dict()
+                sql = "UPDATE admin SET first_name = '%s', surname = '%s', phone_number = '%s', email = '%s', status = '%s' \
+                    WHERE user_id = %s" % (user['first_name'], user['surname'], user['phone_number'], user['email'], user['updated_status'], int(user['user_id']))
+                cur.execute(sql)
+                flash(f'User was successfully updated!', 'success')
+                return redirect(url_for('users'))
+            except:
+                user_id = request.form.get('user_id')
+                cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
+                    authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
+                    WHERE admin.user_id = %s;", (user_id,))
+                userinfo = cur.fetchone()
+                flash('Unable to update user, please try again!', 'danger')
+                return render_template("edit_user.html", userinfo=userinfo)
     else:
-        user_id = request.args.get('user_id')
-        cur.execute("SELECT admin.user_id, admin.first_name, admin.surname, admin.phone_number, admin.email, \
-            authorisation.user_access, admin.status FROM admin JOIN authorisation ON admin.user_id=authorisation.user_id \
-             WHERE admin.user_id = %s;", (user_id,))
-        userinfo = cur.fetchone()
         return render_template("edit_user.html", userinfo=userinfo)
 
 # Add user page
 @app.route("/add_user", methods=['POST', 'GET'])
 @login_required
-@admin_access
+@admin_access # Only users with admin access can access this page.
 def add_user():
     form = AddUser()
     if form.validate_on_submit():
-        user_id = genID()
-        first_name = form.first_name.data
-        surname = form.surname.data
-        email = form.email.data
-        phone_number = form.phone_number.data
-        user_access = form.user_access.data
-        password = form.password.data
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        status = "active"
-        cur = db.getCursor()
-        cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
-                    (int(user_id), first_name, surname, phone_number, email, status,))
-        cur.execute("INSERT INTO authorisation(user_id, username, password, user_access) VALUES (%s,%s,%s,%s);", (int(user_id), email, hashed_password, user_access))
-        flash(f'You have successfully added a new user!', 'success')
-        return redirect(url_for('users'))
+        try:
+            user_id = genID()
+            first_name = form.first_name.data
+            surname = form.surname.data
+            email = form.email.data
+            phone_number = form.phone_number.data
+            user_access = form.user_access.data
+            password = form.password.data
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+            status = "active"
+            cur = db.getCursor()
+            cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
+                        (int(user_id),first_name, surname, phone_number, email, status,))
+            cur.execute("INSERT INTO authorisation(user_id, username, password, user_access) VALUES (%s,%s,%s,%s);", (int(user_id), email, hashed_password, user_access))
+            flash(f'You have successfully added a new user!', 'success')
+            return redirect(url_for('users'))
+        except:
+            flash('Unable to add user, please try again', 'danger')
+            return redirect(url_for('add_user'))
     return render_template('add_user.html', form=form)
-
 
 # generating excel file of member for downloading
 @app.route("/downloads/<sheetType>/", methods=['POST', 'GET'])
@@ -891,16 +944,21 @@ def downloads(sheetType):
         return send_file(file, mimetype='xlsx', as_attachment=True)
 
 
-# Displays all users registered on the system
+# Displays current user's details
 @app.route("/account", methods=['GET'])
 @login_required
 def account():
     cur = db.getCursor()
     user_id = session['user_id']
     print(user_id)
-    cur.execute('SELECT * FROM admin WHERE user_id=%s;', (int(user_id),))
-    account = cur.fetchone()
-    return render_template('account.html', account=account)
+    try:
+        # Get current user's details
+        cur.execute('SELECT * FROM admin WHERE user_id=%s;', (int(user_id),))
+        account = cur.fetchone()
+        return render_template('account.html', account=account)
+    except Exception as e:
+        # Display error message if unable to load page
+        return render_template('error.html')
 
 
 @app.route("/update_password", methods=['POST', 'GET'], endpoint='3') # Page where user can update their password
@@ -909,30 +967,40 @@ def account():
 def update_password():
     version = request.endpoint
     form = UpdatePassword()    
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            # if version == '3', update current users password
-            # else version =='4', update another users password
-            if version == '3':
-                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                cur = db.getCursor()
-                user_id = session['user_id']
-                print(user_id)
+    if form.validate_on_submit():
+        # if version == '3', update current users password
+        # else version =='4', update another users password
+        if version == '3':
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            cur = db.getCursor()
+            user_id = session['user_id']
+            print(user_id)
+            try:
+                # Update database with new password
                 cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(user_id),))
                 flash('Your password was successfully updated!', 'success')
                 return redirect(url_for('account'))
-            else:
-                if form.validate_on_submit():
-                    staff_user_id = request.args.get('user_id')
-                    form = UpdatePassword()
-                    print(staff_user_id)
-                    password = form.password.data
-                    print(password)
-                    hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                    cur = db.getCursor()
+            except Exception as e:
+                # Display error message if unable to update password
+                return render_template('error.html')
+            
+        else:
+            if form.validate_on_submit():
+                staff_user_id = request.args.get('user_id')
+                form = UpdatePassword()
+                print(staff_user_id)
+                password = form.password.data
+                print(password)
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                cur = db.getCursor()
+                # Update database with new password
+                try:
                     cur.execute('UPDATE authorisation SET password=%s WHERE user_id=%s;', (hashed_password, int(staff_user_id),))
                     flash('Password was successfully updated!', 'success')
                     return redirect(url_for('users'))
+                except Exception as e:
+                    # Display error message if unable to update password
+                    return render_template('error.html')
     else:
         return render_template('update_password.html', form=form)
 

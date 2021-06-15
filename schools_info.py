@@ -115,7 +115,9 @@ def total_schools_count():
 
 
 class SchoolInfoForm(FlaskForm):
-    school_name = StringField(label='School Name')
+    school_name = StringField(label='School Name *', validators=[
+        validators.DataRequired(),
+        validators.regexp('^[a-zA-Z ]*$', message='Invalid Input')])
 
     who = StringField(label='Who')
 
@@ -123,7 +125,7 @@ class SchoolInfoForm(FlaskForm):
 
     category = StringField(label='Category')
 
-    status = SelectField(label='Status', choices=['Active', 'Deative'])
+    status = SelectField(label='Status', choices=['','Active','In Progress','Deative'])
 
     training = StringField(label='Training')
 
@@ -131,14 +133,14 @@ class SchoolInfoForm(FlaskForm):
 
     presentation = StringField(label='Presentation')
 
-    portal = SelectField(label='portal', choices=['Y', 'N'])
+    portal = SelectField(label='portal', choices=['','Y', 'N'])
 
-    passports = SelectField(label='Passports', choices=['Y', 'N'])
+    passports = SelectField(label='Passports', choices=['','Y', 'N'])
 
-    agreement = SelectField(label='Agreement', choices=['Y', 'N'])
+    agreement = SelectField(label='Agreement', choices=['','Y', 'N'])
         
 
-    consent = SelectField(label='Consent', choices=['Y', 'N'])
+    consent = SelectField(label='Consent', choices=['','Y', 'N'])
 
 
     notes = TextField (label='Note ')

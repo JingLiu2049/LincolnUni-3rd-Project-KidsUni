@@ -50,23 +50,6 @@
     </form>
    <div class="container-fluid my-3">
     <form action="/volunteer" method="POST" class="criteria clearfix">
-        <!-- <div class="row">
-            {% for i in criteria.keys()%}
-            <div class="col-sm-2">
-                <label for="{{i}}">{{i}}</label>
-                <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
-                    {%for j in criteria[i]%}
-                    <option>{{j[0]}}</option>
-                    {%endfor%}
-                </select> 
-            </div>
-            {%endfor%}
-            <div class="col">
-            </br> <label style="color: red;">{{message}}</label>
-                <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
-                <a id="reset-btn" class="btn float-end clickable" data-href="/volunteer">Reset</a>
-            </div>
-        </div> -->
         <div class="form-group">
             <div class="row">
             {% for i in criteria.keys()%}
@@ -89,7 +72,7 @@
         </div>
     </form>
 </div>
-    <table class="table-striped table-hover paginated" id="volunteer" style="font-size: x-small">
+    <table class="table-striped table-hover paginated" id="volunteer">
         <thead style="background-color: #F3D712;">
             <tr>
                 <th>ID</th>

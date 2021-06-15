@@ -19,7 +19,7 @@ nav {
 
 
 main{
-    padding-top:60px;
+    padding-top:25px;
 }
 
 h1 {
@@ -39,10 +39,11 @@ button {
     margin-top: 40px;
 }
 
-table{
-    padding-top: 20px;
-}
 
 thead {
     color: white;
+}
+
+#error-message {
+        text-align: center;
 }

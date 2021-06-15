@@ -14,14 +14,9 @@
 {% block content %}
 
 <script>
-    $(document).ready(function () {
-        $("#myInput").on("keyup", function () {
-            var value = $(this).val().toLowerCase();
-            $("#mytable tr").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-            });
-        });
-    });
+    function myInput () {
+        $('#dests').DataTable().search( $('#myInput').val() ).draw();
+    }
 
     $(document).ready(function () {
         $(this).on('click', '.clickable', function () {
@@ -30,21 +25,27 @@
     });
 
 
-$(document).ready(function() {
-    $('#dests').dataTable( {
-        "lengthChange": false,
-        "searching":false,
+    $(document).ready(function() {
+        $('#dests').dataTable( {
+            "lengthChange": false,
+        });
+        $('#myInput').on( 'keyup', function () {
+            myInput ();
+    } );
     });
-});
-
 
 </script>
+<style>
+    .dataTables_filter {
+        display: none;
+    }
+</style>
 
 <div class="container-fluid">
     <h1>Learning Destinations</h1>
     <form action="/destination_upload" method="POST" enctype="multipart/form-data">
         <div class="row">
-            <div class="col-md-8 col-xl-10">
+            <div class="col-md-10">
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="inputGroupFile01">Upload</label>
                     <input type="file" id="file" name="file" class="form-control" required>
@@ -56,7 +57,7 @@ $(document).ready(function() {
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8 col-xl-10">
+            <div class="col-md-10">
                 <div class="input-group mb-3">
                     <label class="input-group-text" for="inputGroupFile01">Search</label>
                     <input class="form-control" id="myInput" type="text" placeholder="Type keywords here to search...">
@@ -66,23 +67,6 @@ $(document).ready(function() {
     </form>
     <div class="container-fluid my-3">
     <form action="destination" method="POST" id="dest_filter_group">
-        <!-- <div class="row">
-            {% for i in criteria.keys()%}
-            <div class="col-sm-2">
-                <label for="{{i}}">{{i}}</label>
-                <select class="selectpicker" multiple data-live-search="true" id="{{i}}" name="{{i}}">
-                    {%for j in criteria[i]%}
-                    <option>{{j[0]}}</option>
-                    {%endfor%}
-                </select> 
-            </div>
-            {%endfor%}
-            <div class="col">
-            </br> <label style="color: red;">{{message}}</label>
-                <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
-                <a class="btn float-end clickable" id="reset-btn" data-href="/destination">Reset</a>
-            </div>
-        </div> -->
         <div class="form-group">
             <div class="row">
                 {% for i in criteria.keys()%}
@@ -95,6 +79,10 @@ $(document).ready(function() {
                     </select> 
                 </div>
                 {%endfor%}
+                <div class="col">
+                    </br>
+                    <label class="float-end" style="color: red; font-weight: bold;">{{message}}</label>
+                </div>
                 <div class="row">
                     <div class="col">
                         <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
@@ -107,7 +95,7 @@ $(document).ready(function() {
 </div>
     </div>
     <div class="table-borderless">
-        <table class="table table-striped table-hover paginated" id="dests" style="font-size: x-small">
+        <table class="table table-striped table-hover paginated" id="dests">
             <thead style="background-color:#1871AB;">
                 <tr>
                     <th scope="col">Status</th>

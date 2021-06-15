@@ -92,8 +92,7 @@ class DestinationForm(FlaskForm):
 
     phone_number = TelField(label='Phone Number ')
 
-    email = EmailField(label='Email ', validators=[
-        validators.Email()])
+    email = EmailField(label='Email ')
 
     web_address = URLField(label='Web Address ')
 

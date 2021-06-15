@@ -522,6 +522,7 @@ def destination():
             dest_list=cur.fetchall()
             return render_template('destination.html', dest_list=dest_list, criteria=filter_criteria)
         else:
+            print('error')
             message='Invalid input'
             return render_template('destination.html', dests=dests,  message=message, criteria=filter_criteria)
     else: 

@@ -1,15 +1,16 @@
 {%extends "layout.html"%}
 {%block title%}Students Upload{%endblock%}
 {%block head%}
-<link rel="stylesheet" href="{{url_for('static', filename = 'member_upload.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'upload.css')}}">
 
 {%endblock%}
 
 {%block content%}
-<main class="m-4">
-    <form action="/member_upload" method="POST">
-        <div class="wrapper member">
-            <h2>Student Information Upload</h2>
+<main class="m-4 ">
+    <form action="/member_upload " method="POST" class=" container">
+        <h1>Students Information Upload</h1>
+        <div class="wrapper data">
+            
             <table class="table">
                 <thead>
                     <tr>
@@ -32,8 +33,8 @@
             </table>
         </div>
         <div class="coor">
-            <h2>Coordinator Information</h2>
-
+            <h1>Coordinator Information</h1>
+            <div class="coor_wrapper">
             <table class="table">
                 <thead>
                     <tr>
@@ -54,12 +55,13 @@
                     {%endfor%}
                 </tbody>
             </table>
-
         </div>
+        </div>
+        <button type="submit" class="btn btn-outline-secondary">Submit</button>
+        <button type="reset" class="btn btn-outline-secondary">Reset</button>
+
         <button type="button" role="button" class="btn btn-outline-secondary"
             onclick="window.location.href = '/member'">Return</button>
-        <button type="reset" class="btn btn-outline-secondary">Reset</button>
-        <button type="submit" class="btn btn-outline-secondary">Submit</button>
     </form>
 </main>
 <script type="text/javascript">

@@ -14,7 +14,7 @@ import db
 import zipfile
 import spreadsheet
 import uuid
-import uploads, schools_info, member_info, destinations, filter_info,volun_info, classes
+import uploads, schools_info, member_info, destinations, filter_info,volun_info
 from functools import wraps
 import bcrypt
 from flask_bcrypt import Bcrypt
@@ -420,7 +420,7 @@ def sch():
         sql = filter_info.get_sql(
             'school_details', 'school_id', sch_criteria_dict)
     else:
-        sql = "SELECT * FROM school_details ORDER BY school_id;"
+        sql = "SELECT * FROM school_details WHERE year = (SELECT MAX(year) FROM school_members) ORDER BY school_id;"
     cur.execute(sql)
     results = cur.fetchall()
     school_list = filter_info.get_display_list(results, schools_info.school)
@@ -435,7 +435,8 @@ def school_upload():
     if form:
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
-            school_info.pop(16)
+            school_info.pop(18)
+            print(school_info)
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
         return redirect(url_for('sch'))
@@ -841,69 +842,55 @@ def add_user():
 
 
 # generating excel file of member for downloading
-@app.route("/download_mem_sheet", methods=['POST', 'GET'])
+@app.route("/downloads/<sheetType>/", methods=['POST', 'GET'])
 @login_required
 @no_cache
-def download_mem_sheet():
+def downloads(sheetType):
     # spreadsheets are differed based on different schools, get school info and display on clined-side for selecting
     cur = db.getCursor()
-    cur.execute("SELECT school_id, school_name FROM schools ORDER BY school_name ASC;")
-    schools = cur.fetchall()
-    # get selected info from clined-side
-    if request.method == 'POST':
-        request_file = request.form.get('type')
-        school_list = request.form.getlist('schools')
-    # generating excel of blanck template and send to client-side
-        if request_file == 'template':
-            zfile = zipfile.ZipFile(
-                f'{app.root_path}\downloads\Templates.zip', 'w')
-            for schoolid in school_list:
-                filename = spreadsheet.gen_mem_tmp(schoolid)
-                zfile.write(filename)
-            zfile.close()
-            return send_file(f'{app.root_path}\downloads\Templates.zip',
-                             mimetype='zip',
-                             attachment_filename='Templates.zip',
-                             as_attachment=True)
-    # generating excel with completed data and send to client-side
-        elif request_file == 'completed':
-            zfile = zipfile.ZipFile(
-                f'{app.root_path}\downloads\Completed.zip', 'w')
-            for schoolid in school_list:
+    if sheetType == 'members':
+        cur.execute("SELECT school_id, school_name FROM schools ORDER BY school_name ASC;")
+        schools = cur.fetchall()
+        # get selected info from clined-side
+        if request.method == 'POST':
+            request_file = request.form.get('type')
+            school_list = request.form.getlist('schools')
+        # generating excel of blanck template and send to client-side
+            if request_file == 'template':
+                zfile = zipfile.ZipFile(
+                    f'{app.root_path}\downloads\Templates.zip', 'w')
+                for schoolid in school_list:
+                    filename = spreadsheet.gen_mem_tmp(schoolid)
+                    zfile.write(filename)
+                zfile.close()
+                return send_file(f'{app.root_path}\downloads\Templates.zip',
+                                mimetype='zip',
+                                attachment_filename='Templates.zip',
+                                as_attachment=True)
+        # generating excel with completed data and send to client-side
+            elif request_file == 'completed':
+                zfile = zipfile.ZipFile(
+                    f'{app.root_path}\downloads\Completed.zip', 'w')
+                for schoolid in school_list:
 
-                filename = spreadsheet.gen_mem_comp(schoolid)
-                zfile.write(filename)
-            zfile.close()
-            return send_file(f'{app.root_path}\downloads\Completed.zip',
-                             mimetype='zip',
-                             attachment_filename='Completed.zip',
-                             as_attachment=True)
-    return render_template('download_mem_sheet.html', schools=schools)
+                    filename = spreadsheet.gen_mem_comp(schoolid)
+                    zfile.write(filename)
+                zfile.close()
+                return send_file(f'{app.root_path}\downloads\Completed.zip',
+                                mimetype='zip',
+                                attachment_filename='Completed.zip',
+                                as_attachment=True)
+        return render_template('download_mem_sheet.html', schools=schools)
+    else:
+        if sheetType == 'destinations':
+            file = spreadsheet.gen_dest_sheet()
+        elif sheetType == 'volunteers':
+            file = spreadsheet.gen_volun_sheet()
+        elif sheetType == 'schools':
+            sheet = request.args.get('sheet')
+            file = spreadsheet.gen_sch_sheet(sheet)
+        return send_file(file, mimetype='xlsx', as_attachment=True)
 
-
-@app.route("/download_dest_sheet", methods=['POST', 'GET'])
-@login_required
-@no_cache
-def download_dest_sheet():
-    file = spreadsheet.gen_dest_sheet()
-    return send_file(file, mimetype='xlsx', as_attachment=True)
-
-
-@app.route("/download_volun_sheet", methods=['POST', 'GET'])
-@login_required
-@no_cache
-def download_volun_sheet():
-    file = spreadsheet.gen_volun_sheet()
-    return send_file(file, mimetype='xlsx', as_attachment=True)
-
-
-@app.route("/download_school_sheet", methods=['POST', 'GET'])
-@login_required
-@no_cache
-def download_school_sheet():
-    sheet = request.args.get('sheet')
-    file = spreadsheet.gen_sch_sheet(sheet)
-    return send_file(file, mimetype='xlsx', as_attachment=True)
 
 # Displays all users registered on the system
 @app.route("/account", methods=['GET'])

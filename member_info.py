@@ -75,8 +75,10 @@ class members:
 
 def active_members_count():
     # Function returns the number of active schools in the system to display on dashboard
-    query = "SELECT COUNT(member_id) FROM members;"
-    result = db.getOne(query, [])
+    parameters = [app.current_year()]
+    query = "SELECT COUNT(members.member_id) FROM members JOIN membershours ON members.member_id=membershours.member_id \
+        WHERE status='active' OR status='Active' AND year='%s';"
+    result = db.getOne(query, parameters)
     return result[0]
 
 def total_members_hours():

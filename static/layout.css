@@ -46,3 +46,7 @@ table{
 thead {
     color: white;
 }
+
+#error-message {
+        text-align: center;
+}

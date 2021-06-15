@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Add Event{% endblock %}
 {% block head %}
-<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'event_forms.css')}}">
 {% endblock %}
 
 {%block content%}
@@ -27,7 +27,7 @@
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">Location</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control form-control-user" required="required" name="location">
+                            <input type="text" class="form-control form-control-user"  name="location">
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -45,23 +45,26 @@
                     <button id="reset-btn" type="reset" role="button" class="btn">Reset</button>
                     <button id="cancel-btn" type="button" role="button" class="btn" onclick="history.back()">Cancel</button>
                 </div>
+                
             </div>
         </form>
+        <button id="add_btn" class="btn btn-secondary">Add another event</button>
     </div>
-        <button id="btn" class="btn btn-secondary">Add another event</button>
+        
 </main>
 
 <script type="text/javascript">
-    var btn = document.getElementById("btn");
+    var add_btn = document.getElementById("add_btn");
     var base = document.getElementById("base");
     var inputs = document.getElementById("inputs")
 
-    btn.onclick = function () {
+    add_btn.onclick = function () {
         var newDiv = base.cloneNode(true);
         newDiv.id = '';
         var remove = document.createElement("button");
         remove.innerHTML = "Remove";
         remove.type = "button";
+        remove.className = "btn btn-danger"
         newDiv.appendChild(remove);
         base.parentNode.appendChild(newDiv);
         var allRemvoe= document.querySelectorAll("#inputs button")

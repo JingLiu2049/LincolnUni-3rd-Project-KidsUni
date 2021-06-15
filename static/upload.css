@@ -1,0 +1,17 @@
+input.columns{
+    border: none;
+    outline: none;
+}
+div.data th:last-child, div.data td:last-child{
+display: none;
+}
+div.wrapper{
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    height: 60vh;
+}
+div.coor_wrapper{
+    width: 100%;
+    overflow-x: scroll;
+}

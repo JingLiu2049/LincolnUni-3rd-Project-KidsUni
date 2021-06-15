@@ -2,14 +2,14 @@
 {%block title%}Schools Upload
 {%endblock%}
 {%block head%}
-<link rel="stylesheet" href="{{url_for('static', filename = 'school_upload.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'upload.css')}}">
 
 {%endblock%}
 
 {%block content%}
 <main class="m-4">
-<h1>School Upload Page</h1>
-<div class="wrapper container">
+<h1>Schools Information Upload</h1>
+<div class="wrapper container data">
 <form action="/school_upload" method="POST">
 <table class="table">
     <thead>
@@ -32,8 +32,11 @@
 
 </table>
 </div>
-<button type="submit">Submit</button>
-<button type="reset">Reset</button>
+<button type="submit" class="btn btn-outline-secondary">Submit</button>
+<button type="reset" class="btn btn-outline-secondary">Reset</button>
+
+<button type="button" role="button" class="btn btn-outline-secondary"
+            onclick="window.location.href = '/destination'">Return</button>
 </form>
 </main>
 {%endblock%}

@@ -3,14 +3,14 @@
 Destination Upload Page
 {% endblock title %}
 {% block head %}
-<link rel="stylesheet" href="{{url_for('static', filename = 'destination_upload.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'upload.css')}}">
 {% endblock head %}
 
 {% block content %}
 <main class="m-4">
-    <h1>Destination Upload Page</h1>
-    <form action="/destination_upload" method="POST">
-        <div class="wrapper">
+    <h1>Destinations Information Upload</h1>
+    <form action="/destination_upload" method="POST" class="container">
+        <div class="wrapper data ">
             <table class="table">
                 <thead>
                     <tr>
@@ -32,10 +32,11 @@ Destination Upload Page
                 </tbody>
             </table>
         </div>
+        <button type="submit" class="btn btn-outline-secondary">Submit</button>
+        <button type="reset" class="btn btn-outline-secondary">Reset</button>
+
         <button type="button" role="button" class="btn btn-outline-secondary"
             onclick="window.location.href = '/destination'">Return</button>
-        <button type="reset" class="btn btn-outline-secondary">Reset</button>
-        <button type="submit" class="btn btn-outline-secondary">Submit</button>
     </form>
 </main>
 {% endblock content %}

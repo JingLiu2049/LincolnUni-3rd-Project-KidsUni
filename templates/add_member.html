@@ -16,17 +16,20 @@ Add New Student
             {{ form.csrf_token }}
             <div class="row">
                 <div class="col">
-                    {{ render_field(form.school_name) }}
+                    {{ render_field(form.school_name, placeholder="Letter only") }}
+                    {% if error %}
+                    <label style="color:red; font-weight: bold;">{{ error }}</label>
+                    {%endif%}
                     {{ render_field(form.gender, class="form-select") }}
                     {{ render_field(form.username) }}
-                    {{ render_field(form.previous_hours) }}
+                    {{ render_field(form.previous_hours, type="number", value="0") }}
                     {{ render_field(form.ethnicity_info, class="form-select") }}
                     {{ render_field(form.publication_promos, class="form-select") }} 
                     {{render_field(form.status, class="form-select")}}
                 </div>
                 <div class="col">
                     {{ render_field(form.first_name) }}
-                    {{ render_field(form.age) }}
+                    {{ render_field(form.age, value="0") }}
                     {{ render_field(form.password) }}
                     {{ render_field(form.passport_number) }}
                     {{ render_field(form.social_media, class="form-select") }}

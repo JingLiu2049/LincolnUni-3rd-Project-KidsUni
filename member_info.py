@@ -75,8 +75,10 @@ class members:
 
 def active_members_count():
     # Function returns the number of active schools in the system to display on dashboard
-    query = "SELECT COUNT(member_id) FROM members;"
-    result = db.getOne(query, [])
+    parameters = [app.current_year()]
+    query = "SELECT COUNT(members.member_id) FROM members JOIN membershours ON members.member_id=membershours.member_id \
+        WHERE status='active' OR status='Active' AND year='%s';"
+    result = db.getOne(query, parameters)
     return result[0]
 
 def total_members_hours():
@@ -89,7 +91,7 @@ def total_members_hours():
 
 class MemberInfoForm(FlaskForm):
     school_name = StringField(label='School Name ', validators=[
-        validators.regexp('^[a-zA-Z ]*$', message='The school should in the list')])
+        validators.regexp('^[a-zA-Z ]*$', message='Invalid Input')])
 
     first_name = StringField(label='First Name *', validators=[
         validators.DataRequired(),
@@ -100,12 +102,12 @@ class MemberInfoForm(FlaskForm):
         validators.regexp('^\w+$', message='Letters only')
     ])
     username = StringField(label='Username ', validators=[
-        validators.regexp('^\w+$', message='Letters only')
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
     ])
     password = StringField(label='Password ', validators=[
-        validators.regexp('^\w+$', message='Letters only')
+        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
     ])
-    gender = SelectField(label='Gender ', choices=['Boy', 'Girl', 'Other'])
+    gender = SelectField(label='Gender ', choices=['', 'Boy', 'Girl', 'Other'])
  
     age = IntegerField(label='Age ')
 
@@ -115,17 +117,17 @@ class MemberInfoForm(FlaskForm):
 
     passport_number = StringField(label='Passport Number ')
 
-    previous_hours = StringField(label='Previous Hours ')
+    previous_hours = IntegerField(label='Previous Hours ')
 
     passport_date = StringField(label='Passport Date Issued ')
 
-    ethnicity_info = SelectField(label='Ethnicity Info ', choices=['True', 'False'])
+    ethnicity_info = SelectField(label='Ethnicity Info ', choices=['','True', 'False'])
 
-    teaching_research = SelectField(label='Teaching Research ', choices=['True', 'False'])
+    teaching_research = SelectField(label='Teaching Research ', choices=['','True', 'False'])
 
-    publication_promos = SelectField(label='Pubilication Promos ', choices=['True', 'False'])
+    publication_promos = SelectField(label='Pubilication Promos ', choices=['','True', 'False'])
 
-    social_media = SelectField(label='Social Media ', choices=['True', 'False'])
+    social_media = SelectField(label='Social Media ', choices=['','True', 'False'])
     
     gown_size = SelectField(label='Gown Size ', choices=['','S', 'M', 'L'])
 

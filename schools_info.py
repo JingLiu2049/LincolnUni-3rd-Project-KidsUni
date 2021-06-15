@@ -123,7 +123,7 @@ class SchoolInfoForm(FlaskForm):
 
     category = StringField(label='Category')
 
-    status = SelectField(label='Status', choices=['Active', 'Deative'])
+    status = SelectField(label='Status', choices=['Active','In Progress','Deative'])
 
     training = StringField(label='Training')
 

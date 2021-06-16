@@ -4,13 +4,22 @@ Generating Excel File
 {%endblock%}
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
+<style>
+    div.form_wrapper{
+        height: 50vh;
+        overflow-y: scroll;
+    }
+</style>
 {%endblock%}
 
 {%block content%}
 <div class="container">
     <h1>Generate Spreadsheet</h1>
-    <form action="/downloads/members/" method="POST"> 
-        <legend>Please select which school(s):</legend>
+    
+    <form action="/downloads/members/" method="POST" > 
+       
+        <legend>Please select school(s):</legend>
+        <div class="form_wrapper">
         <table class="table">
             <thead style="background-color:#1871AB;">
                 <tr>
@@ -29,6 +38,7 @@ Generating Excel File
             {%endfor%}
 
         </table>
+    </div>
         <div class="type">
             <legend>Please select the type of spreadsheet:</legend>
                 <label for="template">Template for Schools</label>
@@ -41,5 +51,6 @@ Generating Excel File
             <button id="reset-btn" type="reset" class="btn">Reset</button>
         </div>
     </form>
+
 </div>
 {%endblock%}

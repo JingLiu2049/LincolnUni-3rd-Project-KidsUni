@@ -36,22 +36,35 @@ def get_mem_df(excelpath):
     df_school.dropna(axis='columns',how='all',inplace=True)
     df_school.fillna('', inplace=True)
     name = df_school.loc[0,3]
-    df_mem = pd.read_excel(excelpath,0,header=[5],dtype = {"#":str,"Age":str})
+    typeDict = {
+        "#":str,
+        "Age":str,
+        "Passport Date Issued":str,
+        "Ethnicity Info": str,
+        "Teaching Research":str,
+        "Publication Promos": str,
+        "Social Media":str}
+    df_mem = pd.read_excel(excelpath,0,header=[5],dtype = typeDict)
     df_mem.update(df_mem.iloc[:,14:20].fillna(0)) 
+    df_mem.update(df_mem.iloc[:,7].fillna('Not Assigned')) 
     df_mem.iloc[:,14:20] = df_mem.iloc[:,14:20].astype(float)
     df_mem.dropna(axis = 0, how='all', subset=['First Name','Last Name','Age'],inplace=True)
     df_mem.dropna(axis='columns',how='all',inplace=True)
     df_mem.fillna('', inplace=True)
+
     df_up = pd.read_excel(excelpath,1,header=[5])
     if len(df_mem) != len(df_up):
         for i in range(0,len(df_mem)-len(df_up)):
             df_up.loc[len(df_up)]=[None]*4
+
     df_mem.insert(14,'USERNAME',df_up['USERNAME'].values)
     df_mem.insert(15,'PASSWORD',df_up['PASSWORD'].values)
     df_mem.insert(16,'School name',name)
     df_mem.loc[:,'index'] = df_mem.index
+
     df_coor = pd.read_excel(excelpath,1,header=[1],nrows=1,dtype=str)
     df_coor.dropna(axis='columns',how='all',inplace=True)
+
     df_coor[['School', 'Email','Phone','year']] = pd.DataFrame([[
             df_school.loc[0,3], 
             df_school.loc[2,3], 
@@ -63,12 +76,12 @@ def get_mem_df(excelpath):
 #  insert info of coordinator into database
 def insert_coor(l=[]):
     cur = db.getCursor()
-    school_id = getid.get_schoolid(l[4])
+    school_id = getid.get_schoolid(l[3])
 
     sql = "INSERT INTO coordinator VALUES(%s, '%s', '%s','%s','%s','%s') ON CONFLICT \
         (school_id) DO UPDATE SET school_id = EXCLUDED.school_id, name = EXCLUDED.name, \
         email = EXCLUDED.email, phone_number = EXCLUDED.phone_number, username = EXCLUDED.username,\
-        password = EXCLUDED.password;"%(school_id,l[0],l[5],l[6],l[2],l[3])
+        password = EXCLUDED.password;"%(school_id,l[0],l[4],l[5],l[1],l[2])
     cur.execute(sql)
 
 
@@ -86,8 +99,10 @@ def dest_obj(l=[]):
 
 @add_index
 def get_dest_df(excelpath):
-    df_des = pd.read_excel(excelpath,0,header=[1],dtype = str,keep_default_na=False)
+    df_des = pd.read_excel(excelpath,0,header=[1],dtype = str)
+
     df_des.dropna(axis = 0, how='all', inplace=True)
+    df_des.update(df_des['Status'].fillna('Not Assigned'))
     df_des.update(df_des.iloc[:,15:19].fillna('No'))
     df_des.update(df_des.iloc[:,20:].fillna('No'))
     return df_des
@@ -114,7 +129,7 @@ def get_volun_df(excelpath):
                 "Emergency contact person - Mobile number":str,
                 "Referee one - Phone number":str,
                 "Referee two - Phone number":str}
-    df_volun = pd.read_excel(excelpath,0, dtype= typedict,keep_default_na=False)
+    df_volun = pd.read_excel(excelpath,0, dtype= typedict)
     df_hours = pd.read_excel(excelpath,1,header=[4])
     df_joined = pd.concat([df_volun,df_hours.iloc[:,5:]],axis=1)
 

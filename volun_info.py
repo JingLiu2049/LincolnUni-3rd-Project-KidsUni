@@ -15,11 +15,11 @@ class volunteer:
         self.induction = l[2]
         self.interview = l[3]
         self.photo = l[4]
-        self.studentid = int(l[5]) if l[5]!='' else 1
+        self.studentid = int(l[5]) if l[5] and l[5]!='' else None
         self.firstname = l[6]
         self.surname = l[7]
         self.prefer = l[8]
-        self.gender = str(l[9]).lower()
+        self.gender = l[9]
         self.birthday = l[10] if l[10] != '' else None
         self.email = l[11]
         self.phone = l[12]
@@ -63,8 +63,8 @@ class volunteer:
         sql = f"INSERT INTO volunteerform VALUES({self.id},'{self.experience}',\
             '{self.leader}','{self.medical}','{self.police}','{self.emer_name}','{self.emer_relation}','{self.emer_phone}','{self.uni}',\
             '{self.graduate}',$${self.course}$$,'{self.current_year}','{self.comp_date}','{self.refer1_name}','{self.refer1_phone}',\
-            '{self.refer1_emal}','{self.refer1_relation}','{self.refer2_name}','{self.refer2_phone}','{self.refer2_emal}',\
-            '{self.refer2_relation}',$${self.overview}$$,$${self.session}$$,$${self.role}$$,$${self.consent}$$) ON CONFLICT (volun_id) DO UPDATE SET \
+            '{self.refer1_emal}',$${self.refer1_relation}$$,'{self.refer2_name}','{self.refer2_phone}','{self.refer2_emal}',\
+            $${self.refer2_relation}$$,$${self.overview}$$,$${self.session}$$,$${self.role}$$,$${self.consent}$$) ON CONFLICT (volun_id) DO UPDATE SET \
             volun_id = EXCLUDED.volun_id,  experience = \
             EXCLUDED.experience, future_leader = EXCLUDED.future_leader, medical_information= EXCLUDED.medical_information, police_check = \
             EXCLUDED.police_check, emer_name = EXCLUDED.emer_name, emerrelation = EXCLUDED.emerrelation, emer_phone = EXCLUDED.emer_phone, \
@@ -88,14 +88,10 @@ class volunForm(FlaskForm):
     choices=['Active', 'Deactive', 'Pending','NA'])
 
     
-    induction= StringField(label='Induction invite', validators=[
-        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
-    ])
+    induction= StringField(label='Induction invite')
 
-    interview = StringField(label='Interview status', validators=[
-        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+    interview = StringField(label='Interview status')
 
-    ])
 
     photo = SelectField(label='Photo provided ', validators=[
     ], choices=['','Yes', 'No'])
@@ -115,13 +111,13 @@ class volunForm(FlaskForm):
         validators.regexp('^[a-zA-Z ]*$', message='Letters only')
     ])
     prefername = StringField(label='Preferred name', validators=[
-        validators.regexp('^[a-zA-Z ]*$', message='Letters only')
+        validators.regexp('^[a-zA-Z() ]*$', message='Letters only')
     ])
 
     gender = SelectField(label='Gender', 
         choices=['','Male', 'Female', 'Other'])
 
-    dob = DateField(label='Date of birth')
+    dob = StringField(label='Date of birth')
     
     email = EmailField(label='Email *', 
         validators=[

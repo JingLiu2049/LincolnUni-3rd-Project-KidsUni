@@ -19,6 +19,7 @@ from functools import wraps
 import bcrypt
 from flask_bcrypt import Bcrypt
 from forms import AddUser, UpdatePassword
+import getid
 
 
 # Global Functions
@@ -51,9 +52,6 @@ def upload_path(name):
     file.save(excelpath)
     return excelpath
 
-
-def test(obj):
-    print(obj, type(obj), 'tttttttttttttttttttttttttt', datetime.now)
 
 # Generate ID
 def genID():
@@ -99,6 +97,17 @@ def no_cache(fun):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
+        return response
+    return inner
+
+def deal_error(fun):
+    @wraps(fun)
+    def inner(*args, **kwargs):
+        try:
+            response = make_response(fun(*args, **kwargs))
+        except Exception as e:
+            print(e)
+            return render_template('error.html')
         return response
     return inner
 
@@ -156,20 +165,39 @@ def upsertSchool(form, school_id):
     notes = form.notes.data
     name = form.name.data
     email = form.email.data
-    confirm = form.confirm.data
+    confirm = form.confirm.data if form.confirm.data != '' else 0 
     cur = db.getCursor()
     if school_id != "new":
         cur.execute("Update schools set school_name=%s, who=%s, council=%s, category=%s,\
         status=%s, training=%s, launch=%s, presentation=%s, portal=%s, passports=%s, \
         agreement=%s, consent=%s, notes=%s where school_id=%s;",
-                    (school_name, who, council, category, status, training, launch, presentation,
+                    (school_name.lower(), who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes, school_id))
         cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
-        cur.execute("Update school_members set confirm_no=%s where school_id=%s;", (confirm, school_id))
+
+
+        sql = f"INSERT INTO school_members(school_id, year,  confirm_no) VALUES({school_id}, \
+            (SELECT MAX(year) FROM school_members),{confirm}) ON CONFLICT (school_id, year) DO UPDATE \
+            SET school_id = EXCLUDED.school_id, year = EXCLUDED.year, confirm_no = EXCLUDED.confirm_no;"
+        cur.execute(sql)
+
     else:
-        cur.execute("INSERT INTO schools VALUES(nextval('schoolid_seq'),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);",
-                    (school_name, who, council, category, status, training, launch, presentation,
-                     portal, passports, agreement, consent, notes))
+        schoolid = getid.get_schoolid(school_name.lower())
+
+        cur.execute("UPDATE schools SET school_name = %s, who = %s, council = %s, category = %s, \
+        status = %s,  training = %s, launch = %s, presentation = %s, portal = %s, \
+        passports = %s, agreement = %s, consent = %s, notes = %s WHERE school_id = %s;", (school_name.lower(), who,
+        council, category, status, training, launch, presentation,
+        portal, passports, agreement, consent, notes, schoolid,))
+
+        
+        cur.execute("INSERT INTO school_members (school_id, year) VALUES (%s,(SELECT MAX(year) FROM school_members)) \
+            ON CONFLICT (school_id, year) DO UPDATE \
+            SET school_id = EXCLUDED.school_id, year = EXCLUDED.year;",(schoolid,))
+
+        sql = "INSERT INTO coordinator(school_id) VALUES(%s) ON CONFLICT \
+        (school_id) DO UPDATE SET school_id = EXCLUDED.school_id;" % (schoolid,)
+        cur.execute(sql)
 
 
 
@@ -181,6 +209,7 @@ def upsertSchool(form, school_id):
 
 
 @app.route('/', methods=['GET', 'POST'])
+
 def login():
         # Check if "username" and "password" POST requests exist (user submitted form)
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
@@ -275,6 +304,7 @@ def index():
 
 
 @app.route("/member", methods=['GET'])
+@deal_error
 @login_required
 def member():
     cur = db.getCursor_NT()
@@ -288,6 +318,7 @@ def member():
 # click each row to edit member info detail, and check study hours for each year and term
 # return to member page after submit
 @app.route("/edit_member", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def edit_member():
     cur = db.getCursor_NT()
@@ -350,6 +381,7 @@ def edit_member():
 
 
 @app.route("/add_member", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def add_member():
     form = member_info.MemberInfoForm()
@@ -384,17 +416,22 @@ def add_member():
 
 
 @app.route("/member_upload", methods=['POST'])
+@deal_error
 @login_required
+@no_cache
 def member_upload():
     form = request.form
     # get data from client-side and insert into database
     if form:
         coor = request.form.getlist('coor')
+        print(coor,len(coor))
         uploads.insert_coor(coor)
         events = request.form.getlist('mem_col')[25:-1]
+        print(events)
         for i in range(0, len(form)-3):
             mem = request.form.getlist(f'mem{i}')
             mem.insert(25, coor[-1])  # insert cut-off date for the data
+            print(mem,len(mem))
             member = uploads.mem_obj(mem)
             member.insert_db(events)
         return redirect(url_for('member'))
@@ -416,6 +453,7 @@ def member_upload():
 
 
 @app.route("/school", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def sch():
     cur = db.getCursor()
@@ -448,7 +486,9 @@ def sch():
 
 
 @app.route("/school_upload", methods=['POST'])
+@deal_error
 @login_required
+@no_cache
 def school_upload():
     form = request.form
     # get data from client-side and insert into database
@@ -473,12 +513,13 @@ def school_upload():
 
 
 @app.route("/edit_school", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def edit_school():
     cur = db.getCursor_NT()
     form = schools_info.SchoolInfoForm()
     school_id = request.args.get('id')
-    cur.execute(f"select * from school_details where school_id={school_id};")
+    cur.execute(f"select * from school_details where school_id={school_id} and year = (SELECT MAX(year) FROM school_members) ;")
     sch = cur.fetchone()
     print(sch)
     if request.method == 'POST':
@@ -510,6 +551,7 @@ def edit_school():
 
 
 @app.route("/add_school", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def add_school():
     form = schools_info.SchoolInfoForm()
@@ -526,6 +568,7 @@ def add_school():
 
 
 @app.route("/destination", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def destination():
     cur = db.getCursor()
@@ -533,7 +576,7 @@ def destination():
     # display select labels and options group by filter_criteria
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
-    cur.execute("SELECT * FROM destinations ORDER BY ld_id;")
+    cur.execute("SELECT * FROM destinations ORDER BY ld_id DESC;")
     dests = cur.fetchall()
     if request.method == 'POST':
         # if POST, get sql from filter_info
@@ -553,6 +596,7 @@ def destination():
 
 @app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')
 @app.route("/add_destination", methods=['POST', 'GET'], endpoint='2')
+@deal_error
 @login_required
 def edit_destination():
     version = request.endpoint
@@ -607,7 +651,9 @@ def edit_destination():
 
 
 @app.route("/destination_upload", methods=['POST'])
+@deal_error
 @login_required
+@no_cache
 def destination_upload():
     form = request.form
     # get data from client-side and insert into database
@@ -632,6 +678,7 @@ def destination_upload():
 
 
 @app.route("/volunteer", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def volunteer():
     cur = db.getCursor()
@@ -649,6 +696,7 @@ def volunteer():
     return render_template('volunteer.html', voluns=volun_list, criteria=filter_criteria)
 
 @app.route("/edit_volunteer",methods = ['POST','GET'])
+@deal_error
 @login_required
 def edit_volunteer():
     cur = db.getCursor_NT()
@@ -683,6 +731,7 @@ def edit_volunteer():
 
 # Route to add a new volunteer
 @app.route("/add_volunteer", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def add_volunteer():
     form = volun_info.volunForm()
@@ -701,7 +750,9 @@ def add_volunteer():
 
 
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
+@deal_error
 @login_required
+@no_cache
 def volunteer_upload():
     form = request.form
     # get data from client-side and insert into database
@@ -710,7 +761,7 @@ def volunteer_upload():
         for i in range(0, len(form)-1):
             volun_info = request.form.getlist(f'index{i}')
             volun_obj = uploads.volun_obj(volun_info)
-            # volun_obj.insert_db(events)
+            volun_obj.insert_db(events)
         return redirect(url_for('volunteer'))
     else:
         excelpath = upload_path('file')
@@ -726,6 +777,7 @@ def volunteer_upload():
 
 # Event's page
 @app.route("/event", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def event():
     # Display all the events in the database ordered by date
@@ -738,6 +790,7 @@ def event():
 
 # Edit event page - when user clicks the edit icon on event list on the table
 @app.route("/edit_event", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def edit_event():
     cur = db.getCursor()
@@ -773,6 +826,7 @@ def edit_event():
 
 
 @app.route("/add_event", methods=['POST', 'GET'])
+@deal_error
 @login_required
 def add_event():
     # get added event info from client-side and insert into database
@@ -884,6 +938,7 @@ def add_user():
 
 # generating excel file of member for downloading
 @app.route("/downloads/<sheetType>/", methods=['POST', 'GET'])
+@deal_error
 @login_required
 @no_cache
 def downloads(sheetType):

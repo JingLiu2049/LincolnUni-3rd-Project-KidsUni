@@ -9,7 +9,8 @@
 {%block content%}
 <main class="m-4">
 <h1>Schools Information Upload</h1>
-<div class="wrapper container data">
+<div class="container">
+<div class="wrapper data">
 <form action="/school_upload" method="POST">
 <table class="table">
     <thead>
@@ -32,11 +33,18 @@
 
 </table>
 </div>
-<button type="submit" class="btn btn-outline-secondary">Submit</button>
+<button type="submit" class="btn btn-outline-secondary" id="submitBtn">Submit</button>
 <button type="reset" class="btn btn-outline-secondary">Reset</button>
 
 <button type="button" role="button" class="btn btn-outline-secondary"
             onclick="window.location.href = '/destination'">Return</button>
+            
 </form>
+</div>
 </main>
+<script type="text/javascript">
+var btn = document.getElementById("submitBtn");
+informing(btn)
+
+</script>
 {%endblock%}

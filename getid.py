@@ -10,12 +10,13 @@ def get_memid():
 
 def get_schoolid(school_name):
     cur = db.getCursor()
-    cur.execute("SELECT school_id FROM schools where school_name = %s;",(school_name,))
+    name = school_name.lower()
+    cur.execute("SELECT school_id FROM schools where school_name = %s;",(name,))
     result = cur.fetchone()
     if result:
         school_id = result[0]
     else:
-        cur.execute("INSERT INTO schools(school_id,school_name) VALUES (nextval('schoolid_seq'),%s) RETURNING school_id;",(school_name,))
+        cur.execute("INSERT INTO schools(school_id,school_name) VALUES (nextval('schoolid_seq'),%s) RETURNING school_id;",(name,))
         school_id  = cur.fetchone()[0]
     return int(school_id)
 

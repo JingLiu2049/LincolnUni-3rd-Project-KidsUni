@@ -37,7 +37,7 @@ class members:
         self.term2 = float(l[19])
         self.term3 = float(l[20])
         self.term4 = float(l[21])
-        self.total = float(l[22])
+        self.total = l[22]
         self.gown = l[23]
         self.hat = l[24]
         self.year = int(l[25][0:4])
@@ -46,7 +46,6 @@ class members:
 
 
     def insert_db(self,events=[]):
-        print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
         cur = db.getCursor()
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
             password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
@@ -76,8 +75,7 @@ class members:
 def active_members_count():
     # Function returns the number of active schools in the system to display on dashboard
     parameters = [app.current_year()]
-    query = "SELECT COUNT(members.member_id) FROM members JOIN membershours ON members.member_id=membershours.member_id \
-        WHERE status='active' OR status='Active' AND year='%s';"
+    query = "SELECT COUNT(members.member_id) FROM members;"
     result = db.getOne(query, parameters)
     return result[0]
 

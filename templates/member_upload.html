@@ -57,7 +57,7 @@
             </table>
         </div>
         </div>
-        <button type="submit" class="btn btn-outline-secondary">Submit</button>
+        <button type="submit" class="btn btn-outline-secondary" id="submitBtn">Submit</button>
         <button type="reset" class="btn btn-outline-secondary">Reset</button>
 
         <button type="button" role="button" class="btn btn-outline-secondary"
@@ -65,5 +65,8 @@
     </form>
 </main>
 <script type="text/javascript">
-</script>
+    var btn = document.getElementById("submitBtn");
+    informing(btn)
+    
+    </script>
 {%endblock%}

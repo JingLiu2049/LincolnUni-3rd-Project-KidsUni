@@ -73,3 +73,9 @@ function toggleClass(obj, cn) {
 function test(text){
 	console.log(text,typeof(text));
 }
+
+function informing(btn){
+	btn.onclick = function(){
+		alert("Information is Uploading, please wait for the page to redirect!")
+	}
+}

@@ -182,12 +182,22 @@ def upsertSchool(form, school_id):
         cur.execute(sql)
 
     else:
-        schoolid = getid.get_schoolid()
-        cur.execute("INSERT INTO schools VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING school_id;",
-                    (schoolid, school_name.lower(), who, council, category, status, training, launch, presentation,
-                     portal, passports, agreement, consent, notes))
-        cur.execute("INSERT INTO school_members (school_id, year) VALUES (%s,(SELECT MAX(year) FROM school_members)) ON CONFLICT (school_id, year) DO UPDATE \
+        schoolid = getid.get_schoolid(school_name.lower())
+
+        cur.execute("UPDATE schools SET school_name = %s, who = %s, council = %s, category = %s, \
+        status = %s,  training = %s, launch = %s, presentation = %s, portal = %s, \
+        passports = %s, agreement = %s, consent = %s, notes = %s WHERE school_id = %s;", (school_name.lower(), who,
+        council, category, status, training, launch, presentation,
+        portal, passports, agreement, consent, notes, schoolid,))
+
+        
+        cur.execute("INSERT INTO school_members (school_id, year) VALUES (%s,(SELECT MAX(year) FROM school_members)) \
+            ON CONFLICT (school_id, year) DO UPDATE \
             SET school_id = EXCLUDED.school_id, year = EXCLUDED.year;",(schoolid,))
+
+        sql = "INSERT INTO coordinator(school_id) VALUES(%s) ON CONFLICT \
+        (school_id) DO UPDATE SET school_id = EXCLUDED.school_id;" % (schoolid,)
+        cur.execute(sql)
 
 
 
@@ -541,7 +551,7 @@ def edit_school():
 
 
 @app.route("/add_school", methods=['POST', 'GET'])
-# @deal_error
+@deal_error
 @login_required
 def add_school():
     form = schools_info.SchoolInfoForm()
@@ -549,14 +559,7 @@ def add_school():
         if form.validate_on_submit():
             upsertSchool(form, 'new')
             flash('You have successfully added a new school!', 'success')
-            cur = db.getCursor_NT()
-            cur.execute("select school_id from schools order by school_id desc limit 1")
-            school_id = cur.fetchone()
-            print(school_id)
-            cur.execute("insert into coordinator values(%s);", (school_id))
-            cur.execute("insert into school_members values(%s);", (school_id))
             return redirect(url_for('sch'))
-            
         else:
             print(form.errors)
             return render_template('add_school.html', form=form)

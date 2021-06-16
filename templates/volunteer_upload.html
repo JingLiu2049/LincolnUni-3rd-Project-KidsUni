@@ -32,11 +32,16 @@ Volunteer Upload Page
                 </tbody>
             </table>
         </div>
-        <button type="submit" class="btn btn-outline-secondary">Submit</button>
+        <button type="submit" class="btn btn-outline-secondary" id="submitBtn">Submit</button>
         <button type="reset" class="btn btn-outline-secondary">Reset</button>
 
         <button type="button" role="button" class="btn btn-outline-secondary"
             onclick="window.location.href = '/volunteer'">Return</button>
     </form>
 </main>
+<script type="text/javascript">
+    var btn = document.getElementById("submitBtn");
+    informing(btn)
+    
+    </script>
 {% endblock content %}

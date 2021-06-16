@@ -16,9 +16,15 @@
         background-color: rgba(86, 61, 124, .15);
         border: 1px solid rgba(86, 61, 124, .2);
     }
+
     .selectpicker {
         background-color: blue;
         margin-right: 3px;
+    }
+    div.table_wrapper{
+        width: 100%;
+        max-height:50vh;
+        overflow-y: scroll;
     }
 </style>
 {%endblock%}
@@ -36,7 +42,8 @@
                 </div>
             </div>
             <div class="col">
-                <a href="{{ url_for('add_volunteer') }}" type="button" role="button" class="btn btn-secondary float-end">Add Volunteer</a>
+                <a href="{{ url_for('add_volunteer') }}" type="button" role="button"
+                    class="btn btn-secondary float-end">Add Volunteer</a>
             </div>
         </div>
         <div class="row">
@@ -48,32 +55,36 @@
             </div>
         </div>
     </form>
-   <div class="container-fluid my-3">
-    <form action="/volunteer" method="POST" class="criteria clearfix">
-        <div class="form-group">
-            <div class="row">
-            {% for i in criteria.keys()%}
-                <div class="col-md-2">
-                    <label for="{{i}}">{{i}}</label>
-                    <select class="selectpicker form-control" multiple data-live-search="true" id="{{i}}" name="{{i}}">
-                        {%for j in criteria[i]%}
-                        <option>{{j[0]}}</option>
-                        {%endfor%}
-                    </select>
+    <div class="container-fluid my-3">
+        <form action="/volunteer" method="POST" class="criteria clearfix">
+            <div class="form-group">
+                <div class="row">
+                    {% for i in criteria.keys()%}
+                    <div class="col-md-2">
+                        <label for="{{i}}">{{i}}</label>
+                        <select class="selectpicker form-control select_set" multiple data-live-search="true" id="{{i}}"
+                            name="{{i}}">
+                            {%for j in criteria[i]%}
+                            <option>{{j[0]}}</option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    {%endfor%}
+                    <p id="showError" class="hidden">You have not select anything yet, please try again!</p>
                 </div>
-            {%endfor%}
-            </div>
-            <div class="row">
-                <div class="col">
-                    <button class="btn btn-secondary float-end" type="submit" role="button">Filter</button>
-                    <a id="reset-btn" class="btn float-end clickable" data-href="/volunteer">Reset</a>
+                <div class="row">
+                    <div class="col">
+                        
+                        <button class="btn btn-secondary float-end" type="button" role="button" id="filter_btn">Filter</button>
+                        <a id="reset-btn" class="btn float-end clickable" data-href="/volunteer">Reset</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </form>
-</div>
+        </form>
+    </div>
+    <div class="table_wrapper">
     <table class="table-striped table-hover paginated" id="volunteer">
-        <thead style="background-color: #F3D712;">
+        <thead class="tableHeader">
             <tr>
                 <th>ID</th>
                 <th>Status</th>
@@ -111,10 +122,30 @@
         </tbody>
     </table>
 </div>
+</div>
 
 <script>
+    var filter_btn = document.getElementById("filter_btn");
+    console.log(filter_btn)
+    var select_set = document.getElementsByClassName("select_set");
+    var showError = document.getElementById("showError");
     
-
+    
+    filter_btn.onclick = function(){
+        var flag = false;
+        for(var i =0; i<select_set.length;i++){
+            if(select_set[i].value != "" && select_set[i].value != undefined){
+                flag = true
+                break
+            }else{
+                removeClass(showError,'hidden')
+            }
+         }
+    if (flag){
+        filter_btn.type = "submit";
+    }
+    console.log(flag)
+    }
     $(document).ready(function () {
         $("#myInput").on("keyup", function () {
             var value = $(this).val().toLowerCase();
@@ -130,11 +161,11 @@
         });
     });
 
-    $(document).ready(function() {
-    $('#volunteer').dataTable( {
-        "lengthChange": false,
-        "searching":false,
+    $(document).ready(function () {
+        $('#volunteer').dataTable({
+            "lengthChange": false,
+            "searching": false,
+        });
     });
-});
 </script>
 {%endblock%}

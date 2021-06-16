@@ -240,15 +240,17 @@ def gen_volun_sheet():
     newPath = gen_newPath('Volunteers')
 
     cur = db.getCursor()
-    sql ="SELECT volunteers.*, volunteerform.* FROM volunteers INNER JOIN volunteerform \
-        ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
+    sql = 'SELECT * FROM volun_detail ORDER BY volun_id;'
+    # sql ="SELECT volunteers.*, volunteerform.* FROM volunteers INNER JOIN volunteerform \
+    #     ON volunteers.volun_id = volunteerform.volun_id ORDER BY volunteers.volun_id;"
     cur.execute(sql)
     voluns = cur.fetchall()
-    cur.execute("SELECT sum(hours) AS total FROM volun_hours GROUP BY volun_id ORDER BY volun_id;")
+    # cur.execute("SELECT sum(hours) AS total FROM volun_hours GROUP BY volun_id ORDER BY volun_id;")
+    cur.execute("SELECT total FROM volun_total;")
     total = cur.fetchall()
     for i in range(0,len(voluns)):
         allData = list(voluns[i])
-        allData.pop(14)
+        # allData.pop(14)
         pData = [allData[0]]+allData[6:8]
         for j in range(0,len(allData)):
             sheet1.cell(column = j+1,row = 2+i,value = allData[j])

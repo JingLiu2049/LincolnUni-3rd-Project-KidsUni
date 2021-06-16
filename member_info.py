@@ -46,7 +46,6 @@ class members:
 
 
     def insert_db(self,events=[]):
-        print(self.previous, 'sssssssssssssssssssssssssssssssssssssssssss')
         cur = db.getCursor()
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
             password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
@@ -76,8 +75,7 @@ class members:
 def active_members_count():
     # Function returns the number of active schools in the system to display on dashboard
     parameters = [app.current_year()]
-    query = "SELECT COUNT(members.member_id) FROM members JOIN membershours ON members.member_id=membershours.member_id \
-        WHERE status='active' OR status='Active' AND year='%s';"
+    query = "SELECT COUNT(members.member_id) FROM members;"
     result = db.getOne(query, parameters)
     return result[0]
 

@@ -171,7 +171,7 @@ def upsertSchool(form, school_id):
         cur.execute("Update schools set school_name=%s, who=%s, council=%s, category=%s,\
         status=%s, training=%s, launch=%s, presentation=%s, portal=%s, passports=%s, \
         agreement=%s, consent=%s, notes=%s where school_id=%s;",
-                    (school_name, who, council, category, status, training, launch, presentation,
+                    (school_name.lower(), who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes, school_id))
         cur.execute("Update coordinator set name=%s, email=%s where school_id=%s;", (name, email, school_id))
 
@@ -184,7 +184,7 @@ def upsertSchool(form, school_id):
     else:
         schoolid = getid.get_schoolid()
         cur.execute("INSERT INTO schools VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING school_id;",
-                    (schoolid, school_name, who, council, category, status, training, launch, presentation,
+                    (schoolid, school_name.lower(), who, council, category, status, training, launch, presentation,
                      portal, passports, agreement, consent, notes))
         cur.execute("INSERT INTO school_members (school_id, year) VALUES (%s,(SELECT MAX(year) FROM school_members)) ON CONFLICT (school_id, year) DO UPDATE \
             SET school_id = EXCLUDED.school_id, year = EXCLUDED.year;",(schoolid,))

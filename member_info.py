@@ -111,7 +111,7 @@ class MemberInfoForm(FlaskForm):
 
     ethnicity = StringField(label='Ethnicity ')
 
-    continuing_new = SelectField(label='Continuing or New ', choices=['Continuing', 'New'])
+    continuing_new = SelectField(label='Continuing or New ', choices=['New', 'Continuing'])
 
     passport_number = StringField(label='Passport Number ')
 

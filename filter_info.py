@@ -39,7 +39,7 @@ def get_criteria(d={}):
             for j in results:
                 value_list.append(j) if j != None else False
         else:
-            value_list =[results[0][0]] if results else []
+            value_list =[[results[0][0]]] if results else []
         criteria.setdefault(i,value_list)
     return criteria
 
@@ -55,18 +55,21 @@ def get_sql(table, order,criteria_idct = {}):
     form = request.form.to_dict()
     query = ''
     count = 0
+    
     for i in form.keys():
         column = criteria_idct[i][0]
         values = request.form.getlist(i)
         for j in range(0,len(values)):
+            
             if count == 0 and j == 0:
-                query += f"{column} = '{values[j]}'"
+                query += f"({column} = '{values[j]}')" if len(values)==1 else f"({column} = '{values[j]}'" 
             elif j == 0:
-                query += f" AND {column} = '{values[j]}'"
+                query += f" AND ({column} = '{values[j]}')" if len(values)==1 else f" AND ({column} = '{values[j]}'"
             else:
-                query += f" OR {column} = '{values[j]}'"
+                query += f" OR {column} = '{values[j]}')"
         count += 1
         sql = f'SELECT * FROM {table} WHERE {query} ORDER BY {order};'
+    print(sql,'sssssssssssssssssssssssssssssssssssssssssssssssssssssssss')
     if len(form.keys()) < 1:
         False
     else:

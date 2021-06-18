@@ -39,8 +39,3 @@ def get_volun_id():
     volun_id =  int(cur.fetchone()[0])
     return volun_id
 
-def get_coor_id():
-    cur = db.getCursor()
-    cur.execute("INSERT INTO coordinator(coordinator_id) VALUES (nextval('coorid_seq')) RETURNING coordinator_id;")
-    coor_id =  int(cur.fetchone()[0])
-    return coor_id

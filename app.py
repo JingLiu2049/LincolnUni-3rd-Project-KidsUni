@@ -424,14 +424,11 @@ def member_upload():
     # get data from client-side and insert into database
     if form:
         coor = request.form.getlist('coor')
-        print(coor,len(coor))
         uploads.insert_coor(coor)
         events = request.form.getlist('mem_col')[25:-1]
-        print(events)
         for i in range(0, len(form)-3):
             mem = request.form.getlist(f'mem{i}')
             mem.insert(25, coor[-1])  # insert cut-off date for the data
-            print(mem,len(mem))
             member = uploads.mem_obj(mem)
             member.insert_db(events)
         return redirect(url_for('member'))
@@ -496,7 +493,6 @@ def school_upload():
         for i in range(0, len(form)-1):
             school_info = request.form.getlist(f'school{i}')
             school_info.pop(18)
-            print(school_info)
             school_obj = schools_info.school_obj(school_info[:-1])
             school_obj.insert_db()
         return redirect(url_for('sch'))
@@ -521,7 +517,6 @@ def edit_school():
     school_id = request.args.get('id')
     cur.execute(f"select * from school_details where school_id={school_id} and year = (SELECT MAX(year) FROM school_members) ;")
     sch = cur.fetchone()
-    print(sch)
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, school_id)
@@ -568,7 +563,7 @@ def add_school():
 
 
 @app.route("/destination", methods=['POST', 'GET'])
-@deal_error
+# @deal_error
 @login_required
 def destination():
     cur = db.getCursor()
@@ -576,6 +571,7 @@ def destination():
     # display select labels and options group by filter_criteria
     destination_criteria_dict = filter_info.destination_criteria_dict
     filter_criteria = filter_info.get_criteria(destination_criteria_dict)
+    print(filter_criteria,'ffffffffffffffffffffffffffffff')
     cur.execute("SELECT * FROM destinations ORDER BY ld_id DESC;")
     dests = cur.fetchall()
     if request.method == 'POST':
@@ -584,6 +580,7 @@ def destination():
         try :
             cur.execute(sql)
             dest_list=cur.fetchall()
+            print(dest_list)
         except:
             print('error')
             message='Invalid Input'
@@ -684,7 +681,6 @@ def volunteer():
     cur = db.getCursor()
     volun_criteria_dict = filter_info.volun_criteria_dict
     filter_criteria = filter_info.get_criteria(volun_criteria_dict)
-    print(filter_criteria)
     if request.method == 'POST':
         sql = filter_info.get_sql(
             'volun_detail', 'volun_id', volun_criteria_dict)
@@ -713,7 +709,6 @@ def edit_volunteer():
     else:
         cur.execute(f"select * from volunteers where volun_id={volun_id};")
         volun = cur.fetchone()
-        print(volun,type(volun),'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv')
         form.status.data = volun.status
         form.induction.data  = volun.induction
         form.interview.data  = volun.interview

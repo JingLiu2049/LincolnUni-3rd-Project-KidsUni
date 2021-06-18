@@ -7,6 +7,7 @@ import datetime as dt
 
 basepath  = os.path.dirname(__file__)
 
+# A function to create a new sheet with Pandas
 def new_sheet(path, sql, name):
     book =load_workbook(path)
     writer = pd.ExcelWriter(path,engine='openpyxl')
@@ -15,16 +16,19 @@ def new_sheet(path, sql, name):
     df.to_excel(writer,index=False,sheet_name=f'{name}')
     writer.save()
 
+# A function to get excel object with Openpyxl
 def excel_obj(temp_name):
     templatePath =os.path.join(basepath,'downloads',temp_name)
     bg = op.load_workbook(templatePath)
     return bg
 
+# A function to generate the path for excel file that generated as request
 def gen_newPath(ss_name):
     filename = f'{dt.datetime.now().year}_{ss_name}.xlsx'
     newPath = os.path.join(basepath,'downloads',filename)
     return newPath
 
+# A function to fill in spreadsheets of members’ templates with data
 def gen_mem_tmp(schoolid):
     # get spreadsheet template object
     bg = excel_obj('End year template.xlsx')
@@ -103,6 +107,7 @@ def gen_mem_tmp(schoolid):
     new_sheet(newPath,pd_sql_event,'Events')
     return newPath
 
+# A function to fill in spreadsheets of members with completed data
 def gen_mem_comp(schoolid):
         # get template object
         bg = excel_obj('End year template.xlsx')
@@ -114,8 +119,6 @@ def gen_mem_comp(schoolid):
         cur.execute("SELECT school_name FROM schools WHERE school_id = %s;",(schoolid ,))
         sch_name = cur.fetchone()[0]
         newPath = gen_newPath(f'{sch_name}_Completed')
-
-        
 
         # get member information from databse and insert into spreadsheet
         sheet1.cell(column = 4, row =1, value = sch_name.capitalize())
@@ -202,7 +205,7 @@ def gen_mem_comp(schoolid):
         new_sheet(newPath,pd_sql_hours,'Hours')
         return newPath
 
-
+# A function to fill in spreadsheets of destinations
 def gen_dest_sheet():
     bg = excel_obj('Learning Destination template.xlsx')
     sheet1 = bg['Sheet1']
@@ -230,7 +233,7 @@ def gen_dest_sheet():
     bg.save(newPath)
     return newPath
 
-
+# A function to fill in spreadsheets of volunteers
 def gen_volun_sheet():
     bg = excel_obj('Volunteer database template.xlsx')
     sheet1 = bg['Volunteer Details']
@@ -278,7 +281,7 @@ def gen_volun_sheet():
     bg.save(newPath)
     return newPath
 
-
+# A function to fill in spreadsheets of schools
 def gen_sch_sheet(sheet):
     bg = excel_obj('School template.xlsx')
     sheet1 = bg['School list']

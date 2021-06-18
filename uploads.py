@@ -5,6 +5,7 @@ import member_info
 import volun_info
 import destinations
 
+# A decorator to add function of adding an index column to Dataframe of each spreadsheet
 def add_index(fun):
     def inner(*args,**kwargs):
         df = fun(*args,**kwargs)
@@ -13,10 +14,7 @@ def add_index(fun):
         return df
     return inner
 
-
-
-
-    
+# A function to generate object of members
 def mem_obj(l=[]):
     mem_obj = member_info.members(l)
     school_id = getid.get_schoolid(mem_obj.school)
@@ -86,7 +84,7 @@ def insert_coor(l=[]):
 
 
 
-
+# Class for destinations
 def dest_obj(l=[]):
     dest_obj = destinations.destination(l)
     sql = "SELECT * FROM destinations WHERE ld_id = %s" % int(dest_obj.id)
@@ -98,6 +96,7 @@ def dest_obj(l=[]):
     return dest_obj
 
 @add_index
+# Read and get data from destinations’ spreadsheet and return as Dataframe for displaying
 def get_dest_df(excelpath):
     df_des = pd.read_excel(excelpath,0,header=[1],dtype = str)
 
@@ -107,9 +106,7 @@ def get_dest_df(excelpath):
     df_des.update(df_des.iloc[:,20:].fillna('No'))
     return df_des
 
-
-
-
+# A function to generate object of volunteers
 def volun_obj(l=[]):
     volun_obj = volun_info.volunteer(l)
     sql = "SELECT * FROM volunteers WHERE volun_id = %s" % int(volun_obj.id)
@@ -121,6 +118,7 @@ def volun_obj(l=[]):
     return volun_obj    
 
 @add_index
+# Read and get data from volunteers’ spreadsheet and return as Dataframe for displaying
 def get_volun_df(excelpath):
 
     typedict = {"ID":str,

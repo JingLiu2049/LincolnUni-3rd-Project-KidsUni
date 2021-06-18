@@ -53,6 +53,7 @@ class volunteer:
 
         self.hours = l[38:-1] if len(l)>38 else False
 
+    # Function in each class to insert data into database
     def insert_db(self,events):
         cur = db.getCursor()
         cur.execute("UPDATE volunteers SET  first_name = %s, surname = %s, preferred_name = %s, status = %s, student_id = %s, \
@@ -132,9 +133,8 @@ class volunForm(FlaskForm):
     submit = SubmitField(label=('Submit'))
 
 
-
+# Adds volunteers to the database, dependent on whether the volunteer is new or not
 def upsertVoluns(form, volun_id):
-
     status = form.status.data 
     induction = form.induction.data 
     interview = form.interview.data 

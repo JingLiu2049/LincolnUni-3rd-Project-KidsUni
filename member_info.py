@@ -44,7 +44,7 @@ class members:
 
         self.attend = l[26:-1] if len(l)>27 else False
 
-
+    # Function in each class to insert data into database
     def insert_db(self,events=[]):
         cur = db.getCursor()
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \

@@ -28,6 +28,7 @@ destination_criteria_dict= {
     'Adult Cost':['adult_cost','destinations']
 }
 
+# A function that returns a dictionary of filtered data from DB as required
 def get_criteria(d={}):
     cur = db.getCursor()
     criteria = {}
@@ -43,6 +44,7 @@ def get_criteria(d={}):
         criteria.setdefault(i,value_list)
     return criteria
 
+# A function that returns a list of objects for school and volunteer page to display
 def get_display_list(results,target_class):
     lists = []
     for i in results:
@@ -51,6 +53,7 @@ def get_display_list(results,target_class):
         lists.append(obj)
     return lists
 
+# A function that converts users filter select to the sql query
 def get_sql(table, order,criteria_idct = {}):
     form = request.form.to_dict()
     query = ''

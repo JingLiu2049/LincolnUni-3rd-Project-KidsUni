@@ -14,10 +14,12 @@ dbname = "cu"
 conn_string = "host=" + dbhost + " port=" + dbport + " dbname=" + dbname + " user=" + dbuser + " password=" + dbpass
 dbconn = None
 
+# A function that returns DB connect parameters.
 def get_conn():
     conn = psycopg2.connect(conn_string)
     return conn
 
+# A function that set up DB connection
 def set_connect():    
     global dbconn    
     if dbconn == None or dbconn.closed == True:
@@ -28,7 +30,7 @@ def set_connect():
     else:
         return dbconn
 
-    
+# A function that tests if DB is disconnected    
 def test_connect():
     try:
         cur = set_connect()
@@ -50,7 +52,7 @@ def getOne(query, parameters):
     cur.execute(query, parameters)
     return cur.fetchone()
 
-
+# A function set DB connection with type of name tuple
 def getCursor_NT():
     conn = psycopg2.connect(conn_string)
     conn.autocommit = True

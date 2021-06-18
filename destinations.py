@@ -33,6 +33,7 @@ class destination:
 
         
         self.paperwork = l[20:] if len(l)>20 else False
+    # Function in each class to insert data into database
     def insert_db(self,paperwork):
         cur = db.getCursor()
         cur.execute("UPDATE destinations SET status = %s, ld_name = %s, contact_person = %s, ld_position = %s, \

@@ -41,9 +41,7 @@ def getCursor():
     else:
         return dbconn
 
-# uploaded file, rename and get path
-
-
+# Uploads file, rename and get path
 def upload_path(name):
     file = request.files[name]
     filename = secure_filename(file.filename)
@@ -53,11 +51,11 @@ def upload_path(name):
     return excelpath
 
 
-# Generate ID
+# Generate random ID number
 def genID():
     return uuid.uuid4().fields[1]
 
-# Get current year
+# Get current year, used for reporting on the dashboard
 def current_year():
     return datetime.now().year
 
@@ -302,7 +300,7 @@ def index():
         # Display error message if unable to load the dashboard
         return render_template('error.html')
 
-
+# Displays a list of all the members in the database
 @app.route("/member", methods=['GET'])
 @deal_error
 @login_required
@@ -379,7 +377,7 @@ def edit_member():
         form.status.data = member.status
         return render_template("edit_member.html", date=date, form=form, hour_result=hour_result)
 
-
+# A form that allows user to add a new student
 @app.route("/add_member", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -403,7 +401,7 @@ def add_member():
                 school_id = result[0]
                 # upsert member info to database, print message once submit successful
                 upsertMember(form, 'new', school_id)
-                flash('You have successfully added a new student!', 'success')
+                flash('You have successfully added a new Student!', 'success')
                 return redirect(url_for('member'))
             else:
                 error='The school should in the list.'
@@ -414,7 +412,7 @@ def add_member():
     else:
         return render_template("add_member.html", form=form)
 
-
+# Get members’ info from excel file and fill in Database
 @app.route("/member_upload", methods=['POST'])
 @deal_error
 @login_required
@@ -448,7 +446,7 @@ def member_upload():
         return render_template('member_upload.html', mem_col=mem_col, mem_data=mem_data,
                                coor_col=coor_col, coor_data=coor_data)
 
-
+# Displays a list of all the schools in the database
 @app.route("/school", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -478,10 +476,7 @@ def sch():
         school_list = filter_info.get_display_list(schs, schools_info.school)
         return render_template('school.html', schoollist=school_list, schoolcriteria=filter_criteria)
 
-    
-    
-
-
+# Get schools’ info from excel file and fill in Database
 @app.route("/school_upload", methods=['POST'])
 @deal_error
 @login_required
@@ -507,7 +502,7 @@ def school_upload():
             return render_template('error.html')
         return render_template('school_upload.html', cols=school_cols, data=school_data)
 
-
+# A form that allows user to edit the selected school’s details
 @app.route("/edit_school", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -544,7 +539,7 @@ def edit_school():
         form.confirm.data = sch.confirm
         return render_template('edit_school.html', form=form)
 
-
+# A form that allows user to add a new school
 @app.route("/add_school", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -553,7 +548,7 @@ def add_school():
     if request.method == 'POST':
         if form.validate_on_submit():
             upsertSchool(form, 'new')
-            flash('You have successfully added a new school!', 'success')
+            flash('You have successfully added a new School!', 'success')
             return redirect(url_for('sch'))
         else:
             print(form.errors)
@@ -561,7 +556,7 @@ def add_school():
     else:
         return render_template("add_school.html", form=form)
 
-
+# Displays a list of all the learning destinations in the database
 @app.route("/destination", methods=['POST', 'GET'])
 # @deal_error
 @login_required
@@ -591,8 +586,8 @@ def destination():
         return render_template('destination.html', dests=dests, criteria=filter_criteria)
 
 
-@app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1')
-@app.route("/add_destination", methods=['POST', 'GET'], endpoint='2')
+@app.route("/edit_destination", methods=['POST', 'GET'], endpoint='1') # A form that allows user to edit the selected learning destination
+@app.route("/add_destination", methods=['POST', 'GET'], endpoint='2') # A form that allows user to add a new learning destination
 @deal_error
 @login_required
 def edit_destination():
@@ -610,7 +605,7 @@ def edit_destination():
                 return render_template('edit_destination.html', form=form)
             else:
                 destinations.upsertDestinations(form, 'new')
-                flash('You have successfully added a new learning destination!', 'success')
+                flash('You have successfully added a new Learning Destination!', 'success')
                 return redirect(url_for('destination'))
         else:
             # print errors when the input values are not matching the setting input value type
@@ -646,7 +641,7 @@ def edit_destination():
         else:
             return render_template('add_destination.html', form=form)
 
-
+# Get destinations’ info from excel file and fill in Database
 @app.route("/destination_upload", methods=['POST'])
 @deal_error
 @login_required
@@ -673,7 +668,7 @@ def destination_upload():
             return render_template('error.html')
         return render_template('destination_upload.html', cols=dest_cols, data=dest_data)
 
-
+# Displays a list of all the volunteers in the database
 @app.route("/volunteer", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -691,6 +686,7 @@ def volunteer():
     volun_list = filter_info.get_display_list(results, volun_info.volunteer)
     return render_template('volunteer.html', voluns=volun_list, criteria=filter_criteria)
 
+# A form that allows user to edit the selected volunteer
 @app.route("/edit_volunteer",methods = ['POST','GET'])
 @deal_error
 @login_required
@@ -701,7 +697,7 @@ def edit_volunteer():
     if request.method == 'POST':
         if form.validate_on_submit():
             volun_info.upsertVoluns(form, volun_id)
-            flash('Volunter was successfully updated!', 'success')
+            flash('Volunteer was successfully updated!', 'success')
             return render_template('edit_volunteer.html', form=form)
         else:
             print(form.errors)
@@ -724,7 +720,7 @@ def edit_volunteer():
         form.address.data = volun.address
         return render_template('edit_volunteer.html', form=form, )
 
-# Route to add a new volunteer
+# A form that allows user to add a new volunteer
 @app.route("/add_volunteer", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -734,7 +730,7 @@ def add_volunteer():
         if form.validate_on_submit():
             # Add volunteer to database if form was completed correctly
             volun_info.upsertVoluns(form, "new")
-            flash('You have successfully added a new volunteer!', 'success')
+            flash('You have successfully added a new Volunteer!', 'success')
             return redirect(url_for('volunteer'))
         else:
             # Displays errors on form data inputted incorrectly
@@ -743,7 +739,7 @@ def add_volunteer():
     else:
         return render_template("add_volunteer.html", form=form)
 
-
+# Get volunteers’ info from excel file and fill in Database
 @app.route("/volunteer_upload", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -770,7 +766,7 @@ def volunteer_upload():
 
         return render_template('volunteer_upload.html', cols=volun_cols, data=volun_data)
 
-# Event's page
+# Displays a list of all the events in the database
 @app.route("/event", methods=['POST', 'GET'])
 @deal_error
 @login_required
@@ -835,11 +831,11 @@ def add_event():
             sql = "INSERT INTO events VALUES(nextval('eventid_seq'),'%s','%s','%s',\
                 '%s');" % (names[i], event_dates[i], locations[i], descriptions[i])
             cur.execute(sql)
-        flash('You have successfully added a new event!', 'success')
+        flash('You have successfully added a new Event!', 'success')
         return redirect(url_for('event'))
     return render_template('add_event.html')
 
-# Users page
+# Displays a list of all the users in the database.
 @app.route("/users", methods=['POST', 'GET'])
 @login_required
 @admin_access
@@ -858,7 +854,7 @@ def users():
         # Display error message if unable to load page
         return render_template("error.html")
 
-# Edit user page - when user clicks on the edit icon on the user to edit
+# A form that allows user to edit the selected user
 @app.route("/edit_user", methods=['POST', 'GET'])
 @login_required
 @admin_access
@@ -903,7 +899,7 @@ def edit_user():
     else:
         return render_template("edit_user.html", userinfo=userinfo)
 
-# Add user page
+# A form that allows user to add a new user
 @app.route("/add_user", methods=['POST', 'GET'])
 @login_required
 @admin_access # Only users with admin access can access this page.
@@ -924,7 +920,7 @@ def add_user():
             cur.execute("INSERT INTO admin(user_id, first_name, surname, phone_number, email, status) VALUES (%s,%s,%s,%s,%s,%s);",
                         (int(user_id),first_name, surname, phone_number, email, status,))
             cur.execute("INSERT INTO authorisation(user_id, username, password, user_access) VALUES (%s,%s,%s,%s);", (int(user_id), email, hashed_password, user_access))
-            flash(f'You have successfully added a new user!', 'success')
+            flash(f'You have successfully added a new User!', 'success')
             return redirect(url_for('users'))
         except:
             flash('Unable to add user, please try again', 'danger')

@@ -37,6 +37,7 @@ class school:
         self.request = l[19]
         self.confirm = l[20]
 
+    # Function in each class to insert data into database
     def insert_db(self):
         cur = db.getCursor()
         cur.execute("UPDATE schools SET school_name = %s, who = %s, council = %s, category = %s, \
@@ -59,14 +60,14 @@ class school:
         #     year = EXCLUDED.year, return_no = EXCLUDED.return_no ;"
         # cur.execute(sql)
 
-
+# A function to generate object of schools
 def school_obj(l=[]):
     school_obj = school(l)
     school_name = school_obj.name
     school_obj.id = getid.get_schoolid(school_name)
     return school_obj
 
-
+# Read and get data from schools’ spreadsheet
 def get_df(excelpath):
     typedict = {
         'Current Year' : str,

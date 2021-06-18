@@ -49,10 +49,10 @@ class members:
         cur = db.getCursor()
         cur.execute("UPDATE members SET school_id = %s, first_name = %s, last_name = %s, username=%s, \
             password=%s, gender=%s, member_age=%s, ethnicity=%s, continuing_new = %s, \
-             passport_number=%s, passport_date_issued=%s, ethnicity_info=%s, teaching_research=%s, \
+             passport_number=%s, passport_date_issued=%s, previous = %s, ethnicity_info=%s, teaching_research=%s, \
              publication_promos=%s, social_media=%s, gown_size=%s, hat_size=%s, status = %s WHERE \
              member_id = %s;",(self.school, self.first, self.last, self.username, self.password, self.gender, 
-            self.age,self.ethnicity,self.mtype, self.passport, self.date, self.eth_info, self.research, self.promos, 
+            self.age,self.ethnicity,self.mtype, self.passport,  self.date, self.previous,self.eth_info, self.research, self.promos, 
             self.social,  self.gown, self.hat, self.status,self.id,))
         
         sql = f"INSERT INTO membershours VALUES({self.id}, '{self.year}', {self.term1}, {self.term2}, \

@@ -4,6 +4,7 @@ Volunteer Upload Page
 {% endblock title %}
 {% block head %}
 <link rel="stylesheet" href="{{url_for('static', filename = 'upload.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename = 'forms.css')}}">
 {% endblock head %}
 
 {% block content %}
@@ -32,11 +33,12 @@ Volunteer Upload Page
                 </tbody>
             </table>
         </div>
-        <button type="submit" class="btn btn-outline-secondary" id="submitBtn">Submit</button>
-        <button type="reset" class="btn btn-outline-secondary">Reset</button>
-
-        <button type="button" role="button" class="btn btn-outline-secondary"
-            onclick="window.location.href = '/volunteer'">Return</button>
+        <div class="d-grid gap-2 mt-3 d-md-block">
+            <button id="cancel-btn" type="button" role="button" class="btn btn-outline-secondary float-end"
+                    onclick="window.location.href = '/destination'">Cancel</button>
+            <button id="reset-btn" type="reset" class="btn btn-outline-secondary float-end">Reset</button>
+            <button id="submit-btn" type="submit" class="btn btn-outline-secondary float-end" id="submitBtn">Submit</button>
+        </div>
     </form>
 </main>
 <script type="text/javascript">

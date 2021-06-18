@@ -134,15 +134,16 @@
     filter_btn.onclick = function(){
         var flag = false;
         for(var i =0; i<select_set.length;i++){
+            console.log(select_set[i].value,typeof(select_set[i].value ) )
             if(select_set[i].value != "" && select_set[i].value != undefined){
                 flag = true
                 break
-            }else{
-                removeClass(showError,'hidden')
             }
          }
     if (flag){
         filter_btn.type = "submit";
+    }else{
+        removeClass(showError,'hidden')
     }
     console.log(flag)
     }
